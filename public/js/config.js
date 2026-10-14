@@ -4,6 +4,8 @@ export const API_BASE_URL_PERMISOS = "http://localhost/proyecto-tareas/api/permi
 
 export const API_BASE_URL_ROLES = "http://localhost/proyecto-tareas/api/roles";
 
+export const API_BASE_URL_EQUIPOS = "http://localhost/proyecto-tareas/api/equipos";
+
 export const API_BASE_URL = window.RUTA_URL || "http://localhost/proyecto-tareas";
 
 export const RUTA_AVATAR = `${API_BASE_URL}/public/img/avatar/`;

@@ -69,6 +69,17 @@
    $router->post('/api/roles/editar/{id}', ['RolController', 'editar']);
    $router->post('/api/roles/eliminar/{id}', ['RolController', 'eliminar']);
 
+   // =========================================================================
+   // RUTAS API REST - EQUIPOS
+   // =========================================================================
+   $router->get('/api/equipos', ['EquipoController', 'index']);
+   $router->get('/api/equipos/crear', ['EquipoController', 'crear']);
+   $router->post('/api/equipos/crear', ['EquipoController', 'crear']);
+   $router->get('/api/equipos/editar/{id}', ['EquipoController', 'editar']);
+   $router->post('/api/equipos/editar/{id}', ['EquipoController', 'editar']);
+   $router->post('/api/equipos/eliminar/{id}', ['EquipoController', 'eliminar']);
+   $router->post('/api/equipos/asignarMiembro', ['EquipoController', 'asignarMiembro']);
+
    // Despachar la solicitud
    $router->dispatch();
 ?>

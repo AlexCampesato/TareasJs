@@ -21,6 +21,7 @@ export const renderUsuarios = async (container) => {
                         <button id="btn-crear-usuario" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer;">
                             + Crear Nuevo Usuario
                         </button>
+                        <button href="/dashboard" data-link>VOLVER</button>
                     </div>
                     <table border="1" cellpadding="8" cellspacing="0" width="100%">
                         <thead>
@@ -29,6 +30,7 @@ export const renderUsuarios = async (container) => {
                                 <th>Nombre Completo</th>
                                 <th>Email</th>
                                 <th>Rol</th>
+                                <th>Equipo</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -44,6 +46,7 @@ export const renderUsuarios = async (container) => {
                             <td>${usuario.nombre} ${usuario.apellido}</td>
                             <td>${usuario.email}</td>
                             <td>${usuario.rol_nombre || 'Sin rol'}</td>
+                             <td>${usuario.equipo_nombre || 'Sin equipo'}</td>
                             <td>
                                 <button class="btn-editar" data-id="${usuario.id}" style="color: blue; cursor: pointer;">Editar</button> 
                                <button class="btn-eliminar" data-id="${usuario.id}" style="color: red; cursor: pointer;">Eliminar</button>
@@ -126,13 +129,20 @@ export const renderEditarUsuario = async (container, id) => {
 
         if (resultado.success) {
             const user = resultado.usuario;
-            const roles = resultado.roles;
+            const roles = resultado.roles || [];;
+            const equipos = resultado.equipos || [];;
 
             
             let opcionesRoles = '';
             roles.forEach(rol => {
                 const seleccionado = (user.fk_id_rol == rol.id) ? 'selected' : '';
                 opcionesRoles += `<option value="${rol.id}" ${seleccionado}>${rol.nombre}</option>`;
+            });
+
+            let opcionesEquipos = '<option value="">-- Sin equipo --</option>';
+            equipos.forEach(equipo => {
+                const seleccionado = (user.fk_id_equipo == equipo.id) ? 'selected' : '';
+                opcionesEquipos += `<option value="${equipo.id}" ${seleccionado}>${equipo.nombre}</option>`;
             });
 
             
@@ -146,7 +156,7 @@ export const renderEditarUsuario = async (container, id) => {
                         </div>
                         <div style="margin-bottom: 10px;">
                             <label>Apellido:</label><br>
-                            <input type="text" id="edit-apellido" value="${user.apellido || ''}">
+                            <input type="text" id="edit-apellido" value="${user.apellido || ''}"> 
                         </div>
                         <div style="margin-bottom: 10px;">
                             <label>Email:</label><br>
@@ -158,6 +168,12 @@ export const renderEditarUsuario = async (container, id) => {
                                 ${opcionesRoles}
                             </select>
                         </div>
+                        <div style="margin-bottom: 10px;">
+                            <label>Equipo:</label><br>
+                            <select id="edit-equipo">
+                                ${opcionesEquipos}
+                            </select>
+                        </div>
                         <button type="submit" style="padding: 10px; background-color: #007bff; color: white; border: none; cursor: pointer;">
                             Guardar Cambios
                         </button>
@@ -165,7 +181,6 @@ export const renderEditarUsuario = async (container, id) => {
                     </form>
                 </div>
             `;
-
            
             document.getElementById('form-editar-usuario').addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -174,7 +189,8 @@ export const renderEditarUsuario = async (container, id) => {
                     nombre: document.getElementById('edit-nombre').value,
                     apellido: document.getElementById('edit-apellido').value,
                     email: document.getElementById('edit-email').value,
-                    fk_id_rol: document.getElementById('edit-rol').value
+                    fk_id_rol: document.getElementById('edit-rol').value,
+                    fk_id_equipo: document.getElementById('edit-equipo').value
                 };
 
                 try {
