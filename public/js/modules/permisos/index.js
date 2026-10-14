@@ -22,6 +22,7 @@ export const renderPermisos = async (container) => {
                         <button id="btn-crear-permiso" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer;">
                             + Crear Nuevo Permiso
                         </button>
+                        <button href="/dashboard" data-link>VOLVER</button>
                     </div>
                     <table border="1" cellpadding="8" cellspacing="0" width="100%">
                         <thead>

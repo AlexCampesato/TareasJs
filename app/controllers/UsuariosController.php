@@ -4,10 +4,12 @@ class UsuariosController extends BaseController {
 
     private $usuarioModel;
     private $rolModel;
+    private $equipoModel;
 
     public function __construct() {
         $this->usuarioModel = $this->model('UsuarioModel');
         $this->rolModel = $this->model('RolModel');
+        $this->equipoModel = $this->model('EquipoModel');
     }
 
    
@@ -79,13 +81,18 @@ public function editar($id) {
                 return;
             }
 
+            $equipo_id = (!empty($data['fk_id_equipo']) && $data['fk_id_equipo'] !== "") 
+                         ? $data['fk_id_equipo'] 
+                         : null;
+
             $datos_usuario = [
                 'id' => $id,
                 'nombre' => trim($data['nombre']),
                 'apellido' => trim($data['apellido'] ?? ''),
                 'email' => trim($data['email']),
                 'avatar' => trim($data['avatar'] ?? 'img_default.png'), 
-                'fk_id_rol' => $data['fk_id_rol']
+                'fk_id_rol' => $data['fk_id_rol'],
+                'fk_id_equipo' => $equipo_id
             ];
 
             if ($this->usuarioModel->actualizar_usuario($datos_usuario)) {
@@ -104,12 +111,14 @@ public function editar($id) {
             // Petición GET: Devolver datos del usuario y lista de roles para el formulario
             $usuario = $this->usuarioModel->obtener_usuario_por_id($id);
             $roles = $this->rolModel->obtenerRoles();
+            $equipos = $this->equipoModel->obtenerEquipos();
 
             if ($usuario) {
                 $this->jsonResponse([
                     'success' => true,
                     'usuario' => $usuario,
-                    'roles' => $roles
+                    'roles' => $roles,
+                    'equipos' => $equipos
                 ]);
             } else {
                 $this->jsonResponse(['success' => false, 'message' => 'Usuario no encontrado'], 404);

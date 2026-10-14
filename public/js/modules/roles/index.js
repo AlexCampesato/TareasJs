@@ -22,6 +22,7 @@ export const renderRoles = async (container) => {
                         <button id="btn-crear-rol" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer;">
                             + Crear Nuevo Rol
                         </button>
+                        <button href="/dashboard" data-link>VOLVER</button>
                     </div>
                     <table border="1" cellpadding="8" cellspacing="0" width="100%">
                         <thead>
@@ -51,7 +52,7 @@ export const renderRoles = async (container) => {
                     `;
                 });
             } else {
-                html += `<tr><td colspan="5" style="text-align: center;">No hay permisos</td></tr>`;
+                html += `<tr><td colspan="5" style="text-align: center;">No hay roles</td></tr>`;
             }
 
             html += `

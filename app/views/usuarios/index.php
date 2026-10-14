@@ -18,6 +18,7 @@
             <th>Nombre Completo</th>
             <th>Email</th>
             <th>Rol</th>
+            <th>Equipo</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -30,6 +31,7 @@
             <td><?php echo $usuario['nombre'] . ' ' . $usuario['apellido']; ?></td>
             <td><?php echo $usuario['email']; ?></td>
             <td><?php echo $usuario['rol_nombre']; ?></td>
+            <td><?php echo $usuario['equipo_nombre'] ?? 'Sin equipo'; ?></td>
             <td>
                 <a href="/usuarios/editar/<?php echo $usuario['id']; ?>" style="color: blue;">Editar</a> | 
                 <form action="/usuarios/eliminar/<?php echo $usuario['id']; ?>" method="POST" ...>
