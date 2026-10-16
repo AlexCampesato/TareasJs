@@ -8,12 +8,17 @@ class EquipoController extends BaseController {
         $this->usuarioModel = $this->model('UsuarioModel'); 
     }
 
-  
+    
     public function index() {
         $equipos = $this->equipoModel->obtenerEquipos();
-        $this->jsonResponse(['success' => true, 'data' => $equipos]);
+        
+        // TIENE que ser JSON para que getEquipos.js pueda leerlo
+        $this->jsonResponse([
+            'success' => true,
+            'equipos' => $equipos 
+        ]);
     }
-
+  
     public function crear() { 
          if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Leer el JSON enviado por fetch
@@ -93,7 +98,26 @@ class EquipoController extends BaseController {
         }
      }
 
-   
+    
+    public function mostrarEquipo($id)
+    {
+       
+        $equipo = $this->equipoModel->obtenerEquipoPorId($id);
+        $integrantes = $this->equipoModel->obtenerIntegrantesPorEquipo($id);
+
+        if ($equipo) {
+            $this->jsonResponse([
+                'success' => true,
+                'equipo' => $equipo,
+                'integrantes' => $integrantes
+            ]);
+        } else {
+            $this->jsonResponse([
+                'success' => false,
+                'message' => 'El equipo no existe.'
+            ], 404);
+        }
+    } 
     // Recibe el ID del usuario y el ID del equipo al que se va a asignar
     public function asignarMiembro() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
