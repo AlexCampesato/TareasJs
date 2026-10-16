@@ -1,7 +1,7 @@
 <?php
-
 class UsuariosController extends BaseController {
 
+    
     private $usuarioModel;
     private $rolModel;
     private $equipoModel;
@@ -152,6 +152,26 @@ public function editar($id) {
             ], 500);
         }
     }
+
+     public function mostrarUsuario($id)
+    {
+       
+        $usuario = $this->usuarioModel->obtener_usuario_por_id($id);
+       
+
+        if ($usuario) {
+            $this->jsonResponse([
+                'success' => true,
+                'data' => $usuario,
+                
+            ]);
+        } else {
+            $this->jsonResponse([
+                'success' => false,
+                'message' => 'El usuario no existe.'
+            ], 404);
+        }
+    } 
 }
 
 ?>
