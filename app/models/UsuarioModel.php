@@ -49,9 +49,20 @@ class UsuarioModel {
      // READ: Obtener un solo usuario por ID
     public function obtener_usuario_por_id($id)
     {
-        $this->db->query("SELECT id, nombre, apellido, email, avatar, fk_id_rol , fk_id_equipo
-                          FROM usuario 
-                          WHERE id = :id AND deleted_at IS NULL");
+        $this->db->query("SELECT 
+                            u.id, 
+                            u.nombre, 
+                            u.apellido, 
+                            u.email, 
+                            u.avatar, 
+                            u.fk_id_rol,      
+                            u.fk_id_equipo,   
+                            r.nombre AS rol_nombre, 
+                            e.nombre AS equipo_nombre
+                        FROM usuario u
+                        LEFT JOIN roles r ON u.fk_id_rol = r.id
+                        LEFT JOIN equipos e ON u.fk_id_equipo = e.id
+                        WHERE u.id = :id AND u.deleted_at IS NULL");
         $this->db->bind('id', $id);
         return $this->db->register(); 
     }

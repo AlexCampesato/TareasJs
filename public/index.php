@@ -43,6 +43,7 @@
    // RUTAS API REST - USUARIOS
    // =========================================================================
    $router->get('/api/usuarios', ['UsuariosController', 'index']);
+   $router->get('/api/usuarios/{id}', ['UsuariosController', 'mostrarUsuario']); 
    $router->get('/api/usuarios/crear', ['UsuariosController', 'crear']);
    $router->post('/api/usuarios/crear', ['UsuariosController', 'crear']);
    $router->get('/api/usuarios/editar/{id}', ['UsuariosController', 'editar']);
