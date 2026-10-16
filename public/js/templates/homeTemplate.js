@@ -1,11 +1,17 @@
 export const homeTemplate = () => `
 <!-- Navegación -->
-<nav class="navbar navbar-expand-lg bg-white border-bottom">
+<nav class="navbar navbar-expand-lg bg-body border-bottom">
     <div class="container">
         <a class="navbar-brand fw-bold" href="/" data-link>
-            Gestor de Tareas
+            Barberia y salon
         </a>
-        <div class="ms-auto">
+        
+        <div class="ms-auto d-flex align-items-center gap-2">
+            
+            <button id="btn-cambiar-tema" class="btn btn-outline-secondary" title="Cambiar Modo">
+                <i class="fas fa-moon"></i>
+            </button>
+            
             <a class="btn btn-outline-primary" href="/proyecto-tareas/login" data-link>
                 Ingresar
             </a>
@@ -58,3 +64,4 @@ export const homeTemplate = () => `
     </section>
 </main>
 `;
+
