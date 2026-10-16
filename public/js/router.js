@@ -11,8 +11,7 @@ import { renderUsuarios } from './modules/usuarios/index.js'; // ruta para usuar
 import { renderDashboard } from "./modules/dashboard.js";
 import { renderPermisos} from "./modules/permisos/index.js"; // ruta para permisos
 import { renderRoles } from "./modules/roles/index.js"; //ruta para roles
-import { renderEquipos } from "./modules/equipos/index.js"; // ruta para equipos
-
+import { renderEquipos } from "./modules/equipos/index.js"; // Importación correcta de la arquitectura modular
 
 const routes = {
   "/": renderHome,
@@ -47,6 +46,7 @@ export const router = {
     console.log("Ruta actual detectada:", path);
 
     const renderFn = routes[path] || routes["/"];
+
 
     console.log("Función de render a ejecutar:", renderFn);
 

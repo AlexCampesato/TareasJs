@@ -27,6 +27,7 @@
     <div class="sidebar-heading">
         Tareas
     </div>
+   
     <!-- Nav Item - Charts -->
     <li class="nav-item">
         <a class="nav-link" href="<?php echo RUTA_URL;?>/TareaController/NuevaTarea">

@@ -1,249 +1,139 @@
-import { API_BASE_URL_EQUIPOS } from '../../config.js';
+import { getEquipos } from "./getEquipos.js";
+import { initCreateEquipo } from "./createEquipo.js";
+import { viewEquipo } from "./viewEquipo.js";
+import { prepareEditEquipo } from "./updateEquipo.js";
+import { deleteEquipo } from "./deleteEquipo.js";
 
-export const renderEquipos = async (container) => {
-  
+export const renderEquipos = (container) => {
+    // Inyectamos el diseño completo de la tabla y el Modal en el contenedor principal
     container.innerHTML = `
-        <div style="padding: 20px;">
-            <h2>Cargando equipos...</h2>
-        </div>
-    `;
-
-    try {
-        const response = await fetch(`${API_BASE_URL_EQUIPOS}`);
-        const resultado = await response.json();
-
-        if (resultado.success) {
-            const equipos = resultado.data; 
-
-            let html = `
-                <div style="padding: 20px;">
-                    <h1>Gestión de Equipos</h1>
-                    <div style="margin-bottom: 15px;">
-                        <button id="btn-crear-equipo" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer;">
-                            + Crear Nuevo equipo
-                        </button>
-                        <button href="/dashboard" data-link>VOLVER</button>
-                    </div>
-                    <table border="1" cellpadding="8" cellspacing="0" width="100%">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Descripcion</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-      
-            if (equipos.length > 0) {
-                equipos.forEach(equipo => {
-                    html += `
-                        <tr>
-                            <td>${equipo.id}</td>
-                            <td>${equipo.nombre}</td>
-                            <td>${equipo.descripcion}</td>
-                            <td>
-                                <button class="btn-editar" data-id="${equipo.id}" style="color: blue; cursor: pointer;">Editar</button> 
-                               <button class="btn-eliminar" data-id="${equipo.id}" style="color: red; cursor: pointer;">Eliminar</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            } else {
-                html += `<tr><td colspan="5" style="text-align: center;">No hay equipos</td></tr>`;
-            }
-
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
-
-                        
-            container.innerHTML = html;
-
-            const botonesEditar = container.querySelectorAll('.btn-editar');
-            botonesEditar.forEach(boton => {
-                boton.addEventListener('click', (e) => {
-                    const idEquipo = e.target.getAttribute('data-id');
- 
-                    renderEditarEquipo(container, idEquipo);
-                });
-            });
-
-            const botonesEliminar = container.querySelectorAll('.btn-eliminar');
-            botonesEliminar.forEach(boton => {
-                boton.addEventListener('click', async (e) => {
-                    const idEquipo = e.target.getAttribute('data-id');
-
+        <div class="container-fluid px-4 py-4 animation-fade-in">
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800 fw-bold">Gestión de Equipos</h1>
+                    <p class="text-muted small mb-0">Administración de equipos de trabajo</p>
                     
-                    if (confirm(`¿Estás seguro de que deseas eliminar el equipo con ID ${idEquipo}?`)) {
-                        try {
-                            const response = await fetch(`${API_BASE_URL_EQUIPOS}/eliminar/${idEquipo}`, {
-                                method: 'POST' 
-                            });
-                            const resultado = await response.json();
+                </div>
 
-                            if (resultado.success) {
-                                alert('Equipo eliminado con éxito');
-                             
-                                renderEquipos(container);
-                            } else {
-                                alert(resultado.message || 'Error al eliminar');
-                            }
-                        } catch (error) {
-                            console.error("Error:", error);
-                            alert('Error de conexión con el servidor.');
-                        }
-                    }
-                });
-            });
+                 <div>
+                    <a class="btn btn-primary btn-sm" href="/usuarios" data-link>USUARIOS</a> 
 
-           
-            document.getElementById('btn-crear-equipo').addEventListener('click', () => {
-                renderCrearEquipo(container);
-            });
+                    <a class="btn btn-primary btn-sm" href="/permisos" data-link>PERMISOS</a>
 
-        } else {
-            container.innerHTML = `<h2>Error: ${resultado.message || 'No se pudieron cargar los equipos'}</h2>`;
-        }
+                    <a class="btn btn-primary btn-sm" href="/roles" data-link>ROLES</a>
 
-    } catch (error) {
-        console.error("Error al cargar equipos:", error);
-        container.innerHTML = `<h2>Error de conexión con el servidor.</h2>`;
-    }
-};
+                </div>
 
-export const renderEditarEquipo = async (container, id) => {
-    container.innerHTML = `<h2>Cargando formulario...</h2>`;
+                <button class="btn btn-success btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalEquipo">
+                    <i class="fas fa-plus-circle fa-sm text-white-50 me-1"></i> Nuevo Equipo
+                </button>
+            </div>
 
-    try {
-       
-        const response = await fetch(`${API_BASE_URL_EQUIPOS}/editar/${id}`);
-        const resultado = await response.json();
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" width="100%" cellspacing="0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">ID</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th class="text-center pe-4">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaEquiposBody">
+                                <tr><td colspan="4" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-2"></i> Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        if (resultado.success) {
-            const equipo = resultado.data;
-
-            container.innerHTML = `
-                <div style="padding: 20px;">
-                    <h1>Editar Equipo: ${equipo.nombre}</h1>
-                    <form id="form-editar-equipo">
-                        <div style="margin-bottom: 10px;">
-                            <label>Nombre:</label><br>
-                            <input type="text" id="edit-nombre" value="${equipo.nombre}" required>
+        <!-- Modal Unificado: Crear / Editar Equipo -->
+        <div class="modal fade" id="modalEquipo" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" id="modalEquipoTitulo">Nuevo Equipo</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <form id="formEquipo" novalidate>
+                        <input type="hidden" name="id_equipo" id="id_equipo">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="equipoNombre" class="form-label small text-muted">Nombre</label>
+                                <input type="text" name="nombre" id="equipoNombre" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="equipoDescripcion" class="form-label small text-muted">Descripción</label>
+                                <textarea name="descripcion" id="equipoDescripcion" class="form-control" rows="3"></textarea>
+                            </div>
                         </div>
-                        <div style="margin-bottom: 10px;">
-                            <label>Descripcion:</label><br>
-                            <input type="text" id="edit-descripcion" value="${equipo.descripcion}">
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success fw-bold">Guardar</button>
                         </div>
-                        <button type="submit" style="padding: 10px; background-color: #007bff; color: white; border: none; cursor: pointer;">
-                            Guardar Cambios
-                        </button>
-                        <button type="button" id="btn-cancelar-edicion" style="padding: 10px; margin-left: 10px;">Cancelar</button>
                     </form>
                 </div>
-            `;
+            </div>
+        </div>
 
-           
-            document.getElementById('form-editar-equipo').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const datosFormulario = {
-                    nombre: document.getElementById('edit-nombre').value,
-                    descripcion: document.getElementById('edit-descripcion').value,
-                };
+        <!-- Modal para Ver Detalles del Equipo -->
+        <div class="modal fade" id="modalVerEquipo" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-light">
+                        <h5 class="modal-title fw-bold text-info">
+                            <i class="fas fa-info-circle me-2"></i>Detalles del Equipo
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <p class="small text-muted fw-bold mb-1">ID del Equipo</p>
+                            <p id="verEquipoId" class="fs-6">-</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="small text-muted fw-bold mb-1">Nombre</p>
+                            <p id="verEquipoNombre" class="fs-5 fw-bold text-dark">-</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="small text-muted fw-bold mb-1">Descripción</p>
+                            <p id="verEquipoDescripcion" class="fs-6">-</p>
+                        </div>
+                        <hr class="text-muted">
+                        <div class="mb-3">
+                            <p class="small text-muted fw-bold mb-2">Integrantes del Equipo</p>
+                            <ul id="verEquipoIntegrantes" class="list-group list-group-flush small">
+                                <!-- JavaScript llenará esto con <li> -->
+                            </ul>
+                        </div>
 
-                try {
-                    const updateRes = await fetch(`${API_BASE_URL_EQUIPOS}/editar/${id}`, {
-                        method: 'POST', 
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(datosFormulario)
-                    });
-                    const updateData = await updateRes.json();
-
-                    if (updateData.success) {
-                        alert('Equipo actualizado correctamente');
-                        renderEquipos(container); 
-                    } else {
-                        alert(updateData.message);
-                    }
-                } catch (err) {
-                    alert('Error al guardar los cambios');
-                }
-            });
-
-            
-            document.getElementById('btn-cancelar-edicion').addEventListener('click', () => {
-                renderEquipos(container);
-            });
-
-        } else {
-            container.innerHTML = `<h2>Error: ${resultado.message}</h2>`;
-        }
-    } catch (error) {
-        console.error(error);
-        container.innerHTML = `<h2>Error al conectar con el servidor</h2>`;
-    }
-};
-
-export const renderCrearEquipo = (container) => {
-   
-    container.innerHTML = `
-        <div style="padding: 20px;">
-            <h1>Crear Nuevo Equipo</h1>
-            <form id="form-crear-equipo">
-                <div style="margin-bottom: 10px;">
-                    <label>Nombre:</label><br>
-                    <input type="text" id="crear-nombre" placeholder="colorimetria" required>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary shadow-sm" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
                 </div>
-                <div style="margin-bottom: 10px;">
-                    <label>Descripción:</label><br>
-                    <input type="text" id="crear-descripcion" placeholder="cambio de color">
-                </div>
-                <button type="submit" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer;">
-                    Guardar Equipo
-                </button>
-                <button type="button" id="btn-cancelar-creacion" style="padding: 10px; margin-left: 10px;">Cancelar</button>
-            </form>
+            </div>
         </div>
     `;
 
-    
-    document.getElementById('form-crear-equipo').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const datosFormulario = {
-            nombre: document.getElementById('crear-nombre').value,
-            descripcion: document.getElementById('crear-descripcion').value
-        };
+    const tablaBody = document.getElementById("tablaEquiposBody");
+    if (!tablaBody) return;
 
-        try {
-            const response = await fetch(`${API_BASE_URL_EQUIPOS}/crear`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(datosFormulario)
-            });
-            
-            const resultado = await response.json();
+    // Ejecutamos la carga de datos a la API y el listener del modal
+    getEquipos();
+    initCreateEquipo();
 
-            if (resultado.success) {
-                alert('Equipo creado correctamente');
-              
-                renderEquipos(container); 
-            } else {
-                alert(resultado.message);
-            }
-        } catch (error) {
-            console.error("Error al crear:", error);
-            alert('Error de conexión al intentar crear el equipo');
-        }
-    });
+    // Escuchamos de forma delegada los botones de acción de la tabla
+    tablaBody.addEventListener("click", (e) => {
+        const btnView = e.target.closest(".btn-ver-equipo");
+        const btnEdit = e.target.closest(".btn-editar-equipo");
+        const btnDelete = e.target.closest(".btn-eliminar-equipo");
 
-    
-    document.getElementById('btn-cancelar-creacion').addEventListener('click', () => {
-        renderEquipos(container);
+        if (btnView)viewEquipo(btnView.dataset.id);
+        if (btnEdit)prepareEditEquipo(btnEdit.dataset.id);
+        if (btnDelete)deleteEquipo(btnDelete.dataset.id);
     });
 };

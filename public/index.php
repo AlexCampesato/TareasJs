@@ -72,7 +72,9 @@
    // =========================================================================
    // RUTAS API REST - EQUIPOS
    // =========================================================================
+  
    $router->get('/api/equipos', ['EquipoController', 'index']);
+   $router->get('/api/equipos/{id}', ['EquipoController', 'mostrarEquipo']);  
    $router->get('/api/equipos/crear', ['EquipoController', 'crear']);
    $router->post('/api/equipos/crear', ['EquipoController', 'crear']);
    $router->get('/api/equipos/editar/{id}', ['EquipoController', 'editar']);

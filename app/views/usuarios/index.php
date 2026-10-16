@@ -1,4 +1,6 @@
 <!-- app/views/usuarios/index.php -->
+<?php require RUTA_APP . '/views/layout/landing/header.php'; ?>
+
 <?php
 /**
  * @var array $datos
@@ -42,3 +44,5 @@
         <?php endforeach; ?>
     </tbody>
 </table>
+
+<?php require RUTA_APP . '/views/layout/landing/footer.php'; ?>
