@@ -20,6 +20,7 @@ class EquipoController extends BaseController {
     }
   
     public function crear() { 
+        AuthHelper::tienePermiso('equipos.crear');
          if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Leer el JSON enviado por fetch
             $data = json_decode(file_get_contents("php://input"), true);
@@ -44,6 +45,7 @@ class EquipoController extends BaseController {
 
      }
     public function editar($id) { 
+        AuthHelper::tienePermiso('equipos.editar');
          if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'PUT') {
            
             $data = json_decode(file_get_contents("php://input"), true);
@@ -82,7 +84,8 @@ class EquipoController extends BaseController {
             }
         }
      }
-    public function eliminar($id) { 
+    public function eliminar($id) {
+        AuthHelper::tienePermiso('equipos.eliminar'); 
          if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'DELETE') {
             if ($this->equipoModel->eliminarEquipo($id)) {
                 $this->jsonResponse([

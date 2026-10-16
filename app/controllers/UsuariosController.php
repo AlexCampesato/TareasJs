@@ -16,17 +16,28 @@ class UsuariosController extends BaseController {
     // Devuelve la lista de usuarios en JSON
     
     public function index() {
-        $usuarios = $this->usuarioModel->obtener_usuarios();
-        $this->jsonResponse([
-            'success' => true,
-            'data' => $usuarios
-            ]);
+    // 1. Desactiva temporalmente el AuthHelper para descartar que sea el guardia
+    // AuthHelper::tienePermiso('usuarios.ver'); 
+
+    $usuarios = $this->usuarioModel->obtener_usuarios();
+    
+    // 2. Debug: Si $usuarios devuelve un error (false), aquí lo veremos en la consola
+    if ($usuarios === false) {
+        $this->jsonResponse(['success' => false, 'message' => 'Error en la consulta SQL del modelo']);
     }
+
+    $this->jsonResponse([
+        'success' => true,
+        'data' => $usuarios
+    ]);
+}
 
    
     //Recibe un JSON del frontend y crea el usuario
      
     public function crear() {
+                AuthHelper::tienePermiso('usuarios.crear'); 
+
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $data = $this->getJsonBody();
 
@@ -69,7 +80,8 @@ class UsuariosController extends BaseController {
     }
 
 
-public function editar($id) {
+public function editar($id) { 
+    AuthHelper::tienePermiso('usuarios.editar');  
         if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'PUT') {
             $data = $this->getJsonBody();
 
@@ -127,6 +139,7 @@ public function editar($id) {
     }
 
     public function eliminar($id) {
+        AuthHelper::tienePermiso('usuarios.eliminar');  
         if ($this->usuarioModel->eliminar_usuario($id)) {
             $this->jsonResponse([
                 'success' => true,
