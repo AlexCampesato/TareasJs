@@ -13,13 +13,13 @@ export const dashboardTemplate = () => `
             <nav class="navbar navbar-expand navbar-light bg-white shadow-sm px-4">
 
                 <div>
-                    <a href="/usuarios" data-link>Gestion de Usuarios</a> 
+                   <a class="btn btn-primary btn-sm" href="/usuarios" data-link>USUARIOS</a> 
 
-                    <a href="/permisos" data-link>Gestion de Permisos</a>
+                    <a class="btn btn-primary btn-sm" href="/equipos" data-link>EQUIPOS</a>
 
-                    <a href="/roles" data-link>Gestion de Roles</a>
+                    <a class="btn btn-primary btn-sm" href="/permisos" data-link>PERMISOS</a>
 
-                    <a href="/proyecto-tareas/equipos">Gestion de Equipos</a>
+                    <a class="btn btn-primary btn-sm" href="/roles" data-link>ROLES</a>
                 </div>
                  
                  

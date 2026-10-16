@@ -107,4 +107,24 @@ class RolController extends BaseController {
             }
         }
     }
+
+     public function mostrarRol($id)
+    {
+       
+        $rol = $this->rolModel->obtenerRolPorId($id);
+       
+
+        if ($rol) {
+            $this->jsonResponse([
+                'success' => true,
+                'rol' => $rol,
+                
+            ]);
+        } else {
+            $this->jsonResponse([
+                'success' => false,
+                'message' => 'El rol no existe.'
+            ], 404);
+        }
+    } 
 }

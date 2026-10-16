@@ -22,6 +22,8 @@ export const renderEquipos = (container) => {
 
                     <a class="btn btn-primary btn-sm" href="/roles" data-link>ROLES</a>
 
+                    <a class="btn btn-primary btn-sm" href="/dashboard" data-link>TAREAS</a>
+
                 </div>
 
                 <button class="btn btn-success btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalEquipo">
