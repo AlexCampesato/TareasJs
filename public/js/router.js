@@ -9,9 +9,9 @@ import {
 
 import { renderUsuarios } from './modules/usuarios/index.js'; // ruta para usuarios
 import { renderDashboard } from "./modules/dashboard.js";
-import { renderPermisos} from "./modules/permisos/index.js"; // ruta para permisos
 import { renderRoles } from "./modules/roles/index.js"; //ruta para roles
-import { renderEquipos } from "./modules/equipos/index.js"; // Importación correcta de la arquitectura modular
+import { renderEquipos } from "./modules/equipos/index.js"; // ruta para equipos
+import { renderPermisos} from "./modules/permisos/index.js"; // ruta para permisos
 
 const routes = {
   "/": renderHome,

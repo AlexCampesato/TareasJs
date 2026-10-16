@@ -1,249 +1,133 @@
-import { API_BASE_URL_PERMISOS } from '../../config.js';
+import { getPermisos } from "./getPermisos.js";
+import { initCreatePermiso } from "./createPermiso.js";
+import { viewPermiso } from "./viewPermiso.js";
+import { prepareEditPermiso } from "./updatePermiso.js";
+import { deletePermiso } from "./deletePermiso.js";
 
-export const renderPermisos = async (container) => {
-  
+
+export const renderPermisos = (container) => {
+    // Inyectamos el diseño completo de la tabla y el Modal en el contenedor principal
     container.innerHTML = `
-        <div style="padding: 20px;">
-            <h2>Cargando permisos...</h2>
-        </div>
-    `;
-
-    try {
-        const response = await fetch(`${API_BASE_URL_PERMISOS}`);
-        const resultado = await response.json();
-
-        if (resultado.success) {
-            const permisos = resultado.data; 
-
-            let html = `
-                <div style="padding: 20px;">
-                    <h1>Gestión de Permisos</h1>
-                    <div style="margin-bottom: 15px;">
-                        <button id="btn-crear-permiso" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer;">
-                            + Crear Nuevo Permiso
-                        </button>
-                        <button href="/dashboard" data-link>VOLVER</button>
-                    </div>
-                    <table border="1" cellpadding="8" cellspacing="0" width="100%">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Descripcion</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-      
-            if (permisos.length > 0) {
-                permisos.forEach(permiso => {
-                    html += `
-                        <tr>
-                            <td>${permiso.id}</td>
-                            <td>${permiso.nombre}</td>
-                            <td>${permiso.descripcion}</td>
-                            <td>
-                                <button class="btn-editar" data-id="${permiso.id}" style="color: blue; cursor: pointer;">Editar</button> 
-                               <button class="btn-eliminar" data-id="${permiso.id}" style="color: red; cursor: pointer;">Eliminar</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            } else {
-                html += `<tr><td colspan="5" style="text-align: center;">No hay permisos</td></tr>`;
-            }
-
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
-
-                        
-            container.innerHTML = html;
-
-            const botonesEditar = container.querySelectorAll('.btn-editar');
-            botonesEditar.forEach(boton => {
-                boton.addEventListener('click', (e) => {
-                    const idPermiso = e.target.getAttribute('data-id');
- 
-                    renderEditarPermiso(container, idPermiso);
-                });
-            });
-
-            const botonesEliminar = container.querySelectorAll('.btn-eliminar');
-            botonesEliminar.forEach(boton => {
-                boton.addEventListener('click', async (e) => {
-                    const idPermiso = e.target.getAttribute('data-id');
-
+        <div class="container-fluid px-4 py-4 animation-fade-in">
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800 fw-bold">Gestión de Permisos</h1>
+                    <p class="text-muted small mb-0">Administración de permisos</p>
                     
-                    if (confirm(`¿Estás seguro de que deseas eliminar el perminso con ID ${idPermiso}?`)) {
-                        try {
-                            const response = await fetch(`${API_BASE_URL_PERMISOS}/eliminar/${idPermiso}`, {
-                                method: 'POST' 
-                            });
-                            const resultado = await response.json();
+                </div>
 
-                            if (resultado.success) {
-                                alert('Permiso eliminado con éxito');
-                             
-                                renderPermisos(container);
-                            } else {
-                                alert(resultado.message || 'Error al eliminar');
-                            }
-                        } catch (error) {
-                            console.error("Error:", error);
-                            alert('Error de conexión con el servidor.');
-                        }
-                    }
-                });
-            });
+                 <div>
+                    <a class="btn btn-primary btn-sm" href="/usuarios" data-link>USUARIOS</a> 
 
-           
-            document.getElementById('btn-crear-permiso').addEventListener('click', () => {
-                renderCrearPermiso(container);
-            });
+                    <a class="btn btn-primary btn-sm" href="/equipos" data-link>EQUIPOS</a>
 
-        } else {
-            container.innerHTML = `<h2>Error: ${resultado.message || 'No se pudieron cargar los permisos'}</h2>`;
-        }
+                    <a class="btn btn-primary btn-sm" href="/roles" data-link>ROLES</a>
 
-    } catch (error) {
-        console.error("Error al cargar permisos:", error);
-        container.innerHTML = `<h2>Error de conexión con el servidor.</h2>`;
-    }
-};
+                </div>
 
-export const renderEditarPermiso = async (container, id) => {
-    container.innerHTML = `<h2>Cargando formulario...</h2>`;
+                <button class="btn btn-success btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalPermiso">
+                    <i class="fas fa-plus-circle fa-sm text-white-50 me-1"></i> Nuevo Permiso
+                </button>
+            </div>
 
-    try {
-       
-        const response = await fetch(`${API_BASE_URL_PERMISOS}/editar/${id}`);
-        const resultado = await response.json();
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" width="100%" cellspacing="0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">ID</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th class="text-center pe-4">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaPermisosBody">
+                                <tr><td colspan="4" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-2"></i> Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        if (resultado.success) {
-            const permiso = resultado.data;
-
-            container.innerHTML = `
-                <div style="padding: 20px;">
-                    <h1>Editar Permiso: ${permiso.nombre}</h1>
-                    <form id="form-editar-permiso">
-                        <div style="margin-bottom: 10px;">
-                            <label>Nombre:</label><br>
-                            <input type="text" id="edit-nombre" value="${permiso.nombre}" required>
+        <!-- Modal Unificado: Crear / Editar Permiso -->
+        <div class="modal fade" id="modalPermiso" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" id="modalPermisoTitulo">Nuevo Permiso</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <form id="formPermiso" novalidate>
+                        <input type="hidden" name="id_permiso" id="id_permiso">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="permisoNombre" class="form-label small text-muted">Nombre</label>
+                                <input type="text" name="nombre" id="permisoNombre" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="permisoDescripcion" class="form-label small text-muted">Descripción</label>
+                                <textarea name="descripcion" id="permisoDescripcion" class="form-control" rows="3"></textarea>
+                            </div>
                         </div>
-                        <div style="margin-bottom: 10px;">
-                            <label>Descripcion:</label><br>
-                            <input type="text" id="edit-descripcion" value="${permiso.descripcion}">
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success fw-bold">Guardar</button>
                         </div>
-                        <button type="submit" style="padding: 10px; background-color: #007bff; color: white; border: none; cursor: pointer;">
-                            Guardar Cambios
-                        </button>
-                        <button type="button" id="btn-cancelar-edicion" style="padding: 10px; margin-left: 10px;">Cancelar</button>
                     </form>
                 </div>
-            `;
+            </div>
+        </div>
 
-           
-            document.getElementById('form-editar-permiso').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const datosFormulario = {
-                    nombre: document.getElementById('edit-nombre').value,
-                    descripcion: document.getElementById('edit-descripcion').value,
-                };
-
-                try {
-                    const updateRes = await fetch(`${API_BASE_URL_PERMISOS}/editar/${id}`, {
-                        method: 'POST', 
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(datosFormulario)
-                    });
-                    const updateData = await updateRes.json();
-
-                    if (updateData.success) {
-                        alert('Permiso actualizado correctamente');
-                        renderPermisos(container); 
-                    } else {
-                        alert(updateData.message);
-                    }
-                } catch (err) {
-                    alert('Error al guardar los cambios');
-                }
-            });
-
-            
-            document.getElementById('btn-cancelar-edicion').addEventListener('click', () => {
-                renderPermisos(container);
-            });
-
-        } else {
-            container.innerHTML = `<h2>Error: ${resultado.message}</h2>`;
-        }
-    } catch (error) {
-        console.error(error);
-        container.innerHTML = `<h2>Error al conectar con el servidor</h2>`;
-    }
-};
-
-export const renderCrearPermiso = (container) => {
-   
-    container.innerHTML = `
-        <div style="padding: 20px;">
-            <h1>Crear Nuevo Permiso</h1>
-            <form id="form-crear-permiso">
-                <div style="margin-bottom: 10px;">
-                    <label>Nombre:</label><br>
-                    <input type="text" id="crear-nombre" placeholder="ver usuarios" required>
+        <!-- Modal para Ver Detalles del Permiso -->
+        <div class="modal fade" id="modalVerPermiso" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-light">
+                        <h5 class="modal-title fw-bold text-info">
+                            <i class="fas fa-info-circle me-2"></i>Detalles del Permiso
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <p class="small text-muted fw-bold mb-1">ID del Permiso</p>
+                            <p id="verPermisoId" class="fs-6">-</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="small text-muted fw-bold mb-1">Nombre</p>
+                            <p id="verPermisoNombre" class="fs-5 fw-bold text-dark">-</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="small text-muted fw-bold mb-1">Descripción</p>
+                            <p id="verPermisoDescripcion" class="fs-6">-</p>
+                        </div>
+                       
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary shadow-sm" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
                 </div>
-                <div style="margin-bottom: 10px;">
-                    <label>Descripción:</label><br>
-                    <input type="text" id="crear-descripcion" placeholder="puede gestionar usuarios">
-                </div>
-                <button type="submit" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer;">
-                    Guardar Permiso
-                </button>
-                <button type="button" id="btn-cancelar-creacion" style="padding: 10px; margin-left: 10px;">Cancelar</button>
-            </form>
+            </div>
         </div>
     `;
 
-    
-    document.getElementById('form-crear-permiso').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const datosFormulario = {
-            nombre: document.getElementById('crear-nombre').value,
-            descripcion: document.getElementById('crear-descripcion').value
-        };
+    const tablaBody = document.getElementById("tablaPermisosBody");
+    if (!tablaBody) return;
 
-        try {
-            const response = await fetch(`${API_BASE_URL_PERMISOS}/crear`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(datosFormulario)
-            });
-            
-            const resultado = await response.json();
+    // Ejecutamos la carga de datos a la API y el listener del modal
+    getPermisos();
+    initCreatePermiso();
 
-            if (resultado.success) {
-                alert('Permiso creado correctamente');
-              
-                renderPermisos(container); 
-            } else {
-                alert(resultado.message);
-            }
-        } catch (error) {
-            console.error("Error al crear:", error);
-            alert('Error de conexión al intentar crear el permiso');
-        }
-    });
+    // Escuchamos de forma delegada los botones de acción de la tabla
+    tablaBody.addEventListener("click", (e) => {
+        const btnView = e.target.closest(".btn-ver-permiso");
+        const btnEdit = e.target.closest(".btn-editar-permiso");
+        const btnDelete = e.target.closest(".btn-eliminar-permiso");
 
-    
-    document.getElementById('btn-cancelar-creacion').addEventListener('click', () => {
-        renderPermisos(container);
+        if (btnView)viewPermiso(btnView.dataset.id);
+        if (btnEdit)prepareEditPermiso(btnEdit.dataset.id);
+        if (btnDelete)deletePermiso(btnDelete.dataset.id);
     });
 };
