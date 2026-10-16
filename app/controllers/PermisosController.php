@@ -111,4 +111,24 @@ class PermisosController extends BaseController {
             }
         }
     }
+
+     public function mostrarPermiso($id)
+    {
+       
+        $permiso = $this->permisoModel->obtenerPermisoPorId($id);
+       
+
+        if ($permiso) {
+            $this->jsonResponse([
+                'success' => true,
+                'permiso' => $permiso,
+                
+            ]);
+        } else {
+            $this->jsonResponse([
+                'success' => false,
+                'message' => 'El permiso no existe.'
+            ], 404);
+        }
+    } 
 }

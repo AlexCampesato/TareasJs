@@ -53,6 +53,7 @@
    // RUTAS API REST - PERMISOS
    // =========================================================================
    $router->get('/api/permisos', ['PermisosController', 'index']);
+   $router->get('/api/permisos/{id}', ['PermisosController', 'mostrarPermiso']); 
    $router->get('/api/permisos/crear', ['PermisosController', 'crear']);
    $router->post('/api/permisos/crear', ['PermisosController', 'crear']);
    $router->get('/api/permisos/editar/{id}', ['PermisosController', 'editar']);
