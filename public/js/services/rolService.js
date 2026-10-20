@@ -11,6 +11,11 @@ export const rolService = {
         return await httpClient(`/api/roles/${id}`);
     },
 
+    // Obtiene un rol y sus permisos para el formulario de edición
+    async getParaEditar(id) {
+        return await httpClient(`/api/roles/editar/${id}`);
+    },
+
     // Crea un nuevo rol
     async create(data) {
         return await httpClient("/api/roles/crear", {

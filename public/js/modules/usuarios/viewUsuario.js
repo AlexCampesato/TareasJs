@@ -21,13 +21,21 @@ export const viewUsuario = async (id) => {
         const response = await usuarioService.getById(id);
 
         if (response.success || response.ok) {
-            const usuario =  response.data;
+            const usuario = response.data || response.usuario;
+            const esActivo = usuario.activo === undefined || parseInt(usuario.activo) === 1;
             
             // Asignamos los datos reales del usuario a los IDs del modal
-            document.getElementById("verUsuarioNombre").innerText = usuario.nombre || usuario.nombre_completo || "-";
+            document.getElementById("verUsuarioNombre").innerText = `${usuario.nombre || ''} ${usuario.apellido || ''}`.trim() || "-";
             document.getElementById("verUsuarioEmail").innerText = usuario.email || "-";
-            document.getElementById("verUsuarioRol").innerText =  usuario.rol_nombre || "Sin rol";
-            document.getElementById("verUsuarioEquipo").innerText =  usuario.equipo_nombre || "Sin equipo";
+            document.getElementById("verUsuarioRol").innerText = usuario.rol_nombre || "Sin rol";
+            document.getElementById("verUsuarioEquipo").innerText = usuario.equipo_nombre || "Sin equipo";
+
+            const elEstado = document.getElementById("verUsuarioEstado");
+            if (elEstado) {
+                elEstado.innerHTML = esActivo
+                    ? '<span class="badge bg-success">Activo</span>'
+                    : '<span class="badge bg-danger">Inactivo</span>';
+            }
 
         } else {
             document.getElementById("verUsuarioNombre").innerText = "Error";

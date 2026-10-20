@@ -17,19 +17,21 @@ export const initCreateUsuario = () => {
         const nombre = document.getElementById("usuarioNombre").value.trim();
         const apellido = document.getElementById("usuarioApellido").value.trim();
         const email = document.getElementById("usuarioEmail").value.trim();
+        const passInput = document.getElementById("usuarioPass");
+        const pass = passInput ? passInput.value.trim() : "";
 
         // Atrapamos los valores seleccionados (¡Esto evita el error en PHP!)
         const fk_id_rol = document.getElementById("usuarioRol").value;
         const fk_id_equipo = document.getElementById("usuarioEquipo").value;
 
         // Validación básica
-        if (!nombre || !apellido || !email) {
-            alert("Por favor, completa todos los campos requeridos.");
-            return;
-        }
-        // Validación básica
         if (!nombre || !apellido || !email || !fk_id_rol) {
             alert("Por favor, completa todos los campos requeridos (incluyendo el rol).");
+            return;
+        }
+
+        if (!id && !pass) {
+            alert("Por favor, ingresá una contraseña para el nuevo usuario.");
             return;
         }
 
@@ -40,6 +42,10 @@ export const initCreateUsuario = () => {
             fk_id_rol,    
             fk_id_equipo
         };
+
+        if (pass) {
+            data.pass = pass;
+        }
 
         try {
             let response;
@@ -53,7 +59,11 @@ export const initCreateUsuario = () => {
             }
 
             if (response.success || response.ok) {
-                alert(id ? "Usuario actualizado con éxito." : "Usuario creado exitosamente por el administrador.");
+                if (typeof toastr !== "undefined") {
+                    toastr.success(id ? "Usuario actualizado con éxito." : "Usuario creado exitosamente.");
+                } else {
+                    alert(id ? "Usuario actualizado con éxito." : "Usuario creado exitosamente.");
+                }
 
                 // Ocultamos el modal de Bootstrap
                 const modalInstance = bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl);
@@ -73,43 +83,46 @@ export const initCreateUsuario = () => {
             }
         } catch (error) {
             console.error("Error al guardar el usuario:", error);
-            alert("Ocurrió un error de conexión al intentar guardar.");
+            alert(error.message || "Ocurrió un error al intentar guardar.");
         }
     };
 
     // Evento para limpiar el formulario cuando el admin abre el modal haciendo clic en "+ Nuevo Usuario"
     modalEl.addEventListener("show.bs.modal", async (e) => {
-    const button = e.relatedTarget;
-    // Si el botón que abrió el modal fue "+ Nuevo Usuario" (no el de editar)
-    if (button && button.getAttribute("data-bs-target") === "#modalUsuario") {
-        form.reset();
-        document.getElementById("id_usuario").value = "";
-        const titulo = document.getElementById("modalUsuarioTitulo");
-        if (titulo) titulo.innerText = "Nuevo Usuario";
+        const button = e.relatedTarget;
+        // Si el botón que abrió el modal fue "+ Nuevo Usuario" (no el de editar)
+        if (button && button.getAttribute("data-bs-target") === "#modalUsuario") {
+            form.reset();
+            document.getElementById("id_usuario").value = "";
+            const titulo = document.getElementById("modalUsuarioTitulo");
+            if (titulo) titulo.innerText = "Nuevo Usuario";
 
-        // Cargamos los roles y equipos desde la BD
-        try {
-            const [rolesRes, equiposRes] = await Promise.all([
-                rolService.getAll(),
-                equipoService.getAll()
-            ]);
+            const ayudaPass = document.getElementById("ayudaUsuarioPass");
+            if (ayudaPass) ayudaPass.style.display = "none";
 
-            const selectRol = document.getElementById("usuarioRol");
-            if (selectRol && (rolesRes.success || rolesRes.ok)) {
-                const roles = rolesRes.data || rolesRes.roles || [];
-                selectRol.innerHTML = '<option value="">Seleccione un rol...</option>';
-                roles.forEach(rol => selectRol.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`);
+            // Cargamos los roles y equipos desde la BD
+            try {
+                const [rolesRes, equiposRes] = await Promise.all([
+                    rolService.getAll(),
+                    equipoService.getAll()
+                ]);
+
+                const selectRol = document.getElementById("usuarioRol");
+                if (selectRol && (rolesRes.success || rolesRes.ok)) {
+                    const roles = rolesRes.data || rolesRes.roles || [];
+                    selectRol.innerHTML = '<option value="">Seleccione un rol...</option>';
+                    roles.forEach(rol => selectRol.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`);
+                }
+
+                const selectEquipo = document.getElementById("usuarioEquipo");
+                if (selectEquipo && (equiposRes.success || equiposRes.ok)) {
+                    const equipos = equiposRes.data || equiposRes.equipos || [];
+                    selectEquipo.innerHTML = '<option value="">Sin equipo asignado</option>';
+                    equipos.forEach(equipo => selectEquipo.innerHTML += `<option value="${equipo.id}">${equipo.nombre}</option>`);
+                }
+            } catch (error) {
+                console.error("Error cargando roles/equipos:", error);
             }
-
-            const selectEquipo = document.getElementById("usuarioEquipo");
-            if (selectEquipo && (equiposRes.success || equiposRes.ok)) {
-                const equipos = equiposRes.data || equiposRes.equipos || [];
-                selectEquipo.innerHTML = '<option value="">Seleccione un equipo...</option>';
-                equipos.forEach(equipo => selectEquipo.innerHTML += `<option value="${equipo.id}">${equipo.nombre}</option>`);
-            }
-        } catch (error) {
-            console.error("Error cargando roles/equipos:", error);
         }
-    }
-});
+    });
 };

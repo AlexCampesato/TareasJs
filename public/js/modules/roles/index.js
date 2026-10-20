@@ -70,7 +70,19 @@ export const renderRoles = (container) => {
                             </div>
                             <div class="mb-3">
                                 <label for="rolDescripcion" class="form-label small text-muted">Descripción</label>
-                                <textarea name="descripcion" id="rolDescripcion" class="form-control" rows="3"></textarea>
+                                <textarea name="descripcion" id="rolDescripcion" class="form-control" rows="2"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="form-label small text-muted fw-bold mb-0">Permisos Asignados</label>
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-secondary py-0 px-2" id="btnMarcarTodosPermisos" style="font-size: 11px;">Marcar todos</button>
+                                        <button type="button" class="btn btn-outline-secondary py-0 px-2" id="btnDesmarcarTodosPermisos" style="font-size: 11px;">Desmarcar</button>
+                                    </div>
+                                </div>
+                                <div id="contenedorPermisosRol" class="border rounded p-2 bg-light" style="max-height: 220px; overflow-y: auto;">
+                                    <p class="text-muted small mb-0 text-center py-2"><i class="fas fa-spinner fa-spin me-1"></i> Cargando permisos...</p>
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -105,7 +117,13 @@ export const renderRoles = (container) => {
                             <p class="small text-muted fw-bold mb-1">Descripción</p>
                             <p id="verRolDescripcion" class="fs-6">-</p>
                         </div>
-                       
+                        <hr class="text-muted">
+                        <div class="mb-3">
+                            <p class="small text-muted fw-bold mb-2">Permisos de este Rol</p>
+                            <ul id="verRolPermisos" class="list-group list-group-flush small" style="max-height: 200px; overflow-y: auto;">
+                                <!-- Se llena dinámicamente con JS -->
+                            </ul>
+                        </div>
                     </div>
                     <div class="modal-footer border-0">
                         <button type="button" class="btn btn-secondary shadow-sm" data-bs-dismiss="modal">Cerrar</button>

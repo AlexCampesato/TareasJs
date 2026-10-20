@@ -15,7 +15,7 @@ INSERT IGNORE INTO permisos (nombre, descripcion) VALUES
 ('equipos.eliminar', 'Permite borrar equipos del sistema'),
 ('equipos.miembros', 'Gestionar integrantes de equipos'),
 ('tareas.eliminar', 'Borrar tareas del sistema'),
-('tareas.ver.todo', 'Ver estadísticas globales de tareas');
+('tareas.ver.todo', 'Ver estadísticas globales de tareas'),
 ('permisos.crear', 'Permite crear nuevos permisos en el sistema'),
 ('permisos.editar', 'Permite modificar permisos existentes'),
 ('permisos.eliminar', 'Permite borrar permisos del sistema');

@@ -64,29 +64,45 @@ class RolModel {
         return $this->db->execute();
     }
 
-    //Asignar rol 
-
-    public function asignarPermisoARol(int $rol_id, int $permiso_id)
+    // Asignar permiso a un rol
+    public function asignarPermisoARol(int $id_rol, int $id_permiso)
     {
-        $this->db->query("INSERT INTO rol_permisos (rol_id, permiso_id) VALUES (:rol_id, :permiso_id)");
-        $this->db->bind(':rol_id', $rol_id);
-        $this->db->bind(':permiso_id', $permiso_id);
+        $this->db->query("INSERT INTO rol_permiso (id_rol, id_permiso) VALUES (:id_rol, :id_permiso)");
+        $this->db->bind(':id_rol', $id_rol);
+        $this->db->bind(':id_permiso', $id_permiso);
         return $this->db->execute();
     }
 
-    //Obtener todos los permisos asignados a un rol
-     
-    public function obtenerPermisosPorRol(int $rol_id)
+    // Quitar todos los permisos de un rol (util para resincronizar al editar)
+    public function limpiarPermisosDeRol(int $id_rol)
     {
-        
+        $this->db->query("DELETE FROM rol_permiso WHERE id_rol = :id_rol");
+        $this->db->bind(':id_rol', $id_rol);
+        return $this->db->execute();
+    }
+
+    // Obtener solo los IDs de los permisos asignados a un rol (para marcar los checkboxes)
+    public function obtenerIdsPermisosPorRol(int $id_rol)
+    {
+        $this->db->query("SELECT id_permiso FROM rol_permiso WHERE id_rol = :id_rol");
+        $this->db->bind(':id_rol', $id_rol);
+        $rows = $this->db->registers();
+        return array_map(function($row) {
+            return (int) $row->id_permiso;
+        }, $rows ?: []);
+    }
+
+    // Obtener todos los permisos asignados a un rol con su detalle
+    public function obtenerPermisosPorRol(int $id_rol)
+    {
         $this->db->query("
-            SELECT p.nombre, p.descripcion 
+            SELECT p.id, p.nombre, p.descripcion 
             FROM permisos p
-            INNER JOIN rol_permisos rp ON p.id = rp.permiso_id
-            WHERE rp.rol_id = :rol_id
+            INNER JOIN rol_permiso rp ON p.id = rp.id_permiso
+            WHERE rp.id_rol = :id_rol
         ");
-        $this->db-> bind(':rol_id', $rol_id);
+        $this->db->bind(':id_rol', $id_rol);
         
-        return $this->db-> registers();
+        return $this->db->registers();
     }
 }

@@ -43,47 +43,50 @@
    // RUTAS API REST - USUARIOS
    // =========================================================================
    $router->get('/api/usuarios', ['UsuariosController', 'index']);
-   $router->get('/api/usuarios/{id}', ['UsuariosController', 'mostrarUsuario']); 
    $router->get('/api/usuarios/crear', ['UsuariosController', 'crear']);
    $router->post('/api/usuarios/crear', ['UsuariosController', 'crear']);
    $router->get('/api/usuarios/editar/{id}', ['UsuariosController', 'editar']);
    $router->post('/api/usuarios/editar/{id}', ['UsuariosController', 'editar']);
+   $router->put('/api/usuarios/editar/{id}', ['UsuariosController', 'editar']);
+   $router->post('/api/usuarios/estado/{id}', ['UsuariosController', 'cambiarEstado']);
    $router->post('/api/usuarios/eliminar/{id}', ['UsuariosController', 'eliminar']);
+   $router->get('/api/usuarios/{id}', ['UsuariosController', 'mostrarUsuario']); 
 
    // =========================================================================
    // RUTAS API REST - PERMISOS
    // =========================================================================
    $router->get('/api/permisos', ['PermisosController', 'index']);
-   $router->get('/api/permisos/{id}', ['PermisosController', 'mostrarPermiso']); 
    $router->get('/api/permisos/crear', ['PermisosController', 'crear']);
    $router->post('/api/permisos/crear', ['PermisosController', 'crear']);
    $router->get('/api/permisos/editar/{id}', ['PermisosController', 'editar']);
    $router->post('/api/permisos/editar/{id}', ['PermisosController', 'editar']);
    $router->post('/api/permisos/eliminar/{id}', ['PermisosController', 'eliminar']);
+   $router->get('/api/permisos/{id}', ['PermisosController', 'mostrarPermiso']); 
 
-    // =========================================================================
+   // =========================================================================
    // RUTAS API REST - ROLES
    // =========================================================================
    $router->get('/api/roles', ['RolController', 'index']);
-   $router->get('/api/roles/{id}', ['RolController', 'mostrarRol']);  
    $router->get('/api/roles/crear', ['RolController', 'crear']);
    $router->post('/api/roles/crear', ['RolController', 'crear']);
    $router->get('/api/roles/editar/{id}', ['RolController', 'editar']);
    $router->post('/api/roles/editar/{id}', ['RolController', 'editar']);
+   $router->put('/api/roles/editar/{id}', ['RolController', 'editar']);
    $router->post('/api/roles/eliminar/{id}', ['RolController', 'eliminar']);
+   $router->delete('/api/roles/eliminar/{id}', ['RolController', 'eliminar']);
+   $router->get('/api/roles/{id}', ['RolController', 'mostrarRol']);  
 
    // =========================================================================
    // RUTAS API REST - EQUIPOS
    // =========================================================================
-  
    $router->get('/api/equipos', ['EquipoController', 'index']);
-   $router->get('/api/equipos/{id}', ['EquipoController', 'mostrarEquipo']);  
    $router->get('/api/equipos/crear', ['EquipoController', 'crear']);
    $router->post('/api/equipos/crear', ['EquipoController', 'crear']);
    $router->get('/api/equipos/editar/{id}', ['EquipoController', 'editar']);
    $router->post('/api/equipos/editar/{id}', ['EquipoController', 'editar']);
    $router->post('/api/equipos/eliminar/{id}', ['EquipoController', 'eliminar']);
    $router->post('/api/equipos/asignarMiembro', ['EquipoController', 'asignarMiembro']);
+   $router->get('/api/equipos/{id}', ['EquipoController', 'mostrarEquipo']);  
 
    // Despachar la solicitud
    $router->dispatch();
