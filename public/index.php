@@ -65,12 +65,14 @@
    // RUTAS API REST - ROLES
    // =========================================================================
    $router->get('/api/roles', ['RolController', 'index']);
-   $router->get('/api/roles/{id}', ['RolController', 'mostrarRol']);  
    $router->get('/api/roles/crear', ['RolController', 'crear']);
    $router->post('/api/roles/crear', ['RolController', 'crear']);
    $router->get('/api/roles/editar/{id}', ['RolController', 'editar']);
    $router->post('/api/roles/editar/{id}', ['RolController', 'editar']);
+   $router->put('/api/roles/editar/{id}', ['RolController', 'editar']);
    $router->post('/api/roles/eliminar/{id}', ['RolController', 'eliminar']);
+   $router->delete('/api/roles/eliminar/{id}', ['RolController', 'eliminar']);
+   $router->get('/api/roles/{id}', ['RolController', 'mostrarRol']);  
 
    // =========================================================================
    // RUTAS API REST - EQUIPOS

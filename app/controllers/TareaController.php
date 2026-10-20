@@ -166,7 +166,7 @@ public function update($id_tarea = null)
      */
     public function destroy($id_tarea = null)
     {
-        $this->tienePermiso('tareas.eliminar'); 
+        AuthHelper::tienePermiso('tareas.eliminar'); 
         
         if (!$id_tarea) {
             $this->jsonResponse([
