@@ -27,6 +27,13 @@ export const usuarioService = {
         });
     },
 
+    // Activa o desactiva un usuario
+    async toggleEstado(id) {
+        return await httpClient(`/api/usuarios/estado/${id}`, {
+            method: "POST",
+        });
+    },
+
     // Elimina un usuario
     async delete(id) {
         return await httpClient(`/api/usuarios/eliminar/${id}`, {

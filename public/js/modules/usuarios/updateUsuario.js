@@ -36,7 +36,7 @@ export const prepareEditUsuario = async (id) => {
         const selectEquipo = document.getElementById("usuarioEquipo");
         if (selectEquipo && (equiposRes.success || equiposRes.ok)) {
             const equipos = equiposRes.data || equiposRes.equipos || [];
-            selectEquipo.innerHTML = '<option value="">Seleccione un equipo...</option>';
+            selectEquipo.innerHTML = '<option value="">Sin equipo asignado</option>';
             equipos.forEach(equipo => {
                 selectEquipo.innerHTML += `<option value="${equipo.id}">${equipo.nombre}</option>`;
             });
@@ -50,6 +50,12 @@ export const prepareEditUsuario = async (id) => {
             document.getElementById("usuarioNombre").value = usuario.nombre || "";
             document.getElementById("usuarioApellido").value = usuario.apellido || "";
             document.getElementById("usuarioEmail").value = usuario.email || "";
+
+            const passInput = document.getElementById("usuarioPass");
+            if (passInput) passInput.value = "";
+
+            const ayudaPass = document.getElementById("ayudaUsuarioPass");
+            if (ayudaPass) ayudaPass.style.display = "block";
 
             // Como los select ya tienen las opciones generadas, ahora sí podemos asignarle el valor que tiene el usuario
             if (selectRol) selectRol.value = usuario.fk_id_rol || usuario.id_rol || "";

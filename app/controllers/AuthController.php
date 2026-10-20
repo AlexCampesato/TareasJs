@@ -44,6 +44,13 @@ class AuthController extends BaseController {
             $inputPass = trim((string)$data['password']);
 
             if ($dbPass ===$inputPass) {
+                if (isset($user->activo) && (int)$user->activo === 0) {
+                    $this->jsonResponse([
+                        'success' => false,
+                        'message' => 'Tu usuario se encuentra desactivado. Contactá al administrador.'
+                    ], 403);
+                }
+
                 $_SESSION['user_id']     =$user->id;
                 $_SESSION['user_name']   =$user->nombre;
                 $_SESSION['user_email']  =$user->email;
