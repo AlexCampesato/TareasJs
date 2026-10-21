@@ -1,249 +1,153 @@
-import { API_BASE_URL_ROLES } from '../../config.js';
+import { getRoles } from "./getRoles.js";
+import { initCreateRol } from "./createRol.js";
+import { viewRol } from "./viewRol.js";
+import { prepareEditRol } from "./updateRol.js";
+import { deleteRol } from "./deleteRol.js";
 
-export const renderRoles = async (container) => {
-  
+
+export const renderRoles = (container) => {
+    // Inyectamos el diseño completo de la tabla y el Modal en el contenedor principal
     container.innerHTML = `
-        <div style="padding: 20px;">
-            <h2>Cargando roles...</h2>
-        </div>
-    `;
-
-    try {
-        const response = await fetch(`${API_BASE_URL_ROLES}`);
-        const resultado = await response.json();
-
-        if (resultado.success) {
-            const roles = resultado.data; 
-
-            let html = `
-                <div style="padding: 20px;">
-                    <h1>Gestión de Roles</h1>
-                    <div style="margin-bottom: 15px;">
-                        <button id="btn-crear-rol" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer;">
-                            + Crear Nuevo Rol
-                        </button>
-                        <button href="/dashboard" data-link>VOLVER</button>
-                    </div>
-                    <table border="1" cellpadding="8" cellspacing="0" width="100%">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Descripcion</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-      
-            if (roles.length > 0) {
-                roles.forEach(rol => {
-                    html += `
-                        <tr>
-                            <td>${rol.id}</td>
-                            <td>${rol.nombre}</td>
-                            <td>${rol.descripcion}</td>
-                            <td>
-                                <button class="btn-editar" data-id="${rol.id}" style="color: blue; cursor: pointer;">Editar</button> 
-                               <button class="btn-eliminar" data-id="${rol.id}" style="color: red; cursor: pointer;">Eliminar</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            } else {
-                html += `<tr><td colspan="5" style="text-align: center;">No hay roles</td></tr>`;
-            }
-
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
-
-                        
-            container.innerHTML = html;
-
-            const botonesEditar = container.querySelectorAll('.btn-editar');
-            botonesEditar.forEach(boton => {
-                boton.addEventListener('click', (e) => {
-                    const idRol = e.target.getAttribute('data-id');
- 
-                    renderEditarRol(container, idRol);
-                });
-            });
-
-            const botonesEliminar = container.querySelectorAll('.btn-eliminar');
-            botonesEliminar.forEach(boton => {
-                boton.addEventListener('click', async (e) => {
-                    const idRol = e.target.getAttribute('data-id');
-
+        <div class="container-fluid px-4 py-4 animation-fade-in">
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800 fw-bold">Gestión de Roles</h1>
+                    <p class="text-muted small mb-0">Administración de roles</p>
                     
-                    if (confirm(`¿Estás seguro de que deseas eliminar el rol con ID ${idRol}?`)) {
-                        try {
-                            const response = await fetch(`${API_BASE_URL_ROLES}/eliminar/${idRol}`, {
-                                method: 'POST' 
-                            });
-                            const resultado = await response.json();
+                </div>
 
-                            if (resultado.success) {
-                                alert('Rol eliminado con éxito');
-                             
-                                renderRoles(container);
-                            } else {
-                                alert(resultado.message || 'Error al eliminar');
-                            }
-                        } catch (error) {
-                            console.error("Error:", error);
-                            alert('Error de conexión con el servidor.');
-                        }
-                    }
-                });
-            });
+                 <div>
+                    <a class="btn btn-primary btn-sm" href="/usuarios" data-link>USUARIOS</a> 
 
-           
-            document.getElementById('btn-crear-rol').addEventListener('click', () => {
-                renderCrearRol(container);
-            });
+                    <a class="btn btn-primary btn-sm" href="/equipos" data-link>EQUIPOS</a>
 
-        } else {
-            container.innerHTML = `<h2>Error: ${resultado.message || 'No se pudieron cargar los roles'}</h2>`;
-        }
+                    <a class="btn btn-primary btn-sm" href="/permisos" data-link>PERMISOS</a>
 
-    } catch (error) {
-        console.error("Error al cargar roles:", error);
-        container.innerHTML = `<h2>Error de conexión con el servidor.</h2>`;
-    }
-};
+                    <a class="btn btn-primary btn-sm" href="/dashboard" data-link>TAREAS</a>
 
-export const renderEditarRol = async (container, id) => {
-    container.innerHTML = `<h2>Cargando formulario...</h2>`;
+                </div>
 
-    try {
-       
-        const response = await fetch(`${API_BASE_URL_ROLES}/editar/${id}`);
-        const resultado = await response.json();
+                <button class="btn btn-success btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalRol">
+                    <i class="fas fa-plus-circle fa-sm text-white-50 me-1"></i> Nuevo Rol
+                </button>
+            </div>
 
-        if (resultado.success) {
-            const rol = resultado.data;
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" width="100%" cellspacing="0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">ID</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th class="text-center pe-4">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaRolesBody">
+                                <tr><td colspan="4" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-2"></i> Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            container.innerHTML = `
-                <div style="padding: 20px;">
-                    <h1>Editar Rol: ${rol.nombre}</h1>
-                    <form id="form-editar-rol">
-                        <div style="margin-bottom: 10px;">
-                            <label>Nombre:</label><br>
-                            <input type="text" id="edit-nombre" value="${rol.nombre}" required>
+        <!-- Modal Unificado: Crear / Editar Rol -->
+        <div class="modal fade" id="modalRol" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" id="modalRolTitulo">Nuevo Rol</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <form id="formRol" novalidate>
+                        <input type="hidden" name="id_rol" id="id_rol">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="rolNombre" class="form-label small text-muted">Nombre</label>
+                                <input type="text" name="nombre" id="rolNombre" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="rolDescripcion" class="form-label small text-muted">Descripción</label>
+                                <textarea name="descripcion" id="rolDescripcion" class="form-control" rows="2"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="form-label small text-muted fw-bold mb-0">Permisos Asignados</label>
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-secondary py-0 px-2" id="btnMarcarTodosPermisos" style="font-size: 11px;">Marcar todos</button>
+                                        <button type="button" class="btn btn-outline-secondary py-0 px-2" id="btnDesmarcarTodosPermisos" style="font-size: 11px;">Desmarcar</button>
+                                    </div>
+                                </div>
+                                <div id="contenedorPermisosRol" class="border rounded p-2 bg-light" style="max-height: 220px; overflow-y: auto;">
+                                    <p class="text-muted small mb-0 text-center py-2"><i class="fas fa-spinner fa-spin me-1"></i> Cargando permisos...</p>
+                                </div>
+                            </div>
                         </div>
-                        <div style="margin-bottom: 10px;">
-                            <label>Descripcion:</label><br>
-                            <input type="text" id="edit-descripcion" value="${rol.descripcion}">
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success fw-bold">Guardar</button>
                         </div>
-                        <button type="submit" style="padding: 10px; background-color: #007bff; color: white; border: none; cursor: pointer;">
-                            Guardar Cambios
-                        </button>
-                        <button type="button" id="btn-cancelar-edicion" style="padding: 10px; margin-left: 10px;">Cancelar</button>
                     </form>
                 </div>
-            `;
+            </div>
+        </div>
 
-           
-            document.getElementById('form-editar-rol').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const datosFormulario = {
-                    nombre: document.getElementById('edit-nombre').value,
-                    descripcion: document.getElementById('edit-descripcion').value,
-                };
-
-                try {
-                    const updateRes = await fetch(`${API_BASE_URL_ROLES}/editar/${id}`, {
-                        method: 'POST', 
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(datosFormulario)
-                    });
-                    const updateData = await updateRes.json();
-
-                    if (updateData.success) {
-                        alert('Rol actualizado correctamente');
-                        renderRoles(container); 
-                    } else {
-                        alert(updateData.message);
-                    }
-                } catch (err) {
-                    alert('Error al guardar los cambios');
-                }
-            });
-
-            
-            document.getElementById('btn-cancelar-edicion').addEventListener('click', () => {
-                renderRoles(container);
-            });
-
-        } else {
-            container.innerHTML = `<h2>Error: ${resultado.message}</h2>`;
-        }
-    } catch (error) {
-        console.error(error);
-        container.innerHTML = `<h2>Error al conectar con el servidor</h2>`;
-    }
-};
-
-export const renderCrearRol = (container) => {
-   
-    container.innerHTML = `
-        <div style="padding: 20px;">
-            <h1>Crear Nuevo Rol</h1>
-            <form id="form-crear-rol">
-                <div style="margin-bottom: 10px;">
-                    <label>Nombre:</label><br>
-                    <input type="text" id="crear-nombre" placeholder="admin" required>
+        <!-- Modal para Ver Detalles del Rol -->
+        <div class="modal fade" id="modalVerRol" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-light">
+                        <h5 class="modal-title fw-bold text-info">
+                            <i class="fas fa-info-circle me-2"></i>Detalles del Rol
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <p class="small text-muted fw-bold mb-1">ID del Rol</p>
+                            <p id="verRolId" class="fs-6">-</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="small text-muted fw-bold mb-1">Nombre</p>
+                            <p id="verRolNombre" class="fs-5 fw-bold text-dark">-</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="small text-muted fw-bold mb-1">Descripción</p>
+                            <p id="verRolDescripcion" class="fs-6">-</p>
+                        </div>
+                        <hr class="text-muted">
+                        <div class="mb-3">
+                            <p class="small text-muted fw-bold mb-2">Permisos de este Rol</p>
+                            <ul id="verRolPermisos" class="list-group list-group-flush small" style="max-height: 200px; overflow-y: auto;">
+                                <!-- Se llena dinámicamente con JS -->
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary shadow-sm" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
                 </div>
-                <div style="margin-bottom: 10px;">
-                    <label>Descripción:</label><br>
-                    <input type="text" id="crear-descripcion" placeholder="control total">
-                </div>
-                <button type="submit" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer;">
-                    Guardar Rol
-                </button>
-                <button type="button" id="btn-cancelar-creacion" style="padding: 10px; margin-left: 10px;">Cancelar</button>
-            </form>
+            </div>
         </div>
     `;
 
-    
-    document.getElementById('form-crear-rol').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const datosFormulario = {
-            nombre: document.getElementById('crear-nombre').value,
-            descripcion: document.getElementById('crear-descripcion').value
-        };
+    const tablaBody = document.getElementById("tablaRolesBody");
+    if (!tablaBody) return;
 
-        try {
-            const response = await fetch(`${API_BASE_URL_ROLES}/crear`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(datosFormulario)
-            });
-            
-            const resultado = await response.json();
+    // Ejecutamos la carga de datos a la API y el listener del modal
+    getRoles();
+    initCreateRol();
 
-            if (resultado.success) {
-                alert('Rol creado correctamente');
-              
-                renderRoles(container); 
-            } else {
-                alert(resultado.message);
-            }
-        } catch (error) {
-            console.error("Error al crear:", error);
-            alert('Error de conexión al intentar crear el rol');
-        }
-    });
+    // Escuchamos de forma delegada los botones de acción de la tabla
+    tablaBody.addEventListener("click", (e) => {
+        const btnView = e.target.closest(".btn-ver-rol");
+        const btnEdit = e.target.closest(".btn-editar-rol");
+        const btnDelete = e.target.closest(".btn-eliminar-rol");
 
-    
-    document.getElementById('btn-cancelar-creacion').addEventListener('click', () => {
-        renderRoles(container);
+        if (btnView)viewRol(btnView.dataset.id);
+        if (btnEdit)prepareEditRol(btnEdit.dataset.id);
+        if (btnDelete)deleteRol(btnDelete.dataset.id);
     });
 };

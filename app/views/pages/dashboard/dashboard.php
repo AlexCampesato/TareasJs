@@ -1,5 +1,9 @@
 <?php require RUTA_APP . "/views/layout/admin/header.php"; ?>
-
+<?php
+/**
+ * @var array $data
+ */
+?>
 <!-- Page Wrapper -->
 <div id="wrapper">
 

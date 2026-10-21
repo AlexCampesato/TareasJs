@@ -29,6 +29,7 @@ class PermisosController extends BaseController {
     }
 
     public function crear() {
+        AuthHelper::tienePermiso('permisos.crear'); 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
            
             $data = json_decode(file_get_contents("php://input"), true);
@@ -65,6 +66,7 @@ class PermisosController extends BaseController {
     }
 
     public function editar($id) {
+        AuthHelper::tienePermiso('permisos.editar'); 
         if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'PUT') {
             $data = json_decode(file_get_contents("php://input"), true);
             
@@ -96,6 +98,7 @@ class PermisosController extends BaseController {
     }
 
     public function eliminar($id) {
+        AuthHelper::tienePermiso('permisos.eliminar'); 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             if ($this->permisoModel->eliminarPermiso($id)) {
@@ -111,4 +114,24 @@ class PermisosController extends BaseController {
             }
         }
     }
+
+     public function mostrarPermiso($id)
+    {
+       
+        $permiso = $this->permisoModel->obtenerPermisoPorId($id);
+       
+
+        if ($permiso) {
+            $this->jsonResponse([
+                'success' => true,
+                'permiso' => $permiso,
+                
+            ]);
+        } else {
+            $this->jsonResponse([
+                'success' => false,
+                'message' => 'El permiso no existe.'
+            ], 404);
+        }
+    } 
 }

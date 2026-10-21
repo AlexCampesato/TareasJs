@@ -20,6 +20,7 @@
 
     <!-- SB Admin 2 -->
     <link href="<?php echo RUTA_PUBLIC;?>/css/sb-admin-2.css" rel="stylesheet">
+ 
 
     <title><?php echo NOMBRESITIO;?></title>
 </head>
