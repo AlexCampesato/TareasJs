@@ -1,4 +1,3 @@
-
 export const tableTareaTemplate = (tareas) => {
     if (!tareas || tareas.length === 0) {
         return `
@@ -15,48 +14,22 @@ export const tableTareaTemplate = (tareas) => {
         .map(
             (tarea, index) => `
                 <tr>
-                    <td class="ps-4 fw-bold text-muted">
-                        ${index + 1}
-                    </td>
-
-                    <td class="fw-bold text-dark">
-                        ${tarea.titulo}
-                    </td>
-
+                    <td class="ps-4 fw-bold text-muted">${index + 1}</td>
+                    <td class="fw-bold text-dark">${tarea.titulo}</td>
                     <td class="text-muted small">
-                        ${
-                            tarea.descripcion ||
-                            '<em class="text-black-50">Sin descripción</em>'
-                        }
+                        ${tarea.descripcion || '<em class="text-black-50">Sin descripción</em>'}
                     </td>
-
+                    <td><small class="text-muted">${tarea.created_at || "-"}</small></td>
+                    <td><small class="text-muted">${tarea.expired_at || "Sin fecha"}</small></td>
                     <td>
-                        <small class="text-muted">
-                            ${tarea.created_at || "-"}
-                        </small>
-                    </td>
-
-                    <td>
-                        <small class="text-muted">
-                            ${tarea.expired_at || "Sin fecha"}
-                        </small>
-                    </td>
-
-                    <td>
-                        <span
-                            class="badge rounded-pill px-2 py-1"
-                            style="background-color: ${
-                                tarea.color || "#6c757d"
-                            }"
-                        >
+                        <span class="badge rounded-pill px-2 py-1" style="background-color: ${tarea.color || "#6c757d"}">
                             ${tarea.tipoEstado || "Pendiente"}
                         </span>
                     </td>
-
                     <td class="text-center pe-4">
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline-primary me-1 btn-editar-tarea"
+                            class="btn btn-sm btn-outline-primary me-1 btn-editar-tarea btn-accion-editar"
                             data-id="${tarea.id_tarea}"
                             title="Editar Tarea"
                         >
@@ -65,7 +38,7 @@ export const tableTareaTemplate = (tareas) => {
 
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline-danger btn-eliminar-tarea"
+                            class="btn btn-sm btn-outline-danger btn-eliminar-tarea btn-accion-eliminar"
                             data-id="${tarea.id_tarea}"
                             title="Eliminar Tarea"
                         >
@@ -77,4 +50,5 @@ export const tableTareaTemplate = (tareas) => {
         )
         .join("");
 };
+
 

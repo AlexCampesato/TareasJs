@@ -52,7 +52,7 @@ export const renderAdminLayout = (contenidoInterno) => {
                 </div>
 
                 <!-- FOOTER -->
-                <footer class="sticky-footer bg-white mt-auto">
+                <footer class="sticky-footer bg-body mt-auto">
                     <div class="container my-auto">
                         <div class="copyright text-center my-auto">
                             <span>Copyright &copy; PROYECTO TAREAS 2026</span>

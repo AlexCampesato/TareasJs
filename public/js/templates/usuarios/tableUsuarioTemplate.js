@@ -23,55 +23,38 @@ export const tableUsuarioTemplate = (usuarios) => {
 
             return `
                 <tr class="${!esActivo ? 'table-light text-muted' : ''}">
-                    <td class="ps-4 fw-bold text-muted">
-                        ${usuario.id}
-                    </td>
-
-                    <td class="fw-bold text-dark">
-                        ${usuario.nombre} ${usuario.apellido || ''}
-                    </td>
-
-                    <td class="text-dark">
-                        ${usuario.email}
-                    </td>
-                    
+                    <td class="ps-4 fw-bold text-muted">${usuario.id}</td>
+                    <td class="fw-bold text-dark">${usuario.nombre} ${usuario.apellido || ''}</td>
+                    <td class="text-dark">${usuario.email}</td>
                     <td class="fw-bold text-dark">
                         ${usuario.rol_nombre ? `<span class="badge bg-primary">${usuario.rol_nombre}</span>` : '<span class="badge bg-secondary">Sin rol</span>'}
                     </td>
-                    
                     <td class="fw-bold text-dark">
                         ${usuario.equipo_nombre || '<span class="badge bg-light text-dark border">Sin equipo</span>'}
                     </td>
-
-                    <td>
-                        ${badgeEstado}
-                    </td>
-
+                    <td>${badgeEstado}</td>
                     <td class="text-center pe-4">
-                        <!-- Botón Ver Detalles -->
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline-info me-1 btn-ver-usuario"
+                            class="btn btn-sm btn-outline-info me-1 btn-ver-usuario btn-accion-ver"
                             data-id="${usuario.id}"
                             title="Ver Detalles"
                         >
                             <i class="fas fa-eye"></i>
                         </button>
 
-                        <!-- Botón Editar -->
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline-primary me-1 btn-editar-usuario"
+                            class="btn btn-sm btn-outline-primary me-1 btn-editar-usuario btn-accion-editar"
                             data-id="${usuario.id}"
                             title="Editar Usuario"
                         >
                             <i class="fas fa-edit"></i>
                         </button>
 
-                        <!-- Botón Activar / Desactivar -->
                         <button
                             type="button"
-                            class="btn btn-sm ${btnEstadoClass} me-1 btn-estado-usuario"
+                            class="btn btn-sm ${btnEstadoClass} me-1 btn-estado-usuario btn-accion-estado"
                             data-id="${usuario.id}"
                             data-activo="${esActivo ? 1 : 0}"
                             title="${btnEstadoTitle}"
@@ -79,10 +62,9 @@ export const tableUsuarioTemplate = (usuarios) => {
                             <i class="fas ${btnEstadoIcon}"></i>
                         </button>
 
-                        <!-- Botón Eliminar -->
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline-danger btn-eliminar-usuario"
+                            class="btn btn-sm btn-outline-danger btn-eliminar-usuario btn-accion-eliminar"
                             data-id="${usuario.id}"
                             title="Eliminar Usuario"
                         >

@@ -14,46 +14,33 @@ export const tableEquipoTemplate = (equipos) => {
         .map(
             (equipo) => `
                 <tr>
-                    <td class="ps-4 fw-bold text-muted">
-                        ${equipo.id}
-                    </td>
-
-                    <td class="fw-bold text-dark">
-                        ${equipo.nombre}
-                    </td>
-
+                    <td class="ps-4 fw-bold text-muted">${equipo.id}</td>
+                    <td class="fw-bold text-dark">${equipo.nombre}</td>
                     <td class="text-muted small">
-                        ${
-                            equipo.descripcion ||
-                            '<em class="text-black-50">Sin descripción</em>'
-                        }
+                        ${equipo.descripcion || '<em class="text-black-50">Sin descripción</em>'}
                     </td>
-
                     <td class="text-center pe-4">
-                        <!-- Botón Ver Detalles -->
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline-info me-1 btn-ver-equipo"
+                            class="btn btn-sm btn-outline-info me-1 btn-ver-equipo btn-accion-ver"
                             data-id="${equipo.id}"
                             title="Ver Detalles"
                         >
                             <i class="fas fa-eye"></i>
                         </button>
 
-                        <!-- Botón Editar -->
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline-primary me-1 btn-editar-equipo"
+                            class="btn btn-sm btn-outline-primary me-1 btn-editar-equipo btn-accion-editar"
                             data-id="${equipo.id}"
                             title="Editar Equipo"
                         >
                             <i class="fas fa-edit"></i>
                         </button>
 
-                        <!-- Botón Eliminar -->
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline-danger btn-eliminar-equipo"
+                            class="btn btn-sm btn-outline-danger btn-eliminar-equipo btn-accion-eliminar"
                             data-id="${equipo.id}"
                             title="Eliminar Equipo"
                         >

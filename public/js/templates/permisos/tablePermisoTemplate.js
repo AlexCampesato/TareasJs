@@ -14,46 +14,33 @@ export const tablePermisoTemplate = (permisos) => {
         .map(
             (permiso) => `
                 <tr>
-                    <td class="ps-4 fw-bold text-muted">
-                        ${permiso.id}
-                    </td>
-
-                    <td class="fw-bold text-dark">
-                        ${permiso.nombre}
-                    </td>
-
+                    <td class="ps-4 fw-bold text-muted">${permiso.id}</td>
+                    <td class="fw-bold text-dark">${permiso.nombre}</td>
                     <td class="text-muted small">
-                        ${
-                            permiso.descripcion ||
-                            '<em class="text-black-50">Sin descripción</em>'
-                        }
+                        ${permiso.descripcion || '<em class="text-black-50">Sin descripción</em>'}
                     </td>
-
                     <td class="text-center pe-4">
-                        <!-- Botón Ver Detalles -->
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline-info me-1 btn-ver-permiso"
+                            class="btn btn-sm btn-outline-info me-1 btn-ver-permiso btn-accion-ver"
                             data-id="${permiso.id}"
                             title="Ver Detalles"
                         >
                             <i class="fas fa-eye"></i>
                         </button>
 
-                        <!-- Botón Editar -->
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline-primary me-1 btn-editar-permiso"
+                            class="btn btn-sm btn-outline-primary me-1 btn-editar-permiso btn-accion-editar"
                             data-id="${permiso.id}"
                             title="Editar Permiso"
                         >
                             <i class="fas fa-edit"></i>
                         </button>
 
-                        <!-- Botón Eliminar -->
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline-danger btn-eliminar-permiso"
+                            class="btn btn-sm btn-outline-danger btn-eliminar-permiso btn-accion-eliminar"
                             data-id="${permiso.id}"
                             title="Eliminar Permiso"
                         >

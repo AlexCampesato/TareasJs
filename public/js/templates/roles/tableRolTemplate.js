@@ -14,46 +14,33 @@ export const tableRolTemplate = (roles) => {
         .map(
             (rol) => `
                 <tr>
-                    <td class="ps-4 fw-bold text-muted">
-                        ${rol.id}
-                    </td>
-
-                    <td class="fw-bold text-dark">
-                        ${rol.nombre}
-                    </td>
-
+                    <td class="ps-4 fw-bold text-muted">${rol.id}</td>
+                    <td class="fw-bold text-dark">${rol.nombre}</td>
                     <td class="text-muted small">
-                        ${
-                            rol.descripcion ||
-                            '<em class="text-black-50">Sin descripción</em>'
-                        }
+                        ${rol.descripcion || '<em class="text-black-50">Sin descripción</em>'}
                     </td>
-
                     <td class="text-center pe-4">
-                        <!-- Botón Ver Detalles -->
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline-info me-1 btn-ver-rol"
+                            class="btn btn-sm btn-outline-info me-1 btn-ver-rol btn-accion-ver"
                             data-id="${rol.id}"
                             title="Ver Detalles"
                         >
                             <i class="fas fa-eye"></i>
                         </button>
 
-                        <!-- Botón Editar -->
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline-primary me-1 btn-editar-rol"
+                            class="btn btn-sm btn-outline-primary me-1 btn-editar-rol btn-accion-editar"
                             data-id="${rol.id}"
                             title="Editar Rol"
                         >
                             <i class="fas fa-edit"></i>
                         </button>
 
-                        <!-- Botón Eliminar -->
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline-danger btn-eliminar-rol"
+                            class="btn btn-sm btn-outline-danger btn-eliminar-rol btn-accion-eliminar"
                             data-id="${rol.id}"
                             title="Eliminar rol"
                         >
