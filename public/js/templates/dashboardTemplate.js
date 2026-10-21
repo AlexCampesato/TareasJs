@@ -10,7 +10,7 @@ export const dashboardTemplate = () => `
         <div class="d-flex flex-column flex-grow-1">
 
             <!-- Topbar -->
-            <nav class="navbar navbar-expand navbar-light bg-white shadow-sm px-4">
+            <nav class="navbar navbar-expand navbar-light bg-body shadow-sm px-4">
 
                 <div>
                    <a class="btn btn-primary btn-sm" href="/usuarios" data-link>USUARIOS</a> 
@@ -36,6 +36,13 @@ export const dashboardTemplate = () => `
                 </button>
 
                 <ul class="navbar-nav ms-auto align-items-center">
+
+                    <!-- Boton modo oscuro -->
+                    <li class="nav-item me-3">
+                        <button id="btn-cambiar-tema" class="btn btn-outline-secondary btn-sm" title="Cambiar Modo">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
 
                     <li class="nav-item dropdown">
 
