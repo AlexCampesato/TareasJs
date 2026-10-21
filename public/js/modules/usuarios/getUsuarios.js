@@ -37,8 +37,6 @@ export const getUsuarios = async () => {
     try {
         const response = await usuarioService.getAll();
         
-        console.log("RESPUESTA USUARIOS:", response);
-
         if (response.ok === false || response.success === false) {
             throw new Error("No se pudieron obtener los usuarios.");
         }

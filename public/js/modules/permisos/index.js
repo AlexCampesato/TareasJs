@@ -38,6 +38,10 @@ export const renderPermisos = (container) => {
                                 <tr><td colspan="4" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-2"></i> Cargando...</td></tr>
                             </tbody>
                         </table>
+                        <!-- Contenedor para la paginación de permisos -->
+                            <div class="card-footer bg-white py-3 border-0">
+                                <div id="paginacionPermisos"></div>
+                            </div>
                     </div>
                 </div>
             </div>
