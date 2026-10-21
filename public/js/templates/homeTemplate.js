@@ -3,7 +3,7 @@ export const homeTemplate = () => `
 <nav class="navbar navbar-expand-lg bg-body border-bottom">
     <div class="container">
         <a class="navbar-brand fw-bold" href="/" data-link>
-            Barberia y salon
+            Gestor de Tareas
         </a>
         
         <div class="ms-auto d-flex align-items-center gap-2">
