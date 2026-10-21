@@ -1,3 +1,4 @@
+import { renderAdminLayout , initAdminLayout} from "../../templates/layout.js";
 import { getEquipos } from "./getEquipos.js";
 import { initCreateEquipo } from "./createEquipo.js";
 import { viewEquipo } from "./viewEquipo.js";
@@ -6,24 +7,13 @@ import { deleteEquipo } from "./deleteEquipo.js";
 
 export const renderEquipos = (container) => {
     // Inyectamos el diseño completo de la tabla y el Modal en el contenedor principal
-    container.innerHTML = `
+    const vistaEquiposHTML = `
         <div class="container-fluid px-4 py-4 animation-fade-in">
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
                 <div>
                     <h1 class="h3 mb-0 text-gray-800 fw-bold">Gestión de Equipos</h1>
                     <p class="text-muted small mb-0">Administración de equipos de trabajo</p>
                     
-                </div>
-
-                 <div>
-                    <a class="btn btn-primary btn-sm" href="/usuarios" data-link>USUARIOS</a> 
-
-                    <a class="btn btn-primary btn-sm" href="/permisos" data-link>PERMISOS</a>
-
-                    <a class="btn btn-primary btn-sm" href="/roles" data-link>ROLES</a>
-
-                    <a class="btn btn-primary btn-sm" href="/dashboard" data-link>TAREAS</a>
-
                 </div>
 
                 <button class="btn btn-success btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalEquipo">
@@ -120,6 +110,13 @@ export const renderEquipos = (container) => {
             </div>
         </div>
     `;
+
+     //  Inyectamos la vista de usuarios envuelta en el Layout Principal
+    container.innerHTML = renderAdminLayout(vistaEquiposHTML);
+
+    //  Ejecutamos la validación global.
+    const isAuth = initAdminLayout();
+    if (!isAuth) return;
 
     const tablaBody = document.getElementById("tablaEquiposBody");
     if (!tablaBody) return;

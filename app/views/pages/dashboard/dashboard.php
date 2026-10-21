@@ -44,7 +44,7 @@
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
                                 <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>
-                                Cerrar Sesión
+                                Cerrar Sesion
                             </a>
                         </div>
                     </li>
