@@ -1,3 +1,4 @@
+import { renderAdminLayout , initAdminLayout} from "../../templates/layout.js";
 import { getUsuarios, filtrarUsuariosLocal } from "./getUsuarios.js";
 import { initCreateUsuario } from "./createUsuario.js";
 import { viewUsuario } from "./viewUsuario.js";
@@ -5,8 +6,8 @@ import { prepareEditUsuario } from "./updateUsuario.js";
 import { deleteUsuario, toggleEstadoUsuario } from "./deleteUsuario.js";
 
 export const renderUsuarios = (container) => {
-    // Inyectamos el diseño completo de la tabla y los Modales en el contenedor principal
-    container.innerHTML = `
+    
+    const vistaUsuariosHTML = `
         <div class="container-fluid px-4 py-4 animation-fade-in">
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
                 <div>
@@ -14,12 +15,7 @@ export const renderUsuarios = (container) => {
                     <p class="text-muted small mb-0">Administración de usuarios, roles y estados</p>
                 </div>
 
-                <div>
-                    <a class="btn btn-primary btn-sm" href="/equipos" data-link>EQUIPOS</a> 
-                    <a class="btn btn-primary btn-sm" href="/permisos" data-link>PERMISOS</a>
-                    <a class="btn btn-primary btn-sm" href="/roles" data-link>ROLES</a>
-                    <a class="btn btn-primary btn-sm" href="/dashboard" data-link>TAREAS</a>
-                </div>
+              
 
                 <button class="btn btn-success btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalUsuario">
                     <i class="fas fa-plus-circle fa-sm text-white-50 me-1"></i> Nuevo Usuario
@@ -161,10 +157,18 @@ export const renderUsuarios = (container) => {
         </div>
     `;
 
+    // Inyectamos la vista de usuarios envuelta en el Layout Principal
+    container.innerHTML = renderAdminLayout(vistaUsuariosHTML);
+
+    // Ejecutamos la validación global.
+    const isAuth = initAdminLayout();
+    if (!isAuth) return;
+
+    //  Seleccionamos el cuerpo de la tabla 
     const tablaBody = document.getElementById("tablaUsuariosBody");
     if (!tablaBody) return;
 
-    // Ejecutamos la carga de datos a la API y el listener del modal
+    //  Ejecutamos la carga de datos a la API y el listener del modal
     getUsuarios();
     initCreateUsuario();
 
@@ -176,7 +180,7 @@ export const renderUsuarios = (container) => {
         });
     }
 
-    // Escuchamos de forma delegada los botones de acción de la tabla
+    //Escuchamos de forma delegada los botones de acción de la tabla
     tablaBody.addEventListener("click", (e) => {
         const btnView = e.target.closest(".btn-ver-usuario");
         const btnEdit = e.target.closest(".btn-editar-usuario");

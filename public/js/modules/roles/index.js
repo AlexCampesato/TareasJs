@@ -1,3 +1,4 @@
+import { renderAdminLayout , initAdminLayout} from "../../templates/layout.js";
 import { getRoles } from "./getRoles.js";
 import { initCreateRol } from "./createRol.js";
 import { viewRol } from "./viewRol.js";
@@ -7,24 +8,13 @@ import { deleteRol } from "./deleteRol.js";
 
 export const renderRoles = (container) => {
     // Inyectamos el diseño completo de la tabla y el Modal en el contenedor principal
-    container.innerHTML = `
+     const vistaRolesHTML = `
         <div class="container-fluid px-4 py-4 animation-fade-in">
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
                 <div>
                     <h1 class="h3 mb-0 text-gray-800 fw-bold">Gestión de Roles</h1>
                     <p class="text-muted small mb-0">Administración de roles</p>
                     
-                </div>
-
-                 <div>
-                    <a class="btn btn-primary btn-sm" href="/usuarios" data-link>USUARIOS</a> 
-
-                    <a class="btn btn-primary btn-sm" href="/equipos" data-link>EQUIPOS</a>
-
-                    <a class="btn btn-primary btn-sm" href="/permisos" data-link>PERMISOS</a>
-
-                    <a class="btn btn-primary btn-sm" href="/dashboard" data-link>TAREAS</a>
-
                 </div>
 
                 <button class="btn btn-success btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalRol">
@@ -132,6 +122,13 @@ export const renderRoles = (container) => {
             </div>
         </div>
     `;
+
+       // Inyectamos la vista de usuarios envuelta en el Layout Principal
+    container.innerHTML = renderAdminLayout(vistaRolesHTML);
+
+    //  Ejecutamos la validación global.
+    const isAuth = initAdminLayout();
+    if (!isAuth) return;
 
     const tablaBody = document.getElementById("tablaRolesBody");
     if (!tablaBody) return;

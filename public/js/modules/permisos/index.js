@@ -1,3 +1,4 @@
+import { renderAdminLayout , initAdminLayout} from "../../templates/layout.js";
 import { getPermisos } from "./getPermisos.js";
 import { initCreatePermiso } from "./createPermiso.js";
 import { viewPermiso } from "./viewPermiso.js";
@@ -7,24 +8,13 @@ import { deletePermiso } from "./deletePermiso.js";
 
 export const renderPermisos = (container) => {
     // Inyectamos el diseño completo de la tabla y el Modal en el contenedor principal
-    container.innerHTML = `
+    const vistaPermisosHTML = `
         <div class="container-fluid px-4 py-4 animation-fade-in">
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
                 <div>
                     <h1 class="h3 mb-0 text-gray-800 fw-bold">Gestión de Permisos</h1>
                     <p class="text-muted small mb-0">Administración de permisos</p>
                     
-                </div>
-
-                 <div>
-                    <a class="btn btn-primary btn-sm" href="/usuarios" data-link>USUARIOS</a> 
-
-                    <a class="btn btn-primary btn-sm" href="/equipos" data-link>EQUIPOS</a>
-
-                    <a class="btn btn-primary btn-sm" href="/roles" data-link>ROLES</a>
-
-                    <a class="btn btn-primary btn-sm" href="/dashboard" data-link>TAREAS</a>
-
                 </div>
 
                 <button class="btn btn-success btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalPermiso">
@@ -114,6 +104,14 @@ export const renderPermisos = (container) => {
             </div>
         </div>
     `;
+
+
+    //  Inyectamos la vista de usuarios envuelta en el Layout Principal
+    container.innerHTML = renderAdminLayout(vistaPermisosHTML);
+
+    // Ejecutamos la validación global.
+    const isAuth = initAdminLayout();
+    if (!isAuth) return;    
 
     const tablaBody = document.getElementById("tablaPermisosBody");
     if (!tablaBody) return;
