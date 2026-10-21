@@ -104,11 +104,8 @@ export const initAdminLayout = async () => {
 
         
         //  DETECTAR RUTA ACTUAL
-       
-
         const rutaActual = window.location.pathname;
 
-       
         // ocultamos el de la ruta actual
         document.querySelectorAll('.btn-atajo').forEach(boton => {
             const enlace = boton.getAttribute('href');
@@ -120,8 +117,6 @@ export const initAdminLayout = async () => {
             }
         });
 
-        
-        
         document.querySelectorAll('.sidebar .nav-item').forEach(li => {
             const link = li.querySelector('.nav-link');
             if (link) {
@@ -133,9 +128,7 @@ export const initAdminLayout = async () => {
                 }
             }
         });
-        // ====================================================================
-
-        // Devolvemos true para avisarle a la vista que puede continuar
+        
         return true; 
         
     } catch (error) {

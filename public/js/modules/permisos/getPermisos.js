@@ -1,31 +1,43 @@
 import { permisoService } from "../../services/permisoService.js";
 import { tablePermisoTemplate } from "../../templates/permisos/tablePermisoTemplate.js";
+import { Pagination } from "../../utils/pagination.js";
 
+// Exportamos la variable por si luego necesitas usar el buscador en tiempo real
+export let paginadorPermisos; 
 
 export const getPermisos = async () => {
     const tablaBody = document.getElementById("tablaPermisosBody");
-
-    if (!tablaBody) return;
+    // Buscamos el contenedor donde irán los botones (1, 2, 3, Siguiente...)
+    const paginationContainer = document.getElementById("paginacionPermisos");
+    // Si no existen los contenedores en el HTML, detenemos la ejecución
+    if (!tablaBody || !paginationContainer) return; 
 
     try {
         const response = await permisoService.getAll();
-        
-        console.log("RESPUESTA PERMISOS:", response);
 
         if (response.ok === false || response.success === false) {
             throw new Error("No se pudieron obtener los permisos.");
         }
 
-        tablaBody.innerHTML = tablePermisoTemplate(
-            response.data ||  []
+        const permisosData = response.data || [];
+
+        // Le pasamos toda la responsabilidad a la clase Pagination
+        paginadorPermisos = new Pagination(
+            permisosData,          // El array con todos los datos que llegaron de PHP
+            6,                     // Cantidad de filas por cada página
+            tablaBody,             // El elemento HTML <tbody> donde van las filas
+            paginationContainer,   // El elemento HTML <div> donde van los botones
+            tablePermisoTemplate   // La función template que arma los <tr>
         );
+
+        // Le decimos a la clase que haga los cálculos y dibuje la primera página
+        paginadorPermisos.render();
         
     } catch (error) {
         console.error("Error al obtener permisos:", error);
 
         tablaBody.innerHTML = `
             <tr>
-                
                 <td colspan="4" class="text-center py-4 text-danger fw-bold">
                     <i class="fas fa-exclamation-triangle mb-2 d-block fa-2x"></i>
                     Error al cargar los permisos.
