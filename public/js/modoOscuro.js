@@ -1,32 +1,35 @@
-// =========================================================================
-// APLICACION DE MODO OSCURO 
-// =========================================================================
+import { estilosModoOscuroString } from "./estilosModoOscuro.js";
 
 const estilosOscuros = document.createElement('style');
 estilosOscuros.id = 'estilos-modo-oscuro-forzados';
-estilosOscuros.innerHTML = ` 
-  html[data-bs-theme="dark"] body,
-  html[data-bs-theme="dark"] main,
-  html[data-bs-theme="dark"] #wrapper,
-  html[data-bs-theme="dark"] #content-wrapper,
-  html[data-bs-theme="dark"] .navbar {
-    background-color: #121214 !important;
-    color: #ffffff !important;
-  }
-  html[data-bs-theme="dark"] .text-secondary,
-  html[data-bs-theme="dark"] .lead {
-    color: #dee2e6 !important;
-  }
-`;
+estilosOscuros.innerHTML = estilosModoOscuroString;
 
 // Insertamos los estilos en el head al cargar la página
 if (!document.getElementById('estilos-modo-oscuro-forzados')) {
   document.head.appendChild(estilosOscuros);
 }
 
+// Función auxiliar para actualizar el icono visualmente dependiendo de si es luna o sol
+const actualizarIconoTema = (tema) => {
+  const botones = document.querySelectorAll('#btn-cambiar-tema');
+  botones.forEach(btn => {
+    const icono = btn.querySelector('i');
+    if (icono) {
+      if (tema === 'dark') {
+        // En el modo oscuro pasa a ser un sol
+        icono.className = 'fas fa-sun text-warning';
+      } else {
+        // En el modo claro pasa a ser una luna
+        icono.className = 'fas fa-moon text-secondary';
+      }
+    }
+  });
+};
+
 const cargarTemaGuardado = () => {
   const temaGuardado = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-bs-theme', temaGuardado);
+  setTimeout(() => actualizarIconoTema(temaGuardado), 50);
 };
 
 // Se ejecuta inmediatamente para evitar el parpadeo blanco al cargar
@@ -40,9 +43,15 @@ document.addEventListener('click', (e) => {
     html.setAttribute('data-bs-theme', nuevoTema);
     localStorage.setItem('theme', nuevoTema);
     
+    // Cambiamos el icono
+    actualizarIconoTema(nuevoTema);
+    
     // Notificación visual con Toastr
     if (typeof toastr !== 'undefined') {
       toastr.success(`Modo ${nuevoTema === 'dark' ? 'oscuro' : 'claro'} activado`);
     }
   }
 });
+
+
+
