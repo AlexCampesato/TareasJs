@@ -15,29 +15,41 @@ export const renderUsuarios = (container) => {
                     <p class="text-muted small mb-0">Administración de usuarios, roles y estados</p>
                 </div>
 
-              
-
-                <button class="btn btn-success btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalUsuario">
-                    <i class="fas fa-plus-circle fa-sm text-white-50 me-1"></i> Nuevo Usuario
-                </button>
             </div>
 
-            <!-- Barra de búsqueda -->
-            <div class="row mb-3">
-                <div class="col-md-5">
-                    <div class="input-group input-group-sm shadow-sm">
-                        <span class="input-group-text bg-white border-end-0">
-                            <i class="fas fa-search text-muted"></i>
-                        </span>
-                        <input
-                            type="text"
-                            id="inputBuscarUsuario"
-                            class="form-control border-start-0"
-                            placeholder="Buscar usuario por nombre, email, rol o equipo..."
-                        >
+            <div class="row mb-3 align-items-center">
+                    <!-- Buscador  -->
+                    <div class="col-md-5 mb-2 mb-md-0">
+                        <div class="input-group input-group-sm shadow-sm">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" id="inputBuscarUsuario" class="form-control border-start-0" placeholder="Buscar usuario por nombre, email...">
+                        </div>
+                    </div>
+
+                    <!-- Filtros Checkboxes acumulativos -->
+                    <div class="col-md-7 d-flex flex-wrap gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input filtro-checkbox" type="checkbox" value="inactivos" id="checkInactivos">
+                            <label class="form-check-label small fw-bold text-muted" for="checkInactivos">
+                                Solo Inactivos
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input filtro-checkbox" type="checkbox" value="sin_equipo" id="checkSinEquipo">
+                            <label class="form-check-label small fw-bold text-muted" for="checkSinEquipo">
+                                Sin equipo
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input filtro-checkbox" type="checkbox" value="sin_rol" id="checkSinRol">
+                            <label class="form-check-label small fw-bold text-muted" for="checkSinRol">
+                                Sin rol
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
 
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body p-0">
@@ -53,7 +65,12 @@ export const renderUsuarios = (container) => {
             </div>
         </div>
 
-        <!-- Modal Unificado: Crear / Editar Usuario -->
+        <!--  Paginación -->
+            <div class="card-footer bg-white py-3 border-0">
+                <div id="paginacionUsuarios"></div>
+            </div>
+
+        <!-- Modal Unificado: Editar Usuario -->
         <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow">
