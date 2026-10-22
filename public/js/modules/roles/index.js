@@ -25,19 +25,11 @@ export const renderRoles = (container) => {
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0" width="100%" cellspacing="0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-4">ID</th>
-                                    <th>Nombre</th>
-                                    <th>Descripción</th>
-                                    <th class="text-center pe-4">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaRolesBody">
-                                <tr><td colspan="4" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-2"></i> Cargando...</td></tr>
-                            </tbody>
-                        </table>
+                        <div class="row" id="tablaRolesBody">
+                            <div class="col-12 text-center py-4 text-muted">
+                                <i class="fas fa-spinner fa-spin me-2"></i> Cargando...
+                            </div>
+                        </div>
                          <!-- Contenedor para la paginación de roles -->
                         <div class="card-footer bg-white py-3 border-0">
                             <div id="paginacionRoles"></div>

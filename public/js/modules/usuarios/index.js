@@ -42,22 +42,12 @@ export const renderUsuarios = (container) => {
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0" width="100%" cellspacing="0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-4">ID</th>
-                                    <th>Nombre</th>
-                                    <th>Email</th>
-                                    <th>Rol</th>
-                                    <th>Equipo</th>
-                                    <th>Estado</th>
-                                    <th class="text-center pe-4">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaUsuariosBody">
-                                <tr><td colspan="7" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-2"></i> Cargando...</td></tr>
-                            </tbody>
-                        </table>
+                        <!-- ANTES ERA UNA TABLA, AHORA ES UNA FILA (ROW) DE BOOTSTRAP -->
+                        <div class="row" id="tablaUsuariosBody">
+                            <div class="col-12 text-center py-4 text-muted">
+                                <i class="fas fa-spinner fa-spin me-2"></i> Cargando...
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

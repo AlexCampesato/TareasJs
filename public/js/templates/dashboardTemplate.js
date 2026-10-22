@@ -158,41 +158,20 @@ export const dashboardTemplate = () => `
 
                     </div>
 
-                    <!-- Tabla -->
+                    <!-- CARDS -->
                     <div class="card shadow-sm border-0">
 
                         <div class="card-body p-0">
 
                             <div class="table-responsive">
 
-                                <table
-                                    id="tablaTareas"
-                                    class="table table-hover align-middle mb-0"
-                                >
-
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th class="ps-4">#</th>
-                                            <th>Título</th>
-                                            <th>Descripción</th>
-                                            <th>Fecha de Alta</th>
-                                            <th>Vencimiento</th>
-                                            <th>Estado</th>
-                                            <th class="text-center pe-4">
-                                                Acciones
-                                            </th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody id="tablaTareasBody">
-                                        <!-- Las tareas se cargarán dinámicamente -->
-                                    </tbody>
-
-                                </table>
-
+                                <div class="row" id="tablaTareasBody">
+                                <div class="col-12 text-center py-4 text-muted">
+                                    <i class="fas fa-spinner fa-spin me-2"></i> Cargando...
+                                </div>
                             </div>
-
-                        </div>
+                      </div>
+                     </div>
 
                     </div>
 
