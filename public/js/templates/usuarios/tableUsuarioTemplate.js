@@ -22,7 +22,7 @@ export const tableUsuarioTemplate = (usuarios) => {
             const btnEstadoTitle = esActivo ? 'Desactivar Usuario' : 'Activar Usuario';
 
             return `
-                <div class="col-sm-6 col-xl-4 mb-4">
+                <div class="col-sm-6 col-md-4 col-lg-3 mb-4">
                     <div class="card h-100 shadow-sm border-0 ${!esActivo ? 'bg-light text-muted' : ''}">
                         <div class="card-body d-flex flex-column">
                             
