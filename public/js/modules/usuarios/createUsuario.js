@@ -110,7 +110,7 @@ export const initCreateUsuario = () => {
                 const selectRol = document.getElementById("usuarioRol");
                 if (selectRol && (rolesRes.success || rolesRes.ok)) {
                     const roles = rolesRes.data || rolesRes.roles || [];
-                    selectRol.innerHTML = '<option value="">Seleccione un rol...</option>';
+                    selectRol.innerHTML = '<option value="">Sin rol</option>';
                     roles.forEach(rol => selectRol.innerHTML += `<option value="${rol.id}">${rol.nombre}</option>`);
                 }
 

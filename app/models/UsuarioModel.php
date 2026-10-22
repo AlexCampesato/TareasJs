@@ -28,7 +28,7 @@ class UsuarioModel {
         $this->db->bind('email', $data['email']);
         $this->db->bind('pass', $data['pass']);
         
-        $rol_default = !empty($data['fk_id_rol']) ? $data['fk_id_rol'] : 2; 
+        $rol_default = null; 
         $this->db->bind('fk_id_rol', $rol_default);
         $this->db->bind('fk_id_equipo', $equipo_id);
         $this->db->bind('keyword', $keyw);
