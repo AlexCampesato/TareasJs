@@ -11,17 +11,14 @@ class UsuariosController extends BaseController {
         $this->rolModel = $this->model('RolModel');
         $this->equipoModel = $this->model('EquipoModel');
     }
-
-   
     // Devuelve la lista de usuarios en JSON
     
     public function index() {
-    // 1. Desactiva temporalmente el AuthHelper para descartar que sea el guardia
+   
     // AuthHelper::tienePermiso('usuarios.ver'); 
 
     $usuarios = $this->usuarioModel->obtener_usuarios();
     
-    // 2. Debug: Si $usuarios devuelve un error (false), aquí lo veremos en la consola
     if ($usuarios === false) {
         $this->jsonResponse(['success' => false, 'message' => 'Error en la consulta SQL del modelo']);
     }
@@ -57,7 +54,7 @@ class UsuariosController extends BaseController {
                 'email' => trim($data['email']),
                 'avatar' => trim($data['avatar'] ?? 'img_default.png'), 
                 'pass' => $data['pass'],
-                'fk_id_rol' => !empty($data['fk_id_rol']) ? $data['fk_id_rol'] : 2,
+                'fk_id_rol' => null,
                 'fk_id_equipo' => $equipo_id
             ];
 
