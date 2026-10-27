@@ -30,7 +30,11 @@ export const renderAdminLayout = (contenidoInterno) => {
                             </li>
                             <li class="nav-item dropdown no-arrow">
                                 <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <span class="me-2 d-none d-lg-inline text-gray-600 small fw-bold layoutUserName">...</span>
+                                    <!-- Contenedor en columna para alinear nombre y rol a la derecha -->
+                                    <div class="me-2 d-none d-lg-flex flex-column text-end lh-sm">
+                                        <span class="text-gray-600 small fw-bold layoutUserName">...</span>
+                                        <span class="text-gray-500 layoutUserRole" style="font-size: 0.75rem;">Cargando...</span>
+                                    </div>
                                     <img class="avatar rounded-circle layoutUserAvatar" src="" alt="Avatar" width="32" height="32" style="display:none;">
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -75,12 +79,16 @@ export const initAdminLayout = async () => {
             return false; 
         }
 
-       
+       // El nombre del usuario
         document.querySelectorAll(".layoutUserName").forEach(el => {
             el.textContent = response.user.nombre;
         });
 
-       
+       // El rol del usuario
+        document.querySelectorAll(".layoutUserRole").forEach(el => {
+            el.textContent = response.user.rol_nombre || "Sin rol";
+        });
+
         document.querySelectorAll(".layoutUserAvatar").forEach(el => {
             el.src = response.user.avatar ? RUTA_AVATAR + response.user.avatar : RUTA_AVATAR + "img_default.png";
             el.style.display = "inline-block";
