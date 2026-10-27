@@ -12,10 +12,11 @@ class AuthModel {
      public function buscar_por_mail($data)
     {
         // Cambiamos rol_id por fk_id_rol
-        $this->db->query("SELECT id, nombre, email, avatar, fk_id_rol, activo, aes_decrypt(pass, 'keyword') AS pass 
-                          FROM usuario
-                          WHERE email = :email
-                          AND deleted_at IS NULL");
+       $this->db->query("SELECT u.id, u.nombre, u.email, u.avatar, u.fk_id_rol, u.activo, aes_decrypt(u.pass, 'keyword') AS pass, r.nombre AS rol_nombre 
+                          FROM usuario u
+                          LEFT JOIN roles r ON u.fk_id_rol = r.id
+                          WHERE u.email = :email
+                          AND u.deleted_at IS NULL");
         
         $this->db->bind('email', $data['email']);
         return $this->db->register(); 
