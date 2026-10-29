@@ -1,0 +1,94 @@
+/* Estilos generales y componentes reutilizables */
+
+.avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+}
+
+/* Corrige la barra horizontal cuando se usa .row de tarjetas dentro de .table-responsive */
+.table-responsive > .row {
+  margin-left: 0;
+  margin-right: 0;
+  padding: 1rem 0.5rem;
+}
+
+/* Tarjetas del sistema (Usuarios, Tareas, Equipos, Roles, Permisos) */
+.card-item {
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card-item:hover {
+  transform: translateY(-2px);
+}
+
+/* Bordes superiores de estado / jerarquía */
+.borde-admin {
+  border-top: 4px solid #0d6efd;
+}
+
+.borde-lider {
+  border-top: 4px solid #0dcaf0;
+}
+
+.borde-miembro {
+  border-top: 4px solid #198754;
+}
+
+.borde-alerta {
+  border-top: 4px solid #ffc107;
+}
+
+.borde-inactivo {
+  border-top: 4px solid #6c757d;
+}
+
+/* Avatar circular con iniciales */
+.avatar-iniciales {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+  border: 1px solid rgba(13, 110, 253, 0.2);
+}
+
+.avatar-iniciales-sm {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  font-size: 0.75rem;
+}
+
+/* Caja interna de metadatos en tarjetas (Rol/Equipo o Responsable/Fechas) */
+.bloque-info-card {
+  background-color: rgba(108, 117, 125, 0.06);
+  border: 1px solid rgba(108, 117, 125, 0.12);
+  border-radius: 0.5rem;
+}
+
+/* Barra contenedora de buscador y filtros */
+.barra-filtros {
+  background-color: var(--bs-body-bg);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.75rem;
+}
+
+/* Adaptación automática al modo oscuro */
+html[data-bs-theme="dark"] .card-item,
+html[data-bs-theme="dark"] .barra-filtros {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+html[data-bs-theme="dark"] .bloque-info-card {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+}

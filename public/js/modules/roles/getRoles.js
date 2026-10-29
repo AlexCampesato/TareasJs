@@ -1,6 +1,6 @@
 import { rolService } from "../../services/rolService.js";
 import { tableRolTemplate } from "../../templates/roles/tableRolTemplate.js";
-import { Pagination } from "../../utils/pagination.js";
+import { Pagination } from "../../utils/Pagination.js";
 
 // Exportamos la variable para usar el buscador en tiempo real
 export let paginadorRoles; 
