@@ -1,100 +1,94 @@
+/* Estilos generales y componentes reutilizables */
 
 .avatar {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    object-fit: cover;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
 }
 
-/* Tarjeta base reutilizable para Usuarios, Tareas, Equipos, Roles y Permisos */
+/* Corrige la barra horizontal cuando se usa .row de tarjetas dentro de .table-responsive */
+.table-responsive > .row {
+  margin-left: 0;
+  margin-right: 0;
+  padding: 1rem 0.5rem;
+}
+
+/* Tarjetas del sistema (Usuarios, Tareas, Equipos, Roles, Permisos) */
 .card-item {
-    border-radius: 0.75rem !important;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .card-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-2px);
 }
 
-/* Bordes superiores según rol o estado */
+/* Bordes superiores de estado / jerarquía */
 .borde-admin {
-    border-top: 3px solid #7c3aed !important;
+  border-top: 4px solid #0d6efd;
 }
 
 .borde-lider {
-    border-top: 3px solid #0284c7 !important;
+  border-top: 4px solid #0dcaf0;
 }
 
 .borde-miembro {
-    border-top: 3px solid #059669 !important;
+  border-top: 4px solid #198754;
 }
 
 .borde-alerta {
-    border-top: 3px solid #d97706 !important;
+  border-top: 4px solid #ffc107;
 }
 
 .borde-inactivo {
-    border-top: 3px solid #94a3b8 !important;
-    opacity: 0.75;
+  border-top: 4px solid #6c757d;
 }
 
-/* Círculo con iniciales para usuarios y responsables */
+/* Avatar circular con iniciales */
 .avatar-iniciales {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.9rem;
-    background-color: rgba(13, 110, 253, 0.12);
-    color: #0d6efd;
-    flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+  border: 1px solid rgba(13, 110, 253, 0.2);
 }
 
 .avatar-iniciales-sm {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.72rem;
-    background-color: rgba(13, 110, 253, 0.12);
-    color: #0d6efd;
-    flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  font-size: 0.75rem;
 }
 
-/* Recuadro interno para agrupar datos secundarios (Rol/Equipo o Equipo/Asignado) */
+/* Caja interna de metadatos en tarjetas (Rol/Equipo o Responsable/Fechas) */
 .bloque-info-card {
-    background-color: #f8f9fa;
-    border-radius: 0.5rem;
-    padding: 0.65rem 0.75rem;
-    font-size: 0.85rem;
+  background-color: rgba(108, 117, 125, 0.06);
+  border: 1px solid rgba(108, 117, 125, 0.12);
+  border-radius: 0.5rem;
 }
 
-/* Barra contenedora para buscador y filtros */
+/* Barra contenedora de buscador y filtros */
 .barra-filtros {
-    background-color: #ffffff;
-    border-radius: 0.75rem;
-    padding: 0.85rem 1rem;
+  background-color: var(--bs-body-bg);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.75rem;
 }
 
-/* Ajustes para Modo Oscuro */
-html[data-bs-theme="dark"] .bloque-info-card {
-    background-color: #222227 !important;
-}
-
+/* Adaptación automática al modo oscuro */
+html[data-bs-theme="dark"] .card-item,
 html[data-bs-theme="dark"] .barra-filtros {
-    background-color: #1a1a1e !important;
-    border: 1px solid #2d2d34 !important;
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-html[data-bs-theme="dark"] .avatar-iniciales,
-html[data-bs-theme="dark"] .avatar-iniciales-sm {
-    background-color: rgba(77, 163, 255, 0.18);
-    color: #4da3ff;
+html[data-bs-theme="dark"] .bloque-info-card {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
 }
