@@ -9,22 +9,24 @@ export const renderAdminLayout = (contenidoInterno = "") => {
                 <div id="content" class="flex-grow-1">
                     
                     <!-- TOPBAR -->
-                    <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow-sm px-4">
+                    <nav class="navbar navbar-expand-md navbar-light bg-white topbar mb-4 static-top shadow-sm px-3 px-md-4 flex-wrap">
                         
-                        <!-- Contenedor accesos de Administración (Controlado dinámicamente por Rol) -->
-                        <div id="navSeccionesAdmin">
-                            <a class="btn btn-primary btn-sm btn-atajo" href="/usuarios" data-link>USUARIOS</a> 
-                            <a class="btn btn-primary btn-sm btn-atajo" href="/equipos" data-link>EQUIPOS</a> 
-                            <a class="btn btn-primary btn-sm btn-atajo" href="/permisos" data-link>PERMISOS</a>
-                            <a class="btn btn-primary btn-sm btn-atajo" href="/roles" data-link>ROLES</a>
-                            <a class="btn btn-primary btn-sm btn-atajo" href="/dashboard" data-link>TAREAS</a>
-                        </div>
-
-                        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle me-3">
+                        <!-- Botón Hamburguesa (visible solo en móvil para Admin) -->
+                        <button
+                            id="sidebarToggleTop"
+                            class="navbar-toggler border-0 p-2 me-2"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#menuAdminCollapse"
+                            aria-controls="menuAdminCollapse"
+                            aria-expanded="false"
+                            aria-label="Abrir menú"
+                        >
                             <i class="fa fa-bars"></i>
                         </button>
 
-                        <ul class="navbar-nav ms-auto align-items-center">
+                        <!-- Perfil y Modo Oscuro (siempre arriba a la derecha) -->
+                        <ul class="navbar-nav ms-auto align-items-center flex-row order-md-2">
                             <!-- Botón Modo Oscuro -->
                             <li class="nav-item me-3">
                                 <button id="btn-cambiar-tema" class="btn btn-outline-secondary btn-sm" title="Cambiar Modo">
@@ -39,7 +41,7 @@ export const renderAdminLayout = (contenidoInterno = "") => {
                                     </div>
                                     <img class="avatar rounded-circle layoutUserAvatar" src="" alt="Avatar" width="32" height="32" style="display:none;">
                                 </a>
-                                <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="userDropdown">
+                                <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in position-absolute" aria-labelledby="userDropdown">
                                     <a class="dropdown-item" href="#">
                                         <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i> Perfil
                                     </a>
@@ -50,6 +52,19 @@ export const renderAdminLayout = (contenidoInterno = "") => {
                                 </div>
                             </li>
                         </ul>
+
+                        <!-- Contenedor colapsable para móvil / horizontal en escritorio -->
+                        <div class="collapse navbar-collapse order-md-1 w-100 w-md-auto mt-2 mt-md-0" id="menuAdminCollapse">
+                            <!-- Contenedor accesos de Administración (Controlado dinámicamente por Rol) -->
+                            <div id="navSeccionesAdmin" class=" flex-column flex-md-row gap-2 py-2 py-md-0">
+                                <a class="btn btn-primary btn-sm btn-atajo text-start text-md-center" href="/usuarios" data-link>USUARIOS</a> 
+                                <a class="btn btn-primary btn-sm btn-atajo text-start text-md-center" href="/equipos" data-link>EQUIPOS</a> 
+                                <a class="btn btn-primary btn-sm btn-atajo text-start text-md-center" href="/permisos" data-link>PERMISOS</a>
+                                <a class="btn btn-primary btn-sm btn-atajo text-start text-md-center" href="/roles" data-link>ROLES</a>
+                                <a class="btn btn-primary btn-sm btn-atajo text-start text-md-center" href="/dashboard" data-link>TAREAS</a>
+                            </div>
+                        </div>
+
                     </nav>
 
                     <!-- CONTENIDO DINÁMICO -->
@@ -76,9 +91,8 @@ export const renderAdminLayout = (contenidoInterno = "") => {
 export const initAdminLayout = async (userParam = null) => {
     try {
         let user = userParam;
-        const response = await authService.checkSession();
 
-        /// Solo consulta a la API si no le pasamos el usuario directamente
+        // Solo consulta a la API si no le pasamos el usuario directamente
         if (!user) {
             const response = await authService.checkSession();
             if (!response.success || !response.user) {
@@ -88,13 +102,17 @@ export const initAdminLayout = async (userParam = null) => {
             user = response.user;
         }
 
-        
         const idRol = Number(user.id_rol ?? user.fk_id_rol ?? 0);
 
-        // 1. Visibilidad de Secciones Admin según el Rol (Solo visible para Admin - Rol 1)
+        // 1. Visibilidad de Secciones Admin y botón hamburguesa según el Rol (Solo Admin - Rol 1)
         const navSeccionesAdmin = document.getElementById("navSeccionesAdmin");
+        const sidebarToggleTop = document.getElementById("sidebarToggleTop");
+
         if (navSeccionesAdmin) {
-            navSeccionesAdmin.style.display = (idRol === 1) ? "block" : "none";
+            navSeccionesAdmin.style.display = (idRol === 1) ? "flex" : "none";
+        }
+        if (sidebarToggleTop) {
+            sidebarToggleTop.style.display = (idRol === 1) ? "" : "none";
         }
 
         // 2. Visibilidad del botón "Nueva Tarea" (Visible únicamente para Admin - Rol 1)
