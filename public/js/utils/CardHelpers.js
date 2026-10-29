@@ -68,3 +68,29 @@ export function renderSinRegistros(
     </div>
   `;
 }
+
+/**
+ * Renderiza una tarjeta de métrica / resumen (reutilizable en Usuarios y Tareas)
+ */
+export function renderTarjetaResumen(
+  titulo,
+  valor,
+  icono = "fa-users",
+  color = "primary"
+) {
+  return `
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card card-item border-0 shadow-sm h-100">
+        <div class="card-body d-flex align-items-center justify-content-between p-3 px-4">
+          <div>
+            <span class="text-muted small fw-medium d-block mb-1">${titulo}</span>
+            <h3 class="fw-bold mb-0">${valor}</h3>
+          </div>
+          <div class="icono-resumen bg-${color}-subtle text-${color}">
+            <i class="fas ${icono}"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}

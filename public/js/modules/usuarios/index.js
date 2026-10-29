@@ -17,6 +17,10 @@ export const renderUsuarios = (container) => {
 
             </div>
 
+            <!-- Tarjetas de Resumen (KPIs calculados dinámicamente) -->
+            <div class="row g-3 mb-4" id="resumenUsuarios"></div>
+
+
             <div class="row mb-3 align-items-center">
                     <!-- Buscador  -->
                     <div class="col-md-5 mb-2 mb-md-0">
@@ -50,6 +54,7 @@ export const renderUsuarios = (container) => {
                         </div>
                     </div>
                 </div>
+
 
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body p-0">

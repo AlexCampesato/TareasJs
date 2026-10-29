@@ -1,11 +1,36 @@
 import { usuarioService } from "../../services/usuarioService.js";
 import { tableUsuarioTemplate } from "../../templates/usuarios/tableUsuarioTemplate.js";
 import { Pagination } from "../../utils/Pagination.js";
+import { renderTarjetaResumen } from "../../utils/CardHelpers.js";
 
 let usuariosCache = [];
 let paginadorUsuarios = null;
 let filtrosActivos = [];
 let textoBusquedaActual = "";
+
+// Renderiza las 4 tarjetas superiores de resumen a partir de los datos reales
+const renderizarResumenUsuarios = (usuarios = []) => {
+    const contenedorResumen = document.getElementById("resumenUsuarios");
+    if (!contenedorResumen) return;
+
+    const total = usuarios.length;
+    const activos = usuarios.filter(
+        (u) => u.activo === undefined || parseInt(u.activo) === 1
+    ).length;
+    const sinEquipo = usuarios.filter(
+        (u) => !u.fk_id_equipo || !u.equipo_nombre
+    ).length;
+    const sinRol = usuarios.filter(
+        (u) => !u.fk_id_rol || !u.rol_nombre
+    ).length;
+
+    contenedorResumen.innerHTML = [
+        renderTarjetaResumen("Total Usuarios", total, "fa-users", "primary"),
+        renderTarjetaResumen("Miembros Activos", activos, "fa-user-shield", "success"),
+        renderTarjetaResumen("Sin Asignar Equipo", sinEquipo, "fa-sitemap", "warning"),
+        renderTarjetaResumen("Sin Rol Asignado", sinRol, "fa-id-badge", "info"),
+    ].join("");
+};
 
 // Función centralizada que combina búsqueda por texto y filtros por checkboxes
 const aplicarFiltrosYBusqueda = () => {
@@ -93,6 +118,9 @@ export const getUsuarios = async () => {
         }
 
         usuariosCache = response.data || [];
+
+        // Actualizar las 4 tarjetas superiores de resumen
+        renderizarResumenUsuarios(usuariosCache);
 
         // paginación con las cards de usuarios
         paginadorUsuarios = new Pagination(
