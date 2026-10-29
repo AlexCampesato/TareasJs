@@ -84,6 +84,7 @@ class EquipoController extends BaseController {
             }
         }
      }
+     
     public function eliminar($id) {
         AuthHelper::tienePermiso('equipos.eliminar'); 
          if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'DELETE') {
@@ -145,5 +146,22 @@ class EquipoController extends BaseController {
                 ], 500);
             }
         }
+    } 
+
+    public function obtener_miembros($id_equipo)
+    {
+        $equipoModel = new EquipoModel();
+        $miembros = $equipoModel->obtenerIntegrantesPorEquipo($id_equipo);
+
+        // Nos aseguramos de devolver siempre un array
+        $lista = is_array($miembros) ? $miembros : [];
+
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => true,
+            'ok' => true,
+            'miembros' => $lista
+        ]);
+        exit;
     }
 }

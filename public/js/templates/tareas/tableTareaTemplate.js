@@ -1,4 +1,4 @@
-export const tableTareaTemplate = (tareas) => {
+export const tableTareaTemplate = (tareas, user = null) => {
     if (!tareas || tareas.length === 0) {
         return `
             <div class="col-12">
@@ -10,74 +10,181 @@ export const tableTareaTemplate = (tareas) => {
         `;
     }
 
+    // Lectura de rol
+    const idRol = user ? Number(user.id_rol ?? user.fk_id_rol ?? 0) : 0;
+    const esAdmin = idRol === 1;
+    const esLider = idRol === 2;
+    const esMiembro = idRol === 3;
+
+    // Lectura del ID de usuario autenticado
+    const idUsuarioActual = user ? String(user.id ?? user.id_usuario ?? user.fk_id_usuario ?? "") : "";
+
     return tareas
-        .map(
-            (tarea, index) => `
-                <div class="col-sm-6 col-xl-4 mb-4">
-                    <div class="card h-100 shadow-sm border-0">
-                        <div class="card-body d-flex flex-column">
-                            
-                            <!-- Cabecera de la Card (Índice/Título y Estado) -->
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div>
-                                    <span class="small text-muted fw-bold">#${index + 1}</span>
-                                    <h5 class="card-title fw-bold text-dark mb-1">${tarea.titulo}</h5>
-                                </div>
-                                <div>
-                                    <span
-                                        class="badge rounded-pill px-2 py-1"
-                                        style="background-color: ${tarea.color || "#6c757d"};"
-                                    >
-                                        ${tarea.tipoEstado || "Pendiente"}
-                                    </span>
-                                </div>
+        .map((tarea, index) => {
+           
+            const idTareaReal = tarea.id || tarea.id_tarea;
+
+            // Lógica de botones dinámicos según la jerarquía
+            let btnDelegacion = "";
+
+            if (esAdmin) {
+                if (!tarea.fk_id_equipo) {
+                    btnDelegacion = `
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-success fw-semibold shadow-sm btn-asignar-equipo px-3"
+                            data-id="${idTareaReal}"
+                            title="Asignar Equipo"
+                        >
+                            <i class="fas fa-users me-1" style="pointer-events: none;"></i> Asignar Equipo
+                        </button>
+                    `;
+                } else {
+                    btnDelegacion = `
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-warning text-dark fw-bold shadow-sm btn-asignar-equipo px-3"
+                            data-id="${idTareaReal}"
+                            data-equipo="${tarea.fk_id_equipo}"
+                            title="Reasignar Equipo"
+                        >
+                            <i class="fas fa-sync-alt me-1" style="pointer-events: none;"></i> Reasignar Equipo
+                        </button>
+                    `;
+                }
+            } else if (esLider && tarea.fk_id_equipo) {
+                const textoBoton = tarea.fk_id_usuario_asignado ? "Reasignar Miembro" : "Asignar Miembro";
+                
+                const claseBoton = tarea.fk_id_usuario_asignado 
+                    ? "btn-warning text-dark fw-bold" 
+                    : "btn-info text-white fw-bold";
+
+                btnDelegacion = `
+                    <button
+                        type="button"
+                        class="btn btn-sm ${claseBoton} shadow-sm btn-asignar-usuario px-3"
+                        data-id="${idTareaReal}"
+                        data-equipo="${tarea.fk_id_equipo}"
+                        data-usuario="${tarea.fk_id_usuario_asignado || ''}"
+                        title="${textoBoton}"
+                    >
+                        <i class="fas fa-user-plus me-1" style="pointer-events: none;"></i> ${textoBoton}
+                    </button>
+                `;
+            }
+
+            // Botón de cambio de estado: Solo visible para Miembros si la tarea le pertenece a ellos
+            let btnCambiarEstadoMiembro = "";
+            const idAsignado = String(tarea.fk_id_usuario_asignado ?? "");
+
+            if (esMiembro && idAsignado !== "" && idAsignado === idUsuarioActual) {
+                btnCambiarEstadoMiembro = `
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-dark fw-semibold shadow-sm btn-cambiar-estado px-3"
+                        data-id="${idTareaReal}"
+                        data-estado="${tarea.fk_id_estado}"
+                        title="Cambiar Estado"
+                    >
+                        <i class="fas fa-tasks me-1" style="pointer-events: none;"></i> Cambiar Estado
+                    </button>
+                `;
+            }
+
+            return `
+            <div class="col-sm-6 col-xl-4 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body d-flex flex-column">
+                        
+                        <!-- Cabecera de la Card (Índice/Título y Estado) -->
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <span class="small text-muted fw-bold">#${index + 1}</span>
+                                <h5 class="card-title fw-bold text-dark mb-1">${tarea.titulo}</h5>
                             </div>
-
-                            <!-- Descripción -->
-                            <p class="card-text text-muted small mb-3">
-                                ${
-                                    tarea.descripcion ||
-                                    '<em class="text-black-50">Sin descripción</em>'
-                                }
-                            </p>
-
-                            <!-- Fechas (Alta y Vencimiento) -->
-                            <div class="mb-3 mt-auto bg-light p-2 rounded small">
-                                <div class="text-muted">
-                                    <i class="fas fa-calendar-alt me-1 text-secondary"></i> Alta: <strong>${tarea.created_at || "-"}</strong>
-                                </div>
-                                <div class="text-muted mt-1">
-                                    <i class="fas fa-clock me-1 text-secondary"></i> Vencimiento: <strong>${tarea.expired_at || "Sin fecha"}</strong>
-                                </div>
+                            <div>
+                                <span
+                                    class="badge rounded-pill px-3 py-1.5 fw-bold text-white shadow-sm"
+                                    style="background-color: ${tarea.color || "#4e73df"}; font-size: 0.8rem;"
+                                >
+                                    ${tarea.tipoEstado || "Pendiente"}
+                                </span>
                             </div>
+                        </div>
 
-                            <!-- Botones de Acción -->
-                            <div class="d-flex justify-content-center gap-1 pt-3 border-top">
+                        <!-- Descripción -->
+                        <p class="card-text text-muted mb-3" style="font-size: 0.9rem;">
+                            ${
+                                tarea.descripcion ||
+                                '<em class="text-black-50">Sin descripción</em>'
+                            }
+                        </p>
+
+                        <!-- Información de Equipo y Usuario Asignado -->
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            ${
+                                tarea.nombre_equipo
+                                    ? `<span class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle px-2.5 py-1.5" style="font-size: 0.82rem;">
+                                        <i class="fas fa-users me-1 text-primary"></i> Equipo: <strong>${tarea.nombre_equipo}</strong>
+                                       </span>`
+                                    : `<span class="badge bg-body-secondary text-secondary-emphasis border px-2.5 py-1.5" style="font-size: 0.82rem;">
+                                        <i class="fas fa-users me-1"></i> Sin equipo
+                                       </span>`
+                            }
+
+                            ${
+                                tarea.nombre_usuario_asignado
+                                    ? `<span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2.5 py-1.5" style="font-size: 0.82rem;">
+                                        <i class="fas fa-user me-1 text-info"></i> Asignado: <strong>${tarea.nombre_usuario_asignado} ${tarea.apellido_usuario_asignado || ''}</strong>
+                                       </span>`
+                                    : `<span class="badge bg-body-secondary text-secondary-emphasis border px-2.5 py-1.5" style="font-size: 0.82rem;">
+                                        <i class="fas fa-user-slash me-1"></i> Sin asignar
+                                       </span>`
+                            }
+                        </div>
+
+                        <!-- Fechas (Alta y Vencimiento) -->
+                        <div class="my-3 mt-auto bg-body-tertiary p-3 rounded border-start border-3 border-secondary-subtle" style="font-size: 0.85rem;">
+                            <div class="text-secondary fw-medium">
+                                <i class="fas fa-calendar-alt me-1"></i> Alta: <strong>${tarea.created_at || "-"}</strong>
+                            </div>
+                            <div class="text-secondary fw-medium mt-1">
+                                <i class="fas fa-clock me-1"></i> Vencimiento: <strong>${tarea.expired_at || "Sin fecha"}</strong>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción  -->
+                        <div class="d-flex justify-content-center align-items-center gap-2 pt-3 border-top">
+                            ${btnCambiarEstadoMiembro}
+                            ${btnDelegacion}
+
+                            ${(esAdmin || esLider) ? `
                                 <!-- Botón Editar -->
                                 <button
                                     type="button"
-                                    class="btn btn-sm btn-outline-primary btn-editar-tarea"
-                                    data-id="${tarea.id_tarea}"
+                                    class="btn btn-sm btn-outline-primary btn-editar-tarea px-2.5"
+                                    data-id="${idTareaReal}"
                                     title="Editar Tarea"
                                 >
-                                    <i class="fas fa-edit"></i>
+                                    <i class="fas fa-edit" style="pointer-events: none;"></i>
                                 </button>
 
-                                <!-- Botón Eliminar -->
+                                <!-- Botón Eliminar / Desasignar -->
                                 <button
                                     type="button"
-                                    class="btn btn-sm btn-outline-danger btn-eliminar-tarea"
-                                    data-id="${tarea.id_tarea}"
-                                    title="Eliminar Tarea"
+                                    class="btn btn-sm btn-outline-danger btn-eliminar-tarea px-2.5"
+                                    data-id="${idTareaReal}"
+                                    title="${esLider ? 'Desasignar de equipo' : 'Eliminar Tarea'}"
                                 >
-                                    <i class="fas fa-trash"></i>
+                                    <i class="fas fa-trash" style="pointer-events: none;"></i>
                                 </button>
-                            </div>
-
+                            ` : ''}
                         </div>
+
                     </div>
                 </div>
-            `,
-        )
+            </div>
+            `;
+        })
         .join("");
 };
