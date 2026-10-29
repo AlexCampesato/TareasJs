@@ -1,0 +1,100 @@
+
+.avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Tarjeta base reutilizable para Usuarios, Tareas, Equipos, Roles y Permisos */
+.card-item {
+    border-radius: 0.75rem !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Bordes superiores según rol o estado */
+.borde-admin {
+    border-top: 3px solid #7c3aed !important;
+}
+
+.borde-lider {
+    border-top: 3px solid #0284c7 !important;
+}
+
+.borde-miembro {
+    border-top: 3px solid #059669 !important;
+}
+
+.borde-alerta {
+    border-top: 3px solid #d97706 !important;
+}
+
+.borde-inactivo {
+    border-top: 3px solid #94a3b8 !important;
+    opacity: 0.75;
+}
+
+/* Círculo con iniciales para usuarios y responsables */
+.avatar-iniciales {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    background-color: rgba(13, 110, 253, 0.12);
+    color: #0d6efd;
+    flex-shrink: 0;
+}
+
+.avatar-iniciales-sm {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.72rem;
+    background-color: rgba(13, 110, 253, 0.12);
+    color: #0d6efd;
+    flex-shrink: 0;
+}
+
+/* Recuadro interno para agrupar datos secundarios (Rol/Equipo o Equipo/Asignado) */
+.bloque-info-card {
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+/* Barra contenedora para buscador y filtros */
+.barra-filtros {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    padding: 0.85rem 1rem;
+}
+
+/* Ajustes para Modo Oscuro */
+html[data-bs-theme="dark"] .bloque-info-card {
+    background-color: #222227 !important;
+}
+
+html[data-bs-theme="dark"] .barra-filtros {
+    background-color: #1a1a1e !important;
+    border: 1px solid #2d2d34 !important;
+}
+
+html[data-bs-theme="dark"] .avatar-iniciales,
+html[data-bs-theme="dark"] .avatar-iniciales-sm {
+    background-color: rgba(77, 163, 255, 0.18);
+    color: #4da3ff;
+}
