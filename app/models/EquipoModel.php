@@ -21,15 +21,8 @@ class EquipoModel
                 (:nombre, :descripcion)"
         );
         
-        $this->db->bind(
-            'nombre', 
-            $data['nombre']
-        );
-        
-        $this->db->bind(
-            'descripcion', 
-            $data['descripcion']
-        );
+        $this->db->bind('nombre', $data['nombre']);
+        $this->db->bind('descripcion', $data['descripcion']);
 
         return $this->db->execute();
     }
@@ -59,10 +52,7 @@ class EquipoModel
              WHERE id = :id"
         );
         
-        $this->db->bind(
-            'id', 
-            $id
-        );
+        $this->db->bind('id', $id);
         
         return $this->db->register();
     }
@@ -80,20 +70,9 @@ class EquipoModel
              WHERE id = :id"
         );
         
-        $this->db->bind(
-            'id', 
-            $data['id']
-        );
-        
-        $this->db->bind(
-            'nombre', 
-            $data['nombre']
-        );
-        
-        $this->db->bind(
-            'descripcion', 
-            $data['descripcion']
-        );
+        $this->db->bind('id', $data['id']);
+        $this->db->bind('nombre', $data['nombre']);
+        $this->db->bind('descripcion', $data['descripcion']);
 
         return $this->db->execute();
     }
@@ -108,16 +87,13 @@ class EquipoModel
              WHERE id = :id"
         );
         
-        $this->db->bind(
-            'id', 
-            $id
-        );
+        $this->db->bind('id', $id);
 
         return $this->db->execute();
     }
 
     /**
-     * Asigna un usuario a un equipo específico.
+     * Asigna un usuario a un equipo específico
      */
     public function asignarUsuarioAEquipo($id_usuario, $id_equipo) 
     {
@@ -127,30 +103,34 @@ class EquipoModel
              WHERE id = :id_usuario"
         );
         
-        $this->db->bind(
-            'id_equipo', 
-            $id_equipo
-        );
-        
-        $this->db->bind(
-            'id_usuario', 
-            $id_usuario
-        );
+        $this->db->bind('id_equipo', $id_equipo);
+        $this->db->bind('id_usuario', $id_usuario);
         
         return $this->db->execute();
     }
 
-    public function obtenerIntegrantesPorEquipo($id_equipo) {
+    /**
+     * Obtiene los integrantes pertenecientes a un equipo
+     */
+    public function obtenerIntegrantesPorEquipo($id_equipo) 
+    {
+        $this->db->query(
+            "SELECT id, nombre, apellido, email 
+             FROM usuario 
+             WHERE fk_id_equipo = :id 
+               AND deleted_at IS NULL"
+        );
+        
+        $this->db->bind('id', $id_equipo);
+        
+        return $this->db->registers(); 
+    }
 
-     $this->db->query(
-            "SELECT id, nombre, email FROM usuario WHERE fk_id_equipo = :id"
-        );
-        
-        $this->db->bind(
-            'id', 
-            $id_equipo
-        );
-        
-        return $this->db->registers();
-}
+    /**
+     * compatibilidad con asignación de miembros desde el controlador revisar luego.
+     */
+    public function obtener_miembros_por_equipo($id_equipo)
+    {
+        return $this->obtenerIntegrantesPorEquipo($id_equipo);
+    }
 }

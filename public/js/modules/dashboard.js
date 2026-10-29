@@ -1,16 +1,17 @@
-
+import { renderAdminLayout, initAdminLayout } from "../templates/layout.js";
 import { dashboardTemplate } from "../templates/dashboardTemplate.js";
-import { authService } from "../services/authService.js";
-import { RUTA_AVATAR } from "../config.js";
 import { initCreateTarea } from "./tareas/createTarea.js";
 import { getTareas } from "./tareas/getTareas.js";
 import { initFilterTarea } from "./tareas/filterTareas.js";
 import { initUpdateTarea } from "./tareas/updateTarea.js";
 import { initDeleteTarea } from "./tareas/deleteTarea.js";
-export const renderDashboard = async (container) => {
-    container.innerHTML = dashboardTemplate();
+import { initAsignarEquipo } from "./tareas/asignarEquipo.js";
+import { initAsignarMiembro } from "./tareas/asignarMiembro.js";
+import { authService } from "../services/authService.js";
 
+export const renderDashboard = async (container) => {
     try {
+       // Verificamos primero la sesión con la API para obtener el usuario real
         const response = await authService.checkSession();
 
         if (!response.success || !response.user) {
@@ -18,61 +19,40 @@ export const renderDashboard = async (container) => {
             return;
         }
 
-        const userName =
-            document.getElementById("dashboardUserName");
+        const user = response.user;
+        // Renderizamos la estructura del Layout con el Dashboard adentro
+        container.innerHTML = renderAdminLayout(dashboardTemplate(user));
 
-        const userAvatar =
-            document.getElementById("dashboardUserAvatar");
+        // Inicializamos los datos del layout (avatar, nombre en topbar, etc.) pasando el usuario que ya tenemos
+        initAdminLayout(user);
+       
+        const idRol = Number(user.id_rol ?? user.fk_id_rol ?? 0);
 
-        const btnCerrarSesion =
-            document.getElementById("btnCerrarSesion");
-
-        // Nombre del usuario
-        if (userName) {
-            userName.textContent = response.user.nombre;
-        }
-
-        // Avatar
-        if (userAvatar) {
-            userAvatar.src = response.user.avatar
-                ? RUTA_AVATAR + response.user.avatar
-                : RUTA_AVATAR + "img_default.png";
-        }
-
-        // Logout
-        if (btnCerrarSesion) {
-            btnCerrarSesion.addEventListener("click", async () => {
-                try {
-                    const logoutResponse =
-                        await authService.logout();
-
-                    if (logoutResponse.success) {
-                        window.location.href =
-                            "/proyecto-tareas/login";
-                    }
-                } catch (error) {
-                    console.error(
-                        "Error al cerrar sesión:",
-                        error,
-                    );
-                }
-            });
-        }
-
-        // Inicializar creación de tareas
-        initCreateTarea();
-        initUpdateTarea();
-        initDeleteTarea();
+        // Inicializamos el filtro de tareas
         initFilterTarea();
 
-        // Cargar listado de tareas
+        // Inicializamos los listeners de acciones según el Rol
+        if (idRol === 1) {
+            // Administrador (Rol 1)
+            initCreateTarea();
+            initUpdateTarea();
+            initDeleteTarea();
+            initAsignarEquipo();
+            initAsignarMiembro();
+        } else if (idRol === 2) {
+            // Líder (Rol 2)
+            initUpdateTarea();
+            initDeleteTarea();
+            initAsignarMiembro();
+        } else {
+            // Miembro (Rol 3)
+            initUpdateTarea();
+        }
+
+        // Cargamos las tareas 
         await getTareas();
 
     } catch (error) {
-        console.error(
-            "Error al cargar la sesión:",
-            error,
-        );
+        console.error("Error al renderizar el Dashboard con Layout:", error);
     }
 };
-
