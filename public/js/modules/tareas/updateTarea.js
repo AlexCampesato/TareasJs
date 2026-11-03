@@ -131,10 +131,50 @@ export const initUpdateTarea = () => {
                 const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
                 modalInstance.show();
             }
+
+            // Cambiar Prioridad (Líder / Admin) -> Abre el modal de Prioridad
+            const btnCambiarPrioridad = e.target.closest(".btn-cambiar-prioridad");
+            if (btnCambiarPrioridad) {
+                const idTarea = btnCambiarPrioridad.dataset.id;
+                const prioridadActual = Number(btnCambiarPrioridad.dataset.prioridad || 2);
+
+                const modalEl = document.getElementById("modalCambiarPrioridad");
+                const selectPrioridad = document.getElementById("selectPrioridad");
+                const inputId = document.getElementById("idTareaPrioridad");
+
+                if (!modalEl || !selectPrioridad || !inputId) return;
+
+                inputId.value = idTarea;
+
+                try {
+                    const response = await tareaService.getPrioridades();
+                    if (response.ok && response.prioridades) {
+                        selectPrioridad.innerHTML = response.prioridades
+                            .map(
+                                (prio) => `
+                                <option 
+                                    value="${prio.id}" 
+                                    ${Number(prio.id) === prioridadActual ? "selected" : ""}
+                                >
+                                    ${prio.nombre}
+                                </option>
+                            `
+                            )
+                            .join("");
+                    }
+                } catch (err) {
+                    console.error("Error al cargar prioridades:", err);
+                }
+
+                const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modalInstance.show();
+                return;
+            }
         });
 
-        // Inicializamos los submitters de ambos modales
+        // Inicializamos los submitters de los modales
         initSubmitCambiarEstado();
+        initSubmitCambiarPrioridad();
         initSubmitUpdateTarea();
     }
 };
@@ -172,6 +212,41 @@ export const initSubmitCambiarEstado = () => {
                 }
             } catch (error) {
                 console.error("Error en la petición de cambiar estado:", error);
+            }
+        });
+    }
+};
+
+export const initSubmitCambiarPrioridad = () => {
+    const form = document.getElementById("formCambiarPrioridad");
+    const modalEl = document.getElementById("modalCambiarPrioridad");
+    if (!form || !modalEl) return;
+
+    if (!form.dataset.listenerSubmit) {
+        form.dataset.listenerSubmit = "true";
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const idTarea = document.getElementById("idTareaPrioridad").value;
+            const nuevaPrioridad = document.getElementById("selectPrioridad").value;
+
+            if (!idTarea || !nuevaPrioridad) return;
+
+            try {
+                const response = await tareaService.actualizarPrioridad(idTarea, nuevaPrioridad);
+
+                if (response.ok || response.success) {
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl);
+                    if (modalInstance) modalInstance.hide();
+
+                    const selectFiltro = document.getElementById("selectFiltroEstado");
+                    await getTareas(selectFiltro ? Number(selectFiltro.value) : 0);
+                } else {
+                    console.error("Error al actualizar prioridad:", response.mensaje || response.message);
+                }
+            } catch (error) {
+                console.error("Error en la petición de cambiar prioridad:", error);
             }
         });
     }

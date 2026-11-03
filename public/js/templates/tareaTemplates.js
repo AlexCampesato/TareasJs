@@ -35,6 +35,12 @@ export const tareaTemplates = {
                     <span class="badge rounded-pill px-2 py-1" style="background-color: ${tarea.color || "#6c757d"}">
                         ${tarea.estado_nombre || "Pendiente"}
                     </span>
+                    <span 
+                        class="badge fw-bold me-1 shadow-sm text-dark"
+                        style="background-color: ${tarea.color_prioridad || '#0dcaf0'}; font-size: 0.75rem;"
+                    >
+                        <i class="fas fa-exclamation-circle me-1"></i>${tarea.nombre_prioridad || 'Media'}
+                    </span>
                 </td>
                 <td class="text-center pe-4">
                     <!-- Botón Editar: Usado por prepareEditTarea.js -->

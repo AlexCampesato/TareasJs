@@ -1,0 +1,7 @@
+Importar db_tareas_actualizada_29_10.sql
+importar prioridad_tareas.sql
+
+Usuarios
+admin@mail.com 123456 rol:admin
+maria@mail.com 123456 rol:lider
+ana@mail.com 123456 rol:miembro
