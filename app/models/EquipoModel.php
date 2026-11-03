@@ -33,9 +33,16 @@ class EquipoModel
     public function obtenerEquipos()
     {
         $this->db->query(
-            "SELECT * 
-             FROM equipos 
-             ORDER BY id ASC"
+            "SELECT 
+                e.*, 
+                u.nombre AS nombre_lider, 
+                u.apellido AS apellido_lider
+             FROM equipos e
+             LEFT JOIN usuario u 
+                ON u.fk_id_equipo = e.id 
+               AND u.fk_id_rol = 2 
+               AND u.deleted_at IS NULL
+             ORDER BY e.id ASC"
         );
         
         return $this->db->registers();

@@ -47,7 +47,7 @@ export const tablePermisoTemplate = (permisos) => {
                 <!-- Botón Ver Detalles -->
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-info flex-fill btn-ver-permiso"
+                  class="btn btn-sm btn-info flex-fill btn-ver-permiso"
                   data-id="${permiso.id}"
                   title="Ver Detalles"
                 >
@@ -57,7 +57,7 @@ export const tablePermisoTemplate = (permisos) => {
                 <!-- Botón Editar -->
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-primary flex-fill btn-editar-permiso"
+                  class="btn btn-sm btn-warning flex-fill btn-editar-permiso"
                   data-id="${permiso.id}"
                   title="Editar Permiso"
                 >
@@ -67,7 +67,7 @@ export const tablePermisoTemplate = (permisos) => {
                 <!-- Botón Eliminar -->
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-danger btn-eliminar-permiso"
+                  class="btn btn-sm btn-danger btn-eliminar-permiso"
                   data-id="${permiso.id}"
                   title="Eliminar Permiso"
                 >

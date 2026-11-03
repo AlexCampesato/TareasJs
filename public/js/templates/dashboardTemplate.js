@@ -17,7 +17,7 @@ export const dashboardTemplate = (user = null) => {
             ${
                 esAdmin
                     ? `
-                        <button id="btnNuevaTarea" type="button" class="btn btn-primary btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalCrearTarea">
+                        <button id="btnNuevaTarea" type="button" class="btn btn-success btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalCrearTarea">
                             <i class="bi bi-plus-circle me-1"></i> Nueva Tarea
                         </button>
                     `

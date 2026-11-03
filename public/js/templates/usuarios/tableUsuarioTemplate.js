@@ -95,7 +95,7 @@ export const tableUsuarioTemplate = (usuarios) => {
                 <!-- Botón Ver Detalles -->
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-info flex-fill btn-ver-usuario"
+                  class="btn btn-sm btn-info flex-fill btn-ver-usuario"
                   data-id="${usuario.id}"
                   title="Ver Detalles"
                 >
@@ -105,7 +105,7 @@ export const tableUsuarioTemplate = (usuarios) => {
                 <!-- Botón Editar -->
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-primary flex-fill btn-editar-usuario"
+                  class="btn btn-sm btn-warning flex-fill btn-editar-usuario"
                   data-id="${usuario.id}"
                   title="Editar Usuario"
                 >
@@ -126,7 +126,7 @@ export const tableUsuarioTemplate = (usuarios) => {
                 <!-- Botón Eliminar -->
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-danger btn-eliminar-usuario"
+                  class="btn btn-sm btn-danger btn-eliminar-usuario"
                   data-id="${usuario.id}"
                   title="Eliminar Usuario"
                 >

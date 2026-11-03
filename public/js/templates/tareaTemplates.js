@@ -39,7 +39,7 @@ export const tareaTemplates = {
                 <td class="text-center pe-4">
                     <!-- Botón Editar: Usado por prepareEditTarea.js -->
                     <button type="button" 
-                            class="btn btn-sm btn-outline-primary me-1 btn-editar-tarea" 
+                            class="btn btn-sm btn-warning me-1 btn-editar-tarea" 
                             data-id="${tarea.id_tarea}"
                             title="Editar Tarea">
                         <i class="fas fa-edit"></i>
@@ -47,7 +47,7 @@ export const tareaTemplates = {
 
                     <!-- Botón Eliminar: Usado por deleteTarea.js -->
                     <button type="button" 
-                            class="btn btn-sm btn-outline-danger btn-eliminar-tarea" 
+                            class="btn btn-sm btn-danger btn-eliminar-tarea" 
                             data-id="${tarea.id_tarea}"
                             title="Eliminar Tarea">
                         <i class="fas fa-trash"></i>
