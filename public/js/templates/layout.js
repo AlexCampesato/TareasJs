@@ -10,7 +10,7 @@ export const renderAdminLayout = (contenidoInterno = "") => {
                     
                     <!-- TOPBAR -->
                     <nav class="navbar navbar-expand-md navbar-light bg-white topbar mb-4 static-top shadow-sm px-3 px-md-4"> 
-                        <!-- Botón Hamburguesa (visible solo en móvil para Admin) -->
+                        <!-- Botón Hamburguesa (visible solo en celular para Admin) -->
                         <button
                             id="sidebarToggleTop"
                             class="navbar-toggler border-0 p-2 me-2"
@@ -52,7 +52,7 @@ export const renderAdminLayout = (contenidoInterno = "") => {
                             </li>
                         </ul>
 
-                        <!-- Contenedor colapsable para móvil / horizontal en escritorio -->
+                        <!-- Contenedor colapsable para celular / horizontal en escritorio -->
                        <div class="collapse navbar-collapse order-md-1 mt-2 mt-md-0" id="menuAdminCollapse">
                             <!-- Contenedor accesos de Administración (Controlado dinámicamente por Rol) -->
                             <div id="navSeccionesAdmin" class=" flex-column flex-md-row gap-2 py-2 py-md-0">

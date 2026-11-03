@@ -37,7 +37,7 @@ export const renderUsuarios = (container) => {
                         <div class="form-check">
                             <input class="form-check-input filtro-checkbox" type="checkbox" value="inactivos" id="checkInactivos">
                             <label class="form-check-label small fw-bold text-muted" for="checkInactivos">
-                                Solo Inactivos
+                                Inactivos
                             </label>
                         </div>
                         <div class="form-check">

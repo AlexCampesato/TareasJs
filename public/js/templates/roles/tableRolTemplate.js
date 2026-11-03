@@ -56,7 +56,7 @@ export const tableRolTemplate = (roles) => {
                 <!-- Botón Ver Detalles -->
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-info flex-fill btn-ver-rol"
+                  class="btn btn-sm btn-info flex-fill btn-ver-rol"
                   data-id="${rol.id}"
                   title="Ver Detalles"
                 >
@@ -66,7 +66,7 @@ export const tableRolTemplate = (roles) => {
                 <!-- Botón Editar -->
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-primary flex-fill btn-editar-rol"
+                  class="btn btn-sm btn-warning flex-fill btn-editar-rol"
                   data-id="${rol.id}"
                   title="Editar Rol"
                 >
@@ -76,7 +76,7 @@ export const tableRolTemplate = (roles) => {
                 <!-- Botón Eliminar -->
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-danger btn-eliminar-rol"
+                  class="btn btn-sm btn-danger btn-eliminar-rol"
                   data-id="${rol.id}"
                   title="Eliminar Rol"
                 >
