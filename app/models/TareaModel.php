@@ -19,6 +19,23 @@ class TareaModel
     }
 
     /**
+     * Actualiza únicamente la prioridad de una tarea.
+     */
+    public function actualizarPrioridad($id_tarea, $id_prioridad)
+    {
+        $this->db->query(
+            "UPDATE tarea 
+            SET fk_id_prioridad = :id_prioridad 
+            WHERE id = :id_tarea"
+        );
+
+        $this->db->bind(':id_prioridad', $id_prioridad);
+        $this->db->bind(':id_tarea', $id_tarea);
+
+        return $this->db->execute();
+    }
+
+    /**
      * 1. Admin: Obtiene todas las tareas del sistema.
      */
     public function buscarTareas($id_estado = 0)
@@ -32,14 +49,19 @@ class TareaModel
                     tarea.fk_id_equipo,
                     tarea.fk_id_usuario_asignado,
                     tarea.fk_id_estado,
+                    tarea.fk_id_prioridad,
                     equipos.nombre AS nombre_equipo,
                     u_asignado.nombre AS nombre_usuario_asignado,
                     u_asignado.apellido AS apellido_usuario_asignado,
                     estado.tipoEstado,
-                    estado.color
+                    estado.color,
+                    prioridad.nombre AS nombre_prioridad,
+                    prioridad.color AS color_prioridad
                 FROM tarea
                 INNER JOIN estado
                     ON estado.id_estado = tarea.fk_id_estado
+                LEFT JOIN prioridad
+                    ON prioridad.id = tarea.fk_id_prioridad    
                 LEFT JOIN equipos
                     ON equipos.id = tarea.fk_id_equipo
                 LEFT JOIN usuario u_asignado
@@ -74,16 +96,21 @@ class TareaModel
                     tarea.fk_id_equipo,
                     tarea.fk_id_usuario_asignado,
                     tarea.fk_id_estado,
+                    tarea.fk_id_prioridad,
                     equipos.nombre AS nombre_equipo,
                     u_asignado.nombre AS nombre_usuario_asignado,
                     u_asignado.apellido AS apellido_usuario_asignado,
                     estado.tipoEstado, 
-                    estado.color 
+                    estado.color,
+                    prioridad.nombre AS nombre_prioridad,
+                    prioridad.color AS color_prioridad 
                 FROM tarea
                 INNER JOIN usuario u_lider 
                     ON u_lider.id = :id_usuario
                 INNER JOIN estado 
                     ON tarea.fk_id_estado = estado.id_estado
+                LEFT JOIN prioridad
+                    ON prioridad.id = tarea.fk_id_prioridad    
                 LEFT JOIN equipos
                     ON equipos.id = tarea.fk_id_equipo
                 LEFT JOIN usuario u_asignado
@@ -120,14 +147,19 @@ class TareaModel
                     tarea.fk_id_equipo,
                     tarea.fk_id_usuario_asignado,
                     tarea.fk_id_estado,
+                    tarea.fk_id_prioridad,
                     equipos.nombre AS nombre_equipo,
                     u_asignado.nombre AS nombre_usuario_asignado,
                     u_asignado.apellido AS apellido_usuario_asignado,
                     estado.tipoEstado, 
-                    estado.color 
+                    estado.color,
+                    prioridad.nombre AS nombre_prioridad,
+                    prioridad.color AS color_prioridad 
                 FROM tarea
                 INNER JOIN estado 
                     ON tarea.fk_id_estado = estado.id_estado
+                LEFT JOIN prioridad
+                    ON prioridad.id = tarea.fk_id_prioridad
                 LEFT JOIN equipos
                     ON equipos.id = tarea.fk_id_equipo
                 LEFT JOIN usuario u_asignado
@@ -156,6 +188,8 @@ class TareaModel
      */
     public function altaTarea($data)
     {
+        $id_prioridad = !empty($data['id_prioridad']) ? $data['id_prioridad'] : 2;
+
         $this->db->query(
             "INSERT INTO tarea
                 (
@@ -163,6 +197,7 @@ class TareaModel
                     descripcion,
                     expired_at,
                     fk_id_estado,
+                    fk_id_prioridad,
                     fk_id_creador,
                     fk_id_equipo,
                     created_at
@@ -173,6 +208,7 @@ class TareaModel
                     :descripcion,
                     :expired_at,
                     :id_estado,
+                    :id_prioridad,
                     :id_creador,
                     :id_equipo,
                     CURRENT_TIMESTAMP
@@ -183,6 +219,7 @@ class TareaModel
         $this->db->bind('descripcion', $data['descripcion']);
         $this->db->bind('expired_at', $data['expired_at']);
         $this->db->bind('id_estado', $data['id_estado']);
+        $this->db->bind('id_prioridad', $id_prioridad);
         $this->db->bind('id_creador', $data['id_usuario']); 
         
         $id_equipo = !empty($data['id_equipo']) ? $data['id_equipo'] : null;
@@ -214,10 +251,14 @@ class TareaModel
             "SELECT
                 tarea.*,
                 estado.tipoEstado,
-                estado.color
+                estado.color,
+                prioridad.nombre AS nombre_prioridad,
+                prioridad.color AS color_prioridad
              FROM tarea
              INNER JOIN estado
                 ON estado.id_estado = tarea.fk_id_estado
+             LEFT JOIN prioridad
+                ON prioridad.id = tarea.fk_id_prioridad
              WHERE tarea.id = :id
              AND tarea.deleted_at IS NULL"
         );

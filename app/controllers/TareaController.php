@@ -4,11 +4,13 @@ class TareaController extends BaseController
 {
     private $tareaModel;
     private $estadoModel;
+    private $prioridadModel;
 
     public function __construct()
     {
         $this->tareaModel = $this->model('TareaModel');
         $this->estadoModel = $this->model('EstadoModel');
+        $this->prioridadModel = $this->model('PrioridadModel');
     }
 
     /**
@@ -126,6 +128,72 @@ class TareaController extends BaseController
         ]);
     }
 
+    /**
+     * GET /api/prioridades
+     * Retorna el listado de prioridades disponibles.
+     */
+    public function prioridades()
+    {
+        $prioridades = $this->prioridadModel->obtenerPrioridad();
+
+        $this->jsonResponse([
+            'ok' => true,
+            'prioridades' => $prioridades
+        ]);
+    }
+
+    /**
+     * POST /api/tareas/actualizar-prioridad
+     * PATCH /api/tareas/prioridad
+     *
+     * Cambia únicamente la prioridad de una tarea.
+     * Solo disponible para Admin (Rol 1) y Líder (Rol 2).
+     */
+    public function actualizar_prioridad()
+    {
+        $sessionUser = $_SESSION['user'] ?? null;
+        $idRol = 0;
+
+        if ($sessionUser) {
+            $idRol = intval($sessionUser['id_rol'] ?? $sessionUser['fk_id_rol'] ?? 0);
+        } elseif (isset($_SESSION['id_rol'])) {
+            $idRol = intval($_SESSION['id_rol']);
+        } elseif (isset($_SESSION['user_rol_id'])) {
+            $idRol = intval($_SESSION['user_rol_id']);
+        }
+
+        // Permiso restrictivo: Solo Admin (1) o Líder (2)
+        if ($idRol !== 1 && $idRol !== 2) {
+            $this->jsonResponse([
+                'ok' => false,
+                'message' => 'No tienes permiso para cambiar la prioridad.'
+            ], 403);
+            return;
+        }
+
+        $datos = $this->getJsonBody();
+
+        $id_tarea = intval($datos['id_tarea'] ?? $datos['id'] ?? 0);
+        $id_prioridad = intval($datos['fk_id_prioridad'] ?? $datos['id_prioridad'] ?? 0);
+
+        if (!$id_tarea || !$id_prioridad) {
+            $this->jsonResponse([
+                'ok' => false,
+                'message' => 'Datos incompletos para actualizar la prioridad.'
+            ], 400);
+            return;
+        }
+
+        // Actualización directa en TareaModel
+        $exito = $this->tareaModel->actualizarPrioridad($id_tarea, $id_prioridad);
+
+        $this->jsonResponse([
+            'ok' => (bool)$exito,
+            'success' => (bool)$exito,
+            'message' => $exito ? 'Prioridad actualizada correctamente.' : 'No se pudo actualizar la prioridad.'
+        ]);
+    }
+    
     /**
      * GET /api/tareas/{id_tarea}
      */
