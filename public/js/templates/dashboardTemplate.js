@@ -33,6 +33,12 @@ export const dashboardTemplate = (user = null) => {
                     <option value="0">Todos los estados</option>
                 </select>
             </div>
+            <div class="col-md-4">
+                <label for="selectFiltroPrioridad" class="form-label small text-muted">Filtrar por prioridad</label>
+                <select id="selectFiltroPrioridad" class="form-select form-select-sm shadow-sm">
+                    <option value="0">Todas las prioridades</option>
+                </select>
+            </div>
         </div>
 
         <!-- CARDS / TAREAS -->

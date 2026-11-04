@@ -5,9 +5,9 @@ import { authService } from "../../services/authService.js";
 import { initAsignarEquipo } from "./asignarEquipo.js"; 
 import { initAsignarMiembro } from "./asignarMiembro.js"; 
 
-export const getTareas = async (idEstado = 0) => {
+export const getTareas = async (idEstado = 0, idPrioridad = 0) => {
     const tablaBody = document.getElementById("tablaTareasBody");
-
+    
     if (!tablaBody) return;
 
     try {
@@ -17,7 +17,7 @@ export const getTareas = async (idEstado = 0) => {
       const user = session.success ? session.user : null;
 
       // Obtenemos las tareas
-      const response = await tareaService.getAll(idEstado);
+      const response = await tareaService.getAll(idEstado, idPrioridad);
       
       console.log("ID ESTADO:", idEstado);
       console.log("RESPUESTA TAREAS:", response);

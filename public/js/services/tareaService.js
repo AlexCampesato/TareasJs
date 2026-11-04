@@ -9,12 +9,16 @@ export const tareaService = {
         return await httpClient("/api/prioridades");
     },
 
-    async getAll(statusId = 0) {
-        if (statusId > 0) {
-            return await httpClient(`/api/tareas/estado/${statusId}`);
-        }
+    async getAll(statusId = 0, priorityId = 0) {
+        const params = new URLSearchParams();
+        
+        if (statusId > 0) params.append("id_estado", statusId);
+        if (priorityId > 0) params.append("id_prioridad", priorityId);
 
-        return await httpClient("/api/tareas");
+        const queryString = params.toString();
+        const url = queryString ? `/api/tareas?${queryString}` : "/api/tareas";
+
+        return await httpClient(url);
     },
 
     async getById(id) {

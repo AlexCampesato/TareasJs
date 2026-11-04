@@ -38,7 +38,7 @@ class TareaModel
     /**
      * 1. Admin: Obtiene todas las tareas del sistema.
      */
-    public function buscarTareas($id_estado = 0)
+    public function buscarTareas($id_estado = 0, $id_prioridad = 0)
     {
         $sql = "SELECT
                     tarea.id AS id_tarea,
@@ -72,6 +72,10 @@ class TareaModel
             $sql .= " AND estado.id_estado = :id_estado";
         }
 
+        if ($id_prioridad > 0) {
+        $sql .= " AND tarea.fk_id_prioridad = :id_prioridad";
+        }
+
         $sql .= " ORDER BY tarea.created_at DESC";
 
         $this->db->query($sql);
@@ -79,13 +83,15 @@ class TareaModel
         if ($id_estado > 0) {
             $this->db->bind('id_estado', $id_estado);
         }
-
+        if ($id_prioridad > 0){ 
+            $this->db->bind('id_prioridad', $id_prioridad);
+        }
         return $this->db->registers();
     }
    /**
      * 2. Líder: Obtiene las tareas pertenecientes al su mismo equipo.
      */
-    public function obtener_tareas_por_equipo($id_usuario, $id_estado = 0)
+    public function obtener_tareas_por_equipo($id_usuario, $id_estado = 0, $id_prioridad = 0)
     {
         $sql = "SELECT 
                     tarea.id AS id_tarea,
@@ -121,7 +127,9 @@ class TareaModel
         if ($id_estado > 0) {
             $sql .= " AND estado.id_estado = :id_estado";
         }
-
+        if ($id_prioridad > 0) {
+            $sql .= " AND tarea.fk_id_prioridad = :id_prioridad";
+        }
         $sql .= " ORDER BY tarea.created_at DESC";
 
         $this->db->query($sql);
@@ -129,6 +137,9 @@ class TareaModel
 
         if ($id_estado > 0) {
             $this->db->bind('id_estado', $id_estado);
+        }
+        if ($id_prioridad > 0) {
+            $this->db->bind('id_prioridad', $id_prioridad);
         }
 
         return $this->db->registers();
