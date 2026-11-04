@@ -31,6 +31,8 @@ class TareaController extends BaseController
             ? intval($_GET['id_estado']) 
             : intval($id_estado_param);
 
+        $id_prioridad = intval($_GET['id_prioridad'] ?? 0);
+
         $sessionUser = $_SESSION['user'] ?? null;
 
         // Obtener ID del Usuario autenticado
@@ -70,10 +72,10 @@ class TareaController extends BaseController
 
         if ($idRol === 1) {
             // Admin (1): Ve todas las tareas del sistema
-            $tareas = $this->tareaModel->buscarTareas($id_estado);
+            $tareas = $this->tareaModel->buscarTareas($id_estado, $id_prioridad);
         } else if (($idRol === 2 || $idRol === 3) && $idUsuario > 0) {
             // Líder (2) y Miembro (3): Ven las tareas asociadas a su equipo
-            $tareas = $this->tareaModel->obtener_tareas_por_equipo($idUsuario, $id_estado);
+            $tareas = $this->tareaModel->obtener_tareas_por_equipo($idUsuario, $id_estado, $id_prioridad);
         } else {
             $tareas = [];
         }
