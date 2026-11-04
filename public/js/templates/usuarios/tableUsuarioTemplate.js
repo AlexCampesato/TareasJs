@@ -109,7 +109,7 @@ export const tableUsuarioTemplate = (usuarios) => {
                   data-id="${usuario.id}"
                   title="Editar Usuario"
                 >
-                  <i class="fas fa-edit me-1"></i>Editar
+                  <i class="fas fa-edit me-1"></i>Asignar Rol/Equipo
                 </button>
 
                 <!-- Botón Activar / Desactivar -->
