@@ -1,9 +1,9 @@
-
 import { tareaService } from "../../services/tareaService.js";
 import { tableTareaTemplate } from "../../templates/tareas/tableTareaTemplate.js";
 import { authService } from "../../services/authService.js";
 import { initAsignarEquipo } from "./asignarEquipo.js"; 
 import { initAsignarMiembro } from "./asignarMiembro.js"; 
+import { setTareasCache } from "./filterTareas.js";
 
 export const getTareas = async (idEstado = 0, idPrioridad = 0) => {
     const tablaBody = document.getElementById("tablaTareasBody");
@@ -11,29 +11,30 @@ export const getTareas = async (idEstado = 0, idPrioridad = 0) => {
     if (!tablaBody) return;
 
     try {
+        // Obtenemos el usuario en sesión para conocer su rol
+        const session = await authService.checkSession();
+        const user = session.success ? session.user : null;
 
-      // Obtenemos el usuario en sesión para saber su rol
-      const session = await authService.checkSession();
-      const user = session.success ? session.user : null;
-
-      // Obtenemos las tareas
-      const response = await tareaService.getAll(idEstado, idPrioridad);
-      
-      console.log("ID ESTADO:", idEstado);
-      console.log("RESPUESTA TAREAS:", response);
-
+        // Obtenemos las tareas desde el servicio
+        const response = await tareaService.getAll(idEstado, idPrioridad);
+        
+        console.log("ID ESTADO:", idEstado);
+        console.log("RESPUESTA TAREAS:", response);
 
         if (!response.ok) {
             throw new Error("No se pudieron obtener las tareas.");
         }
-        // Le enviamos tanto el listado de tareas como los datos del usuario al template
-        tablaBody.innerHTML = tableTareaTemplate(
-            response.tareas || [], 
-            user
-        );
 
-        // Volvemos a vincular los eventos de asignación sobre las nuevas cards
-        const idRol = user ? Number(user.id_rol) : null;
+        const tareas = response.tareas || [];
+
+        //Guardamos en el caché de filtro el listado y el objeto usuario actual
+        setTareasCache(tareas, user);
+
+        // Renderizamos el template inicial
+        tablaBody.innerHTML = tableTareaTemplate(tareas, user);
+
+        // Re-vinculamos eventos de modales según jerarquía
+        const idRol = user ? Number(user.id_rol ?? user.fk_id_rol) : null;
         if (idRol === 1) {
             initAsignarEquipo();
             initAsignarMiembro();
@@ -51,4 +52,3 @@ export const getTareas = async (idEstado = 0, idPrioridad = 0) => {
         `;
     }
 };
-

@@ -20,26 +20,39 @@ export const dashboardTemplate = (user = null) => {
                         <button id="btnNuevaTarea" type="button" class="btn btn-success btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalCrearTarea">
                             <i class="bi bi-plus-circle me-1"></i> Nueva Tarea
                         </button>
-                    `
-                    : ""
+                    `: ""
             }
         </div>
 
-        <!-- Filtros -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <label for="selectFiltroEstado" class="form-label small text-muted">Filtrar por estado</label>
-                <select id="selectFiltroEstado" class="form-select form-select-sm shadow-sm">
-                    <option value="0">Todos los estados</option>
-                </select>
+        <!-- Filtros y Buscador de Tareas -->
+            <div class="row mb-4 g-3 align-items-center">
+                <div class="col-md-5">
+                    <label for="inputBuscarTarea" class="form-label small text-muted mb-1">Buscar tareas</label>
+                    <div class="input-group input-group-sm shadow-sm">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            id="inputBuscarTarea" 
+                            class="form-select-sm form-control border-start-0" 
+                            placeholder="Buscar por título, descripción, equipo o asignado..."
+                        >
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="selectFiltroEstado" class="form-label small text-muted mb-1">Estado</label>
+                    <select id="selectFiltroEstado" class="form-select form-select-sm shadow-sm">
+                        <option value="0">Todos los estados</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="selectFiltroPrioridad" class="form-label small text-muted mb-1">Prioridad</label>
+                    <select id="selectFiltroPrioridad" class="form-select form-select-sm shadow-sm">
+                        <option value="0">Todas las prioridades</option>
+                    </select>
+                </div>
             </div>
-            <div class="col-md-4">
-                <label for="selectFiltroPrioridad" class="form-label small text-muted">Filtrar por prioridad</label>
-                <select id="selectFiltroPrioridad" class="form-select form-select-sm shadow-sm">
-                    <option value="0">Todas las prioridades</option>
-                </select>
-            </div>
-        </div>
 
         <!-- CARDS / TAREAS -->
         <div class="card shadow-sm border-0 mb-4">
