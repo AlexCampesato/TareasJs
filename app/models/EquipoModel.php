@@ -122,10 +122,17 @@ class EquipoModel
     public function obtenerIntegrantesPorEquipo($id_equipo) 
     {
         $this->db->query(
-            "SELECT id, nombre, apellido, email 
-             FROM usuario 
-             WHERE fk_id_equipo = :id 
-               AND deleted_at IS NULL"
+           "SELECT 
+                u.id, 
+                u.nombre, 
+                u.apellido, 
+                u.email,
+                u.fk_id_rol,
+                r.nombre AS nombre_rol
+             FROM usuario u
+             LEFT JOIN roles r ON u.fk_id_rol = r.id
+             WHERE u.fk_id_equipo = :id 
+               AND u.deleted_at IS NULL"
         );
         
         $this->db->bind('id', $id_equipo);
@@ -133,11 +140,4 @@ class EquipoModel
         return $this->db->registers(); 
     }
 
-    /**
-     * compatibilidad con asignación de miembros desde el controlador revisar luego.
-     */
-    public function obtener_miembros_por_equipo($id_equipo)
-    {
-        return $this->obtenerIntegrantesPorEquipo($id_equipo);
-    }
 }
