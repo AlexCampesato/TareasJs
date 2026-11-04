@@ -23,6 +23,9 @@ class TareaController extends BaseController
      */
     public function index($id_estado_param = 0)
     {
+        // Ejecutamos la expiración automática en la Base de Datos antes de consultar
+        $this->tareaModel->expirarTareas();
+        
         // Soporta tanto /api/tareas?id_estado=1 como /api/tareas/estado/1
         $id_estado = isset($_GET['id_estado']) 
             ? intval($_GET['id_estado']) 
