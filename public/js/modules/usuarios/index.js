@@ -75,42 +75,31 @@ export const renderUsuarios = (container) => {
                 <div id="paginacionUsuarios"></div>
             </div>
 
-        <!-- Modal Unificado: Editar Usuario -->
+        <!-- Modal Admin: Editar Rol y Equipo del Usuario -->
         <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow">
                     <div class="modal-header">
-                        <h5 class="modal-title fw-bold" id="modalUsuarioTitulo">Nuevo Usuario</h5>
+                        <h5 class="modal-title fw-bold" id="modalUsuarioTitulo">Asignar Rol y Equipo</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <form id="formUsuario" novalidate>
                         <input type="hidden" name="id_usuario" id="id_usuario">
                         <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="usuarioNombre" class="form-label small text-muted">Nombre</label>
-                                <input type="text" name="nombre" id="usuarioNombre" class="form-control" required>
+                            <!-- Resumen informativo del usuario que se está editando -->
+                            <div class="bloque-info-card p-3 mb-3">
+                                <p class="fw-bold mb-0" id="editUsuarioNombreInfo">-</p>
+                                <small class="text-muted" id="editUsuarioEmailInfo">-</small>
                             </div>
+
                             <div class="mb-3">
-                                <label for="usuarioApellido" class="form-label small text-muted">Apellido</label>
-                                <input type="text" name="apellido" id="usuarioApellido" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="usuarioEmail" class="form-label small text-muted">Email</label>
-                                <input type="email" name="email" id="usuarioEmail" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="usuarioPass" class="form-label small text-muted" id="labelUsuarioPass">Contraseña</label>
-                                <input type="password" name="pass" id="usuarioPass" class="form-control" placeholder="Ingresá la contraseña">
-                                <small class="text-muted" id="ayudaUsuarioPass" style="display: none;">Dejar en blanco para mantener la contraseña actual.</small>
-                            </div>
-                            <div class="mb-3">
-                                <label for="usuarioRol" class="form-label small text-muted">Rol</label>
+                                <label for="usuarioRol" class="form-label small text-muted fw-semibold">Rol</label>
                                 <select name="fk_id_rol" id="usuarioRol" class="form-select" required>
                                     <option value="">Seleccione un rol...</option>
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="usuarioEquipo" class="form-label small text-muted">Equipo</label>
+                                <label for="usuarioEquipo" class="form-label small text-muted fw-semibold">Equipo</label>
                                 <select name="fk_id_equipo" id="usuarioEquipo" class="form-select">
                                     <option value="">Sin equipo asignado</option>
                                 </select>
@@ -124,7 +113,7 @@ export const renderUsuarios = (container) => {
                 </div>
             </div>
         </div>
-
+        
         <!-- Modal para Ver Detalles del Usuario -->
         <div class="modal fade" id="modalVerUsuario" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">

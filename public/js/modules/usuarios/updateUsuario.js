@@ -1,5 +1,4 @@
 import { usuarioService } from "../../services/usuarioService.js";
-// Asegúrate de que las rutas a los servicios coincidan con tu proyecto
 import { rolService } from "../../services/rolService.js";
 import { equipoService } from "../../services/equipoService.js";
 
@@ -12,7 +11,7 @@ export const prepareEditUsuario = async (id) => {
 
     const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
 
-    if (titulo) titulo.innerText = "Editar Usuario";
+    if (titulo) titulo.innerText = "Asignar Rol y Equipo";
 
     try {
         // Pedimos los datos del usuario, roles y equipos EN PARALELO
@@ -42,22 +41,22 @@ export const prepareEditUsuario = async (id) => {
             });
         }
 
-        // Finalmente, cargamos los datos del usuario en los inputs y seleccionamos las opciones correctas
+        // Cargamos el resumen informativo del usuario y seleccionamos su rol y equipo actuales
         if (userRes.success || userRes.ok) {
             const usuario = userRes.usuario || userRes.data || userRes;
 
             document.getElementById("id_usuario").value = usuario.id || id;
-            document.getElementById("usuarioNombre").value = usuario.nombre || "";
-            document.getElementById("usuarioApellido").value = usuario.apellido || "";
-            document.getElementById("usuarioEmail").value = usuario.email || "";
 
-            const passInput = document.getElementById("usuarioPass");
-            if (passInput) passInput.value = "";
+            const nombreInfo = document.getElementById("editUsuarioNombreInfo");
+            const emailInfo = document.getElementById("editUsuarioEmailInfo");
 
-            const ayudaPass = document.getElementById("ayudaUsuarioPass");
-            if (ayudaPass) ayudaPass.style.display = "block";
+            if (nombreInfo) {
+                nombreInfo.textContent = `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim();
+            }
+            if (emailInfo) {
+                emailInfo.textContent = usuario.email || "";
+            }
 
-            // Como los select ya tienen las opciones generadas, ahora sí podemos asignarle el valor que tiene el usuario
             if (selectRol) selectRol.value = usuario.fk_id_rol || usuario.id_rol || "";
             if (selectEquipo) selectEquipo.value = usuario.fk_id_equipo || usuario.id_equipo || "";
 

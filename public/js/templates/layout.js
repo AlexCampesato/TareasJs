@@ -1,4 +1,6 @@
 import { authService } from "../services/authService.js";
+import { usuarioService } from "../services/usuarioService.js";
+import { showToast } from "../ui/alert.js";
 import { RUTA_AVATAR } from "../config.js";
 
 export const renderAdminLayout = (contenidoInterno = "") => {
@@ -41,8 +43,8 @@ export const renderAdminLayout = (contenidoInterno = "") => {
                                     <img class="avatar rounded-circle layoutUserAvatar" src="" alt="Avatar" width="32" height="32" style="display:none;">
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in position-absolute" aria-labelledby="userDropdown">
-                                    <a class="dropdown-item" href="#">
-                                        <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i> Perfil
+                                    <a class="dropdown-item" href="#" id="btnMiPerfilGlobal">
+                                        <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i> Mi Perfil
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="#" id="btnCerrarSesionGlobal">
@@ -71,6 +73,44 @@ export const renderAdminLayout = (contenidoInterno = "") => {
                         ${contenidoInterno}
                     </div>
 
+                </div>
+
+                <!-- Modal Mi Perfil (Disponible en la vista de cada usuario) -->
+                <div class="modal fade" id="modalMiPerfil" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow">
+                            <div class="modal-header">
+                                <h5 class="modal-title fw-bold">
+                                    <i class="fas fa-user-edit me-2 text-primary"></i>Editar Mi Perfil
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <form id="formMiPerfil" novalidate>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="perfilNombre" class="form-label small text-muted fw-semibold">Nombre</label>
+                                        <input type="text" id="perfilNombre" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="perfilApellido" class="form-label small text-muted fw-semibold">Apellido</label>
+                                        <input type="text" id="perfilApellido" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="perfilEmail" class="form-label small text-muted fw-semibold">Email</label>
+                                        <input type="email" id="perfilEmail" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="perfilPass" class="form-label small text-muted fw-semibold">Nueva Contraseña</label>
+                                        <input type="password" id="perfilPass" class="form-control" placeholder="Dejar en blanco para mantener la actual">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary fw-bold">Guardar Cambios</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- FOOTER -->
@@ -134,7 +174,77 @@ export const initAdminLayout = async (userParam = null) => {
             el.style.display = "inline-block";
         });
 
-        // 4. Activar botón de cerrar sesión global
+        // 4. Activar modal "Mi Perfil" para que cada usuario edite su propio nombre, apellido, email y contraseña
+        const btnMiPerfil = document.getElementById("btnMiPerfilGlobal");
+        const modalPerfilEl = document.getElementById("modalMiPerfil");
+        const formMiPerfil = document.getElementById("formMiPerfil");
+
+        if (btnMiPerfil && modalPerfilEl && !btnMiPerfil.dataset.listener) {
+            btnMiPerfil.dataset.listener = "true";
+            btnMiPerfil.addEventListener("click", async (e) => {
+                e.preventDefault();
+                try {
+                    const res = await usuarioService.getById(user.id);
+                    const datos = res.data || res.usuario || user;
+
+                    document.getElementById("perfilNombre").value = datos.nombre || "";
+                    document.getElementById("perfilApellido").value = datos.apellido || "";
+                    document.getElementById("perfilEmail").value = datos.email || "";
+                    document.getElementById("perfilPass").value = "";
+
+                    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalPerfilEl);
+                    modalInstance.show();
+                } catch (err) {
+                    console.error("Error al cargar datos del perfil:", err);
+                }
+            });
+        }
+
+        if (formMiPerfil && modalPerfilEl && !formMiPerfil.dataset.listener) {
+            formMiPerfil.dataset.listener = "true";
+            formMiPerfil.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const nombre = document.getElementById("perfilNombre").value.trim();
+                const apellido = document.getElementById("perfilApellido").value.trim();
+                const email = document.getElementById("perfilEmail").value.trim();
+                const pass = document.getElementById("perfilPass").value.trim();
+
+                if (!nombre || !apellido || !email) {
+                    showToast("Por favor, completá Nombre, Apellido y Email.", "warning");
+                    return;
+                }
+
+                const payload = { nombre, apellido, email };
+                if (pass) {
+                    payload.pass = pass;
+                }
+
+                try {
+                    const updateRes = await usuarioService.update(user.id, payload);
+                    if (updateRes.success || updateRes.ok) {
+                        user.nombre = nombre;
+                        user.email = email;
+
+                        document.querySelectorAll(".layoutUserName").forEach(el => {
+                            el.textContent = nombre;
+                        });
+
+                        const modalInstance = bootstrap.Modal.getInstance(modalPerfilEl);
+                        if (modalInstance) modalInstance.hide();
+
+                        showToast("Tus datos personales se actualizaron correctamente.", "success");
+                    } else {
+                        showToast(updateRes.message || "No se pudieron actualizar tus datos.", "error");
+                    }
+                } catch (err) {
+                    console.error("Error al actualizar perfil:", err);
+                    showToast("Ocurrió un error al guardar los cambios.", "error");
+                }
+            });
+        }
+
+        // 5. Activar botón de cerrar sesión global
         const btnCerrarSesion = document.getElementById("btnCerrarSesionGlobal");
         if (btnCerrarSesion && !btnCerrarSesion.dataset.listener) {
             btnCerrarSesion.dataset.listener = "true";
@@ -151,7 +261,7 @@ export const initAdminLayout = async (userParam = null) => {
             });
         }
 
-        // 5. Ocultar la pestaña de la ruta actual (Solo si es Admin)
+        // 6. Ocultar la pestaña de la ruta actual (Solo si es Admin)
         const rutaActual = window.location.pathname;
         if (idRol === 1) {
             document.querySelectorAll('.btn-atajo').forEach(boton => {
