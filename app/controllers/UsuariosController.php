@@ -83,36 +83,66 @@ class UsuariosController extends BaseController {
 
     public function editar($id) { 
         if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'PUT') {
-            AuthHelper::tienePermiso('usuarios.editar');  
-            $data = $this->getJsonBody();
+            $esPropioUsuario = isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] === (int)$id;
 
-            if (empty($data['email']) || empty($data['nombre'])) {
+            // Si no está editando su propio perfil, exigimos permiso de administrador
+            if (!$esPropioUsuario) {
+                AuthHelper::tienePermiso('usuarios.editar');
+            }
+
+            $usuarioActual = $this->usuarioModel->obtener_usuario_por_id($id);
+            if (!$usuarioActual) {
                 $this->jsonResponse([
-                    'success' => false, 
-                    'message' => 'Faltan campos obligatorios'
-                ], 400);
+                    'success' => false,
+                    'message' => 'Usuario no encontrado'
+                ], 404);
                 return;
             }
 
-            $equipo_id = (!empty($data['fk_id_equipo']) && $data['fk_id_equipo'] !== "") 
-                         ? $data['fk_id_equipo'] 
-                         : null;
+            $data = $this->getJsonBody();
+
+            // Si vienen nombre/email (desde Mi Perfil), los actualizamos
+            $nombre = isset($data['nombre']) && trim($data['nombre']) !== ''
+                ? trim($data['nombre'])
+                : $usuarioActual->nombre;
+
+            $apellido = array_key_exists('apellido', $data)
+                ? trim($data['apellido'])
+                : ($usuarioActual->apellido ?? '');
+
+            $email = isset($data['email']) && trim($data['email']) !== ''
+                ? trim($data['email'])
+                : $usuarioActual->email;
+
+            // Si vienen fk_id_rol o fk_id_equipo (desde Admin), los actualizamos
+            $rol_id = array_key_exists('fk_id_rol', $data)
+                ? (!empty($data['fk_id_rol']) ? $data['fk_id_rol'] : null)
+                : $usuarioActual->fk_id_rol;
+
+            $equipo_id = array_key_exists('fk_id_equipo', $data)
+                ? (!empty($data['fk_id_equipo']) && $data['fk_id_equipo'] !== "" ? $data['fk_id_equipo'] : null)
+                : $usuarioActual->fk_id_equipo;
 
             $datos_usuario = [
                 'id' => $id,
-                'nombre' => trim($data['nombre']),
-                'apellido' => trim($data['apellido'] ?? ''),
-                'email' => trim($data['email']),
-                'avatar' => trim($data['avatar'] ?? 'img_default.png'), 
-                'fk_id_rol' => $data['fk_id_rol'],
+                'nombre' => $nombre,
+                'apellido' => $apellido,
+                'email' => $email,
+                'avatar' => trim($data['avatar'] ?? $usuarioActual->avatar ?? 'img_default.png'), 
+                'fk_id_rol' => $rol_id,
                 'fk_id_equipo' => $equipo_id,
                 'pass' => !empty($data['pass']) ? $data['pass'] : null
             ];
 
             if ($this->usuarioModel->actualizar_usuario($datos_usuario)) {
+                if ($esPropioUsuario) {
+                    $_SESSION['user_name'] = $nombre;
+                    $_SESSION['user_email'] = $email;
+                }
+
                 $this->jsonResponse([
                     'success' => true,
-                    'message' => 'Usuario actualizado exitosamente'
+                    'message' => 'Datos actualizados exitosamente'
                 ]);
             } else {
                 $this->jsonResponse([
