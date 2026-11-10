@@ -1,14 +1,3 @@
-import { estilosModoOscuroString } from "./estilosModoOscuro.js";
-
-const estilosOscuros = document.createElement('style');
-estilosOscuros.id = 'estilos-modo-oscuro-forzados';
-estilosOscuros.innerHTML = estilosModoOscuroString;
-
-// Insertamos los estilos en el head al cargar la página
-if (!document.getElementById('estilos-modo-oscuro-forzados')) {
-  document.head.appendChild(estilosOscuros);
-}
-
 // Función auxiliar para actualizar el icono visualmente dependiendo de si es luna o sol
 const actualizarIconoTema = (tema) => {
   const botones = document.querySelectorAll('#btn-cambiar-tema');
@@ -52,6 +41,7 @@ document.addEventListener('click', (e) => {
     }
   }
 });
+
 
 
 
