@@ -15,90 +15,91 @@ export const renderUsuarios = (container) => {
                     <p class="text-muted small mb-0">Administración de usuarios, roles y estados</p>
                 </div>
 
-              
-
-                <button class="btn btn-success btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalUsuario">
-                    <i class="fas fa-plus-circle fa-sm text-white-50 me-1"></i> Nuevo Usuario
-                </button>
             </div>
 
-            <!-- Barra de búsqueda -->
-            <div class="row mb-3">
-                <div class="col-md-5">
-                    <div class="input-group input-group-sm shadow-sm">
-                        <span class="input-group-text bg-white border-end-0">
-                            <i class="fas fa-search text-muted"></i>
-                        </span>
-                        <input
-                            type="text"
-                            id="inputBuscarUsuario"
-                            class="form-control border-start-0"
-                            placeholder="Buscar usuario por nombre, email, rol o equipo..."
-                        >
+            <!-- Tarjetas de Resumen (KPIs calculados dinámicamente) -->
+            <div class="row g-3 mb-4" id="resumenUsuarios"></div>
+
+
+            <div class="row mb-3 align-items-center">
+                    <!-- Buscador  -->
+                    <div class="col-md-5 mb-2 mb-md-0">
+                        <div class="input-group input-group-sm shadow-sm">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" id="inputBuscarUsuario" class="form-control border-start-0" placeholder="Buscar usuario por nombre, email...">
+                        </div>
+                    </div>
+
+                    <!-- Filtros Checkboxes acumulativos -->
+                    <div class="col-md-7 d-flex flex-wrap gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input filtro-checkbox" type="checkbox" value="inactivos" id="checkInactivos">
+                            <label class="form-check-label small fw-bold text-muted" for="checkInactivos">
+                                Inactivos
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input filtro-checkbox" type="checkbox" value="sin_equipo" id="checkSinEquipo">
+                            <label class="form-check-label small fw-bold text-muted" for="checkSinEquipo">
+                                Sin equipo
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input filtro-checkbox" type="checkbox" value="sin_rol" id="checkSinRol">
+                            <label class="form-check-label small fw-bold text-muted" for="checkSinRol">
+                                Sin rol
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
+
 
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0" width="100%" cellspacing="0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-4">ID</th>
-                                    <th>Nombre</th>
-                                    <th>Email</th>
-                                    <th>Rol</th>
-                                    <th>Equipo</th>
-                                    <th>Estado</th>
-                                    <th class="text-center pe-4">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaUsuariosBody">
-                                <tr><td colspan="7" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-2"></i> Cargando...</td></tr>
-                            </tbody>
-                        </table>
+                        <!-- ANTES ERA UNA TABLA, AHORA ES UNA FILA (ROW) DE BOOTSTRAP -->
+                        <div class="row" id="tablaUsuariosBody">
+                            <div class="col-12 text-center py-4 text-muted">
+                                <i class="fas fa-spinner fa-spin me-2"></i> Cargando...
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Modal Unificado: Crear / Editar Usuario -->
+        <!--  Paginación -->
+            <div class="card-footer bg-white py-3 border-0">
+                <div id="paginacionUsuarios"></div>
+            </div>
+
+        <!-- Modal Admin: Editar Rol y Equipo del Usuario -->
         <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow">
                     <div class="modal-header">
-                        <h5 class="modal-title fw-bold" id="modalUsuarioTitulo">Nuevo Usuario</h5>
+                        <h5 class="modal-title fw-bold" id="modalUsuarioTitulo">Asignar Rol y Equipo</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <form id="formUsuario" novalidate>
                         <input type="hidden" name="id_usuario" id="id_usuario">
                         <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="usuarioNombre" class="form-label small text-muted">Nombre</label>
-                                <input type="text" name="nombre" id="usuarioNombre" class="form-control" required>
+                            <!-- Resumen informativo del usuario que se está editando -->
+                            <div class="bloque-info-card p-3 mb-3">
+                                <p class="fw-bold mb-0" id="editUsuarioNombreInfo">-</p>
+                                <small class="text-muted" id="editUsuarioEmailInfo">-</small>
                             </div>
+
                             <div class="mb-3">
-                                <label for="usuarioApellido" class="form-label small text-muted">Apellido</label>
-                                <input type="text" name="apellido" id="usuarioApellido" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="usuarioEmail" class="form-label small text-muted">Email</label>
-                                <input type="email" name="email" id="usuarioEmail" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="usuarioPass" class="form-label small text-muted" id="labelUsuarioPass">Contraseña</label>
-                                <input type="password" name="pass" id="usuarioPass" class="form-control" placeholder="Ingresá la contraseña">
-                                <small class="text-muted" id="ayudaUsuarioPass" style="display: none;">Dejar en blanco para mantener la contraseña actual.</small>
-                            </div>
-                            <div class="mb-3">
-                                <label for="usuarioRol" class="form-label small text-muted">Rol</label>
+                                <label for="usuarioRol" class="form-label small text-muted fw-semibold">Rol</label>
                                 <select name="fk_id_rol" id="usuarioRol" class="form-select" required>
                                     <option value="">Seleccione un rol...</option>
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="usuarioEquipo" class="form-label small text-muted">Equipo</label>
+                                <label for="usuarioEquipo" class="form-label small text-muted fw-semibold">Equipo</label>
                                 <select name="fk_id_equipo" id="usuarioEquipo" class="form-select">
                                     <option value="">Sin equipo asignado</option>
                                 </select>
@@ -112,7 +113,7 @@ export const renderUsuarios = (container) => {
                 </div>
             </div>
         </div>
-
+        
         <!-- Modal para Ver Detalles del Usuario -->
         <div class="modal fade" id="modalVerUsuario" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">

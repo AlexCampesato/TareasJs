@@ -5,12 +5,20 @@ export const tareaService = {
         return await httpClient("/api/estados");
     },
 
-    async getAll(statusId = 0) {
-        if (statusId > 0) {
-            return await httpClient(`/api/tareas/estado/${statusId}`);
-        }
+    async getPrioridades() {
+        return await httpClient("/api/prioridades");
+    },
 
-        return await httpClient("/api/tareas");
+    async getAll(statusId = 0, priorityId = 0) {
+        const params = new URLSearchParams();
+        
+        if (statusId > 0) params.append("id_estado", statusId);
+        if (priorityId > 0) params.append("id_prioridad", priorityId);
+
+        const queryString = params.toString();
+        const url = queryString ? `/api/tareas?${queryString}` : "/api/tareas";
+
+        return await httpClient(url);
     },
 
     async getById(id) {
@@ -28,6 +36,16 @@ export const tareaService = {
         return await httpClient(`/api/tareas/${id}`, {
             method: "PATCH",
             body: JSON.stringify(data),
+        });
+    },
+
+    async actualizarPrioridad(idTarea, idPrioridad) {
+        return await httpClient("/api/tareas/actualizar-prioridad", {
+            method: "POST",
+            body: JSON.stringify({
+                id_tarea: idTarea,
+                fk_id_prioridad: idPrioridad,
+            }),
         });
     },
 

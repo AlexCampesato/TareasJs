@@ -1,6 +1,6 @@
 import { permisoService } from "../../services/permisoService.js";
 import { tablePermisoTemplate } from "../../templates/permisos/tablePermisoTemplate.js";
-import { Pagination } from "../../utils/pagination.js";
+import { Pagination } from "../../utils/Pagination.js";
 
 // Exportamos la variable por si luego necesitas usar el buscador en tiempo real
 export let paginadorPermisos; 

@@ -1,206 +1,300 @@
-
 import { tareaService } from "../../services/tareaService.js";
 import { getTareas } from "./getTareas.js";
 import { editTareaTemplate } from "../../templates/tareas/editTareaTemplate.js";
 
 export const prepareEditTarea = async (id) => {
-    const components =
-        document.getElementById("dashboardComponents");
+    let components = document.getElementById("dashboardComponents");
 
-    if (!components) return;
+    if (!components) {
+        components = document.createElement("div");
+        components.id = "dashboardComponents";
+        document.body.appendChild(components);
+    }
 
-    components.innerHTML = editTareaTemplate();
+    let modalEl = document.getElementById("modalTarea");
 
-    const modalEl =
-        document.getElementById("modalTarea");
+    if (!modalEl) {
+        components.insertAdjacentHTML("beforeend", editTareaTemplate());
+        modalEl = document.getElementById("modalTarea");
+    }
 
-    const selectEstado =
-        document.getElementById("tareaIdEstado");
+    if (!modalEl) return;
 
-    if (!modalEl || !selectEstado) return;
-
-    const modalInstance =
-        bootstrap.Modal.getOrCreateInstance(modalEl);
+    const selectEstado = document.getElementById("tareaIdEstado");
 
     try {
-        const estadosResponse =
-            await tareaService.getEstados();
+        const estadosResponse = await tareaService.getEstados();
 
-        if (
-            !estadosResponse.ok ||
-            !estadosResponse.estados
-        ) {
-            throw new Error(
-                "No se pudieron obtener los estados."
-            );
+        if (estadosResponse.ok && estadosResponse.estados && selectEstado) {
+            selectEstado.innerHTML = `
+                <option value="">Seleccione un estado</option>
+                ${estadosResponse.estados
+                    .map(
+                        (estado) => `
+                            <option
+                                value="${estado.id_estado}"
+                                style="color: ${estado.color}; font-weight: 600;"
+                            >
+                                ${estado.tipoEstado}
+                            </option>
+                        `
+                    )
+                    .join("")}
+            `;
         }
 
-        selectEstado.innerHTML = `
-            <option value="">
-                Seleccione un estado
-            </option>
-
-            ${estadosResponse.estados
-                .map(
-                    (estado) => `
-                        <option
-                            value="${estado.id_estado}"
-                            style="
-                                color: ${estado.color};
-                                font-weight: 600;
-                            "
-                        >
-                            ${estado.tipoEstado}
-                        </option>
-                    `,
-                )
-                .join("")}
-        `;
-
-        const response =
-            await tareaService.getById(id);
+        const response = await tareaService.getById(id);
 
         if (!response.ok || !response.tarea) {
-            throw new Error(
-                "No se pudo obtener la tarea."
-            );
+            throw new Error("No se pudo obtener el detalle de la tarea.");
         }
 
         const tarea = response.tarea;
 
-        document.getElementById("id_tarea").value =
-            tarea.id;
+        const inputId = document.getElementById("id_tarea") || document.getElementById("tareaId");
+        const inputTitulo = document.getElementById("tareaTitulo");
+        const inputDesc = document.getElementById("tareaDescripcion");
+        const inputExpired = document.getElementById("tareaExpiredAt");
+        const inputEstado = document.getElementById("tareaIdEstado");
 
-        document.getElementById("tareaTitulo").value =
-            tarea.titulo || "";
+        if (inputId) inputId.value = tarea.id || tarea.id_tarea || id;
+        if (inputTitulo) inputTitulo.value = tarea.titulo || "";
+        if (inputDesc) inputDesc.value = tarea.descripcion || "";
+        
+        if (inputExpired) {
+            inputExpired.value = tarea.expired_at ? tarea.expired_at.substring(0, 10) : "";
+        }
 
-        document.getElementById("tareaDescripcion").value =
-            tarea.descripcion || "";
+        if (inputEstado) {
+            inputEstado.value = tarea.fk_id_estado || tarea.id_estado || "";
+        }
 
-        document.getElementById("tareaExpiredAt").value =
-            tarea.expired_at
-                ? tarea.expired_at.substring(0, 10)
-                : "";
-
-        document.getElementById("tareaIdEstado").value =
-            tarea.fk_id_estado;
-
-        // Ahora que el formulario existe,
-        // conectamos el submit.
         initSubmitUpdateTarea();
 
+        const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
         modalInstance.show();
 
     } catch (error) {
-        console.error(
-            "Error al cargar datos para editar:",
-            error
-        );
+        console.error("Error al preparar edición de tarea:", error);
     }
 };
 
 export const initUpdateTarea = () => {
-    const tablaBody =
-        document.getElementById("tablaTareasBody");
+    if (!document.dataset) document.dataset = {};
 
-    if (!tablaBody) return;
+    if (!document.dataset.listenerEditGlobal) {
+        document.dataset.listenerEditGlobal = "true";
 
-    tablaBody.addEventListener(
-        "click",
-        async (e) => {
+        document.addEventListener("click", async (e) => {
+            //  Editar Tarea (Admin / Líder)
+            const btnEditar = e.target.closest(".btn-editar-tarea");
+            if (btnEditar) {
+                const id = btnEditar.dataset.id;
+                if (id) await prepareEditTarea(id);
+                return;
+            }
 
-            const btnEditar =
-                e.target.closest(".btn-editar-tarea");
+            //  Cambiar Estado (Miembro) -> Abre el modal
+            const btnCambiarEstado = e.target.closest(".btn-cambiar-estado");
+            if (btnCambiarEstado) {
+                const idTarea = btnCambiarEstado.dataset.id;
+                const estadoActual = Number(btnCambiarEstado.dataset.estado);
 
-            if (!btnEditar) return;
+                const modalEl = document.getElementById("modalCambiarEstado");
+                const selectEstado = document.getElementById("selectNuevoEstado");
+                const inputId = document.getElementById("idTareaCambiarEstado");
 
-            const id =
-                btnEditar.dataset.id;
+                if (!modalEl || !selectEstado || !inputId) return;
 
-            if (!id) return;
+                inputId.value = idTarea;
 
-            await prepareEditTarea(id);
-        },
-    );
+                try {
+                    const response = await tareaService.getEstados();
+                    if (response.ok && response.estados) {
+                        selectEstado.innerHTML = response.estados
+                            .map(
+                                (est) => `
+                                <option 
+                                    value="${est.id_estado}" 
+                                    ${Number(est.id_estado) === estadoActual ? "selected" : ""}
+                                >
+                                    ${est.tipoEstado}
+                                </option>
+                            `
+                            )
+                            .join("");
+                    }
+                } catch (err) {
+                    console.error("Error al cargar estados:", err);
+                }
+
+                const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modalInstance.show();
+            }
+
+            // Cambiar Prioridad (Líder / Admin) -> Abre el modal de Prioridad
+            const btnCambiarPrioridad = e.target.closest(".btn-cambiar-prioridad");
+            if (btnCambiarPrioridad) {
+                const idTarea = btnCambiarPrioridad.dataset.id;
+                const prioridadActual = Number(btnCambiarPrioridad.dataset.prioridad || 2);
+
+                const modalEl = document.getElementById("modalCambiarPrioridad");
+                const selectPrioridad = document.getElementById("selectPrioridad");
+                const inputId = document.getElementById("idTareaPrioridad");
+
+                if (!modalEl || !selectPrioridad || !inputId) return;
+
+                inputId.value = idTarea;
+
+                try {
+                    const response = await tareaService.getPrioridades();
+                    if (response.ok && response.prioridades) {
+                        selectPrioridad.innerHTML = response.prioridades
+                            .map(
+                                (prio) => `
+                                <option 
+                                    value="${prio.id}" 
+                                    ${Number(prio.id) === prioridadActual ? "selected" : ""}
+                                >
+                                    ${prio.nombre}
+                                </option>
+                            `
+                            )
+                            .join("");
+                    }
+                } catch (err) {
+                    console.error("Error al cargar prioridades:", err);
+                }
+
+                const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modalInstance.show();
+                return;
+            }
+        });
+
+        // Inicializamos los submitters de los modales
+        initSubmitCambiarEstado();
+        initSubmitCambiarPrioridad();
+        initSubmitUpdateTarea();
+    }
+};
+
+export const initSubmitCambiarEstado = () => {
+    const form = document.getElementById("formCambiarEstado");
+    const modalEl = document.getElementById("modalCambiarEstado");
+    if (!form || !modalEl) return;
+
+    if (!form.dataset.listenerSubmit) {
+        form.dataset.listenerSubmit = "true";
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const idTarea = document.getElementById("idTareaCambiarEstado").value;
+            const nuevoEstado = document.getElementById("selectNuevoEstado").value;
+
+            if (!idTarea || !nuevoEstado) return;
+
+            try {
+                const response = await tareaService.update(idTarea, {
+                    id_estado: nuevoEstado,
+                    fk_id_estado: nuevoEstado
+                });
+
+                if (response.ok || response.success) {
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl);
+                    if (modalInstance) modalInstance.hide();
+
+                    const selectFiltro = document.getElementById("selectFiltroEstado");
+                    await getTareas(selectFiltro ? Number(selectFiltro.value) : 0);
+                } else {
+                    console.error("Error al actualizar estado:", response.mensaje || response.message);
+                }
+            } catch (error) {
+                console.error("Error en la petición de cambiar estado:", error);
+            }
+        });
+    }
+};
+
+export const initSubmitCambiarPrioridad = () => {
+    const form = document.getElementById("formCambiarPrioridad");
+    const modalEl = document.getElementById("modalCambiarPrioridad");
+    if (!form || !modalEl) return;
+
+    if (!form.dataset.listenerSubmit) {
+        form.dataset.listenerSubmit = "true";
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const idTarea = document.getElementById("idTareaPrioridad").value;
+            const nuevaPrioridad = document.getElementById("selectPrioridad").value;
+
+            if (!idTarea || !nuevaPrioridad) return;
+
+            try {
+                const response = await tareaService.actualizarPrioridad(idTarea, nuevaPrioridad);
+
+                if (response.ok || response.success) {
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl);
+                    if (modalInstance) modalInstance.hide();
+
+                    const selectFiltro = document.getElementById("selectFiltroEstado");
+                    await getTareas(selectFiltro ? Number(selectFiltro.value) : 0);
+                } else {
+                    console.error("Error al actualizar prioridad:", response.mensaje || response.message);
+                }
+            } catch (error) {
+                console.error("Error en la petición de cambiar prioridad:", error);
+            }
+        });
+    }
 };
 
 export const initSubmitUpdateTarea = () => {
-    const formTarea =
-        document.getElementById("formTarea");
+    const formTarea = document.getElementById("formTarea");
+    const modalEl = document.getElementById("modalTarea");
 
-    if (!formTarea) return;
+    if (!formTarea || !modalEl) return;
 
-    const modalEl =
-        document.getElementById("modalTarea");
+    if (!formTarea.dataset.listenerSubmit) {
+        formTarea.dataset.listenerSubmit = "true";
 
-    if (!modalEl) return;
-
-    const modalInstance =
-        bootstrap.Modal.getOrCreateInstance(
-            modalEl
-        );
-
-    formTarea.addEventListener(
-        "submit",
-        async (e) => {
+        formTarea.addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            const idTarea =
-                document.getElementById("id_tarea").value;
+            const inputId = document.getElementById("id_tarea") || document.getElementById("tareaId");
+            const idTarea = inputId ? inputId.value : null;
 
             if (!idTarea) return;
 
-            const formData =
-                new FormData(formTarea);
+            const formData = new FormData(formTarea);
+            const data = Object.fromEntries(formData.entries());
 
-            const data =
-                Object.fromEntries(
-                    formData.entries()
-                );
-
-            // El ID viaja por la URL.
-            // No lo enviamos dentro del JSON.
             delete data.id_tarea;
+            delete data.tareaId;
 
             try {
-                const response =
-                    await tareaService.update(
-                        idTarea,
-                        data
-                    );
+                const response = await tareaService.update(idTarea, data);
 
-                if (!response.ok) {
+                if (!response.ok && !response.success) {
                     throw new Error(
-                        response.mensaje ||
-                        "No se pudo actualizar la tarea."
+                        response.mensaje || response.message || "No se pudo actualizar la tarea."
                     );
                 }
 
-                modalInstance.hide();
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) modalInstance.hide();
 
                 formTarea.reset();
 
-                document.getElementById(
-                    "id_tarea"
-                ).value = "";
-
-                const selectFiltro =
-                    document.getElementById(
-                        "selectFiltroEstado"
-                    );
-
-                await getTareas(
-                    selectFiltro
-                        ? Number(selectFiltro.value)
-                        : 0
-                );
+                const selectFiltro = document.getElementById("selectFiltroEstado");
+                await getTareas(selectFiltro ? Number(selectFiltro.value) : 0);
 
             } catch (error) {
-                console.error(
-                    "Error al actualizar tarea:",
-                    error
-                );
+                console.error("Error al actualizar tarea:", error);
             }
-        },
-    );
+        });
+    }
 };

@@ -1,54 +1,84 @@
+import { renderSinRegistros } from "../../utils/CardHelpers.js";
+
 export const tablePermisoTemplate = (permisos) => {
-    if (!permisos || permisos.length === 0) {
-        return `
-            <tr>
-                <td colspan="4" class="text-center py-4 text-muted">
-                    <i class="fas fa-users-slash fa-2x mb-2 d-block text-gray-300"></i>
-                    No se encontraron permisos registrados
-                </td>
-            </tr>
-        `;
-    }
+  if (!permisos || permisos.length === 0) {
+    return renderSinRegistros(
+      "No se encontraron permisos registrados",
+      "fa-key"
+    );
+  }
 
-    return permisos
-        .map(
-            (permiso) => `
-                <tr>
-                    <td class="ps-4 fw-bold text-muted">${permiso.id}</td>
-                    <td class="fw-bold text-dark">${permiso.nombre}</td>
-                    <td class="text-muted small">
-                        ${permiso.descripcion || '<em class="text-black-50">Sin descripción</em>'}
-                    </td>
-                    <td class="text-center pe-4">
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-outline-info me-1 btn-ver-permiso btn-accion-ver"
-                            data-id="${permiso.id}"
-                            title="Ver Detalles"
-                        >
-                            <i class="fas fa-eye"></i>
-                        </button>
+  return permisos
+    .map((permiso) => {
+      const descripcion = permiso.descripcion
+        ? permiso.descripcion
+        : '<em class="text-muted">Sin descripción</em>';
 
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-outline-primary me-1 btn-editar-permiso btn-accion-editar"
-                            data-id="${permiso.id}"
-                            title="Editar Permiso"
-                        >
-                            <i class="fas fa-edit"></i>
-                        </button>
+      return `
+        <div class="col-sm-6 col-xl-4 mb-4">
+          <div class="card card-item borde-admin h-100 shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-between p-3">
 
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-outline-danger btn-eliminar-permiso btn-accion-eliminar"
-                            data-id="${permiso.id}"
-                            title="Eliminar Permiso"
-                        >
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `,
-        )
-        .join("");
+              <div>
+                <!-- Cabecera de la Card (ID, Nombre del Permiso y Badge) -->
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                  <div class="overflow-hidden">
+                    <span class="small text-muted fw-bold d-block">ID: ${permiso.id}</span>
+                    <h6 class="card-title fw-bold mb-0 text-truncate" title="${permiso.nombre}">
+                      ${permiso.nombre}
+                    </h6>
+                  </div>
+                  <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle px-2 py-1">
+                    <i class="fas fa-key me-1"></i>Permiso
+                  </span>
+                </div>
+
+                <!-- Bloque de Descripción -->
+                <div class="bloque-info-card p-2 mb-3">
+                  <span class="small text-muted fw-semibold d-block mb-1">Descripción:</span>
+                  <p class="card-text small mb-0 text-body">
+                    ${descripcion}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Botones de Acción -->
+              <div class="d-flex justify-content-between align-items-center gap-1 pt-3 border-top mt-auto">
+                <!-- Botón Ver Detalles -->
+                <button
+                  type="button"
+                  class="btn btn-sm btn-info flex-fill btn-ver-permiso"
+                  data-id="${permiso.id}"
+                  title="Ver Detalles"
+                >
+                  <i class="fas fa-eye me-1"></i>Ver
+                </button>
+
+                <!-- Botón Editar -->
+                <button
+                  type="button"
+                  class="btn btn-sm btn-warning flex-fill btn-editar-permiso"
+                  data-id="${permiso.id}"
+                  title="Editar Permiso"
+                >
+                  <i class="fas fa-edit me-1"></i>Editar
+                </button>
+
+                <!-- Botón Eliminar -->
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger btn-eliminar-permiso"
+                  data-id="${permiso.id}"
+                  title="Eliminar Permiso"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
 };

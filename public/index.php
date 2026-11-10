@@ -20,25 +20,26 @@
    
    // Obtener la lista de estados para los selects
    $router->get('/api/estados', ['TareaController', 'estados']);
-
+   // Ruta para obtener el listado de prioridades (llena el select del modal/filtro)
+   $router->get('/api/prioridades', ['TareaController', 'prioridades']);
+   // Asignación de tareas
+   $router->post('/api/tareas/asignar-equipo', ['TareaController', 'asignar_equipo']);
+   $router->post('/api/tareas/asignar-usuario', ['TareaController', 'asignar_usuario']);
+   // Ruta para actualizar la prioridad de una tarea
+   $router->post('/api/tareas/actualizar-prioridad', ['TareaController', 'actualizar_prioridad']);
    // Obtener listado de tareas (opcionalmente filtrado por id_estado)
    $router->get('/api/tareas', ['TareaController', 'index']);
    $router->get('/api/tareas/estado/{id}', ['TareaController', 'index']);
-
    // Obtener detalle de una tarea por ID
    $router->get('/api/tareas/{id}', ['TareaController', 'show']);
-
    // Crear una nueva tarea
    $router->post('/api/tareas', ['TareaController', 'store']);
-
    // Actualizar una tarea existente por ID
-   
    $router->patch('/api/tareas/{id}', ['TareaController', 'update']);
-   
-
    // Eliminar una tarea por ID
    $router->delete('/api/tareas/{id}', ['TareaController', 'destroy']);
 
+ 
    // =========================================================================
    // RUTAS API REST - USUARIOS
    // =========================================================================
@@ -87,6 +88,7 @@
    $router->post('/api/equipos/eliminar/{id}', ['EquipoController', 'eliminar']);
    $router->post('/api/equipos/asignarMiembro', ['EquipoController', 'asignarMiembro']);
    $router->get('/api/equipos/{id}', ['EquipoController', 'mostrarEquipo']);  
+   $router->get('/api/equipos/{id}/miembros', ['EquipoController', 'obtener_miembros']);
 
    // Despachar la solicitud
    $router->dispatch();

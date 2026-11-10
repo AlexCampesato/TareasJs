@@ -11,19 +11,27 @@ class AuthController extends BaseController {
     }
 
     public function checkSession() {
-        if (isset($_SESSION['user_id'])) {$this->jsonResponse([
-                'success' => true,
-                'user' => [
-                    'id'     => $_SESSION['user_id'],
-                    'nombre' => $_SESSION['user_name'] ?? '',
-                    'email'  => $_SESSION['user_email'] ?? '',
-                    'avatar' => $_SESSION['user_avatar'] ?? null,
-                    'id_rol' => $_SESSION['user_rol_id'] ?? null // Agregado para que el frontend sepa el rol
-                ]
-            ]);
-        } else {
-            $this->jsonResponse(['success' => false, 'message' => 'Sin sesión activa'], 401);
+        if (isset($_SESSION['user_id'])) {
+            // Consultamos directamente a la base de datos para obtener los datos frescos y el rol
+            $usuario = $this->usuarioModel->obtener_usuario_por_id($_SESSION['user_id']);
+
+            if ($usuario) {
+                $this->jsonResponse([
+                    'success' => true,
+                    'user' => [
+                        'id'         => $usuario->id,
+                        'nombre'     => $usuario->nombre,
+                        'email'      => $usuario->email,
+                        'avatar'     => $usuario->avatar,
+                        'id_rol'     => $usuario->fk_id_rol,
+                        'rol_nombre' => $usuario->rol_nombre ?? 'Sin rol' // Trae el rol desde la BD
+                    ]
+                ]);
+                return;
+            }
         }
+        
+        $this->jsonResponse(['success' => false, 'message' => 'Sin sesión activa'], 401);
     }
 
     public function login() {
@@ -56,11 +64,19 @@ class AuthController extends BaseController {
                 $_SESSION['user_email']  =$user->email;
                 $_SESSION['user_avatar'] =$user->avatar ?? null;
                 $_SESSION['user_rol_id'] = $user->fk_id_rol ?? null; // Guardamos el rol en la sesión
+                $_SESSION['user_rol_nombre'] = $user->rol_nombre ?? 'Sin rol';
 
                 $this->jsonResponse([
                     'success' => true, 
                     'message' => 'Sesión iniciada correctamente',
-                    'user'    => $_SESSION
+                    'user'    => [
+                        'id'         => $_SESSION['user_id'],
+                        'nombre'     => $_SESSION['user_name'],
+                        'email'      => $_SESSION['user_email'],
+                        'avatar'     => $_SESSION['user_avatar'],
+                        'id_rol'     => $_SESSION['user_rol_id'],
+                        'rol_nombre' => $_SESSION['user_rol_nombre']
+                    ]
                 ]);
             }
         }

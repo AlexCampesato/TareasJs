@@ -35,11 +35,17 @@ export const tareaTemplates = {
                     <span class="badge rounded-pill px-2 py-1" style="background-color: ${tarea.color || "#6c757d"}">
                         ${tarea.estado_nombre || "Pendiente"}
                     </span>
+                    <span 
+                        class="badge fw-bold me-1 shadow-sm text-dark"
+                        style="background-color: ${tarea.color_prioridad || '#0dcaf0'}; font-size: 0.75rem;"
+                    >
+                        <i class="fas fa-exclamation-circle me-1"></i>${tarea.nombre_prioridad || 'Media'}
+                    </span>
                 </td>
                 <td class="text-center pe-4">
                     <!-- Botón Editar: Usado por prepareEditTarea.js -->
                     <button type="button" 
-                            class="btn btn-sm btn-outline-primary me-1 btn-editar-tarea" 
+                            class="btn btn-sm btn-warning me-1 btn-editar-tarea" 
                             data-id="${tarea.id_tarea}"
                             title="Editar Tarea">
                         <i class="fas fa-edit"></i>
@@ -47,7 +53,7 @@ export const tareaTemplates = {
 
                     <!-- Botón Eliminar: Usado por deleteTarea.js -->
                     <button type="button" 
-                            class="btn btn-sm btn-outline-danger btn-eliminar-tarea" 
+                            class="btn btn-sm btn-danger btn-eliminar-tarea" 
                             data-id="${tarea.id_tarea}"
                             title="Eliminar Tarea">
                         <i class="fas fa-trash"></i>
