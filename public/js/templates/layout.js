@@ -11,7 +11,7 @@ export const renderAdminLayout = (contenidoInterno = "") => {
                 <div id="content" class="flex-grow-1">
                     
                     <!-- TOPBAR -->
-                    <nav class="navbar navbar-expand-md navbar-light bg-white topbar mb-4 static-top shadow-sm px-3 px-md-4"> 
+                    <nav class="navbar navbar-expand-md navbar-light bg-body topbar mb-4 static-top shadow-sm px-3 px-md-4"> 
                         <!-- Botón Hamburguesa (visible solo en celular para Admin) -->
                         <button
                             id="sidebarToggleTop"
@@ -114,7 +114,7 @@ export const renderAdminLayout = (contenidoInterno = "") => {
                 </div>
 
                 <!-- FOOTER -->
-                <footer class="sticky-footer bg-white mt-auto py-3 border-top">
+                <footer class="sticky-footer bg-body mt-auto py-3 border-top">
                     <div class="container my-auto">
                         <div class="copyright text-center my-auto">
                             <span>Copyright &copy; PROYECTO TAREAS 2026</span>

@@ -108,18 +108,51 @@ export const estilosModoOscuroString = `
     color: #f8f9fa !important; 
   }
 
-  html[data-bs-theme="dark"] .table td .btn,
-  html[data-bs-theme="dark"] .table td button {
+  /* Estabilizacion de botones en columna acciones */
+  .table tbody tr td:last-child .btn,
+  .table tbody tr td:last-child button {
     background: transparent !important;
     border: none !important; 
-    padding: 6px 10px !important;
+    padding: 4px 6px !important; 
     transition: transform 0.2s ease, opacity 0.2s ease;
-    opacity: 0.8;
+    opacity: 0.85;
     box-shadow: none !important;
   }
 
+  .table tbody tr td:last-child .btn i,
+  .table tbody tr td:last-child button i,
+  .table tbody tr td:last-child .btn [class*="fa-"] {
+    font-size: 1rem !important; 
+  }
+
+  /* REDUCCIÓN DE TAMAÑO PARA LA COLUMNA ESTADO */
+  .table tbody tr td .badge {
+    font-size: 0.72rem !important;
+    padding: 3px 6px !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .table tbody tr td .badge i,
+  .table tbody tr td .badge svg {
+    font-size: 0.72rem !important;
+    margin: 0 !important;
+  }
+
+  html[data-bs-theme="dark"] .card-footer,
+  html[data-bs-theme="dark"] [id^="paginacion"] {
+    background-color: #1a1a1e !important;
+    border-color: #2d2d34 !important;
+    color: #ffffff !important;
+  }
+
   html[data-bs-theme="dark"] .table td .btn:hover,
-  html[data-bs-theme="dark"] .table td button:hover {
+  html[data-bs-theme="dark"] .table td button:hover,
+  .table td .btn:hover,
+  .table td button:hover {
     transform: scale(1.2) !important; 
     opacity: 1 !important;
   }
@@ -160,3 +193,4 @@ export const estilosModoOscuroString = `
     color: #ffca28 !important;
   }
 `;
+
