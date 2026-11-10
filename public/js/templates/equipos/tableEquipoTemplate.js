@@ -37,21 +37,21 @@ export const tableEquipoTemplate = (equipos) => {
                   </div>
                   
                   <!--  Líder Asignado -->
-                    <div>
-                        ${
-                            equipo.nombre_lider 
-                                ? `<span class="badge bg-warning-subtle text-dark border border-warning-subtle px-2.5 py-1.5" style="font-size: 0.82rem;">
-                                    <i class="fas fa-user-shield me-1 text-warning"></i> Líder: <strong>${equipo.nombre_lider} ${equipo.apellido_lider || ''}</strong>
-                                   </span>`
-                                : `<span class="badge bg-body-secondary text-secondary-emphasis border px-2.5 py-1.5" style="font-size: 0.82rem;">
-                                    <i class="fas fa-user-slash me-1"></i> Sin líder
-                                   </span>`
-                        }
-                          </div>
-                          <span class="badge rounded-pill bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1">
-                          <i class="fas fa-users me-1"></i>Equipo
-                        </span>
-                      </div>
+                  <div>
+                    ${
+                        equipo.nombre_lider 
+                            ? `<span class="badge bg-warning-subtle text-dark border border-warning-subtle px-2.5 py-1.5" style="font-size: 0.82rem;">
+                                <i class="fas fa-user-shield me-1 text-warning"></i> Líder: <strong>${equipo.nombre_lider} ${equipo.apellido_lider || ''}</strong>
+                               </span>`
+                            : `<span class="badge bg-body-secondary text-secondary-emphasis border px-2.5 py-1.5" style="font-size: 0.82rem;">
+                                <i class="fas fa-user-slash me-1"></i> Sin líder
+                               </span>`
+                    }
+                  </div>
+                  <span class="badge rounded-pill bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1">
+                    <i class="fas fa-users me-1"></i>Equipo
+                  </span>
+                </div>
                 <!-- Bloque de Descripción -->
                 <div class="bloque-info-card p-2 mb-3">
                   <span class="small text-muted fw-semibold d-block mb-1">Descripción:</span>
@@ -75,17 +75,17 @@ export const tableEquipoTemplate = (equipos) => {
                 <!-- Botón Editar -->
                 <button
                   type="button"
-                  class="btn btn-sm btn-warning flex-fill btn-editar-equipo"
+                  class="btn btn-sm btn-outline-primary me-1 btn-editar-equipo"
                   data-id="${equipo.id}"
                   title="Editar Equipo"
                 >
-                  <i class="fas fa-edit me-1"></i>Editar
+                  <i class="fas fa-edit"></i>
                 </button>
 
                 <!-- Botón Eliminar -->
                 <button
                   type="button"
-                  class="btn btn-sm btn-danger btn-eliminar-equipo"
+                  class="btn btn-sm btn-outline-danger btn-eliminar-equipo"
                   data-id="${equipo.id}"
                   title="Eliminar Equipo"
                 >
