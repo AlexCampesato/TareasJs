@@ -1,5 +1,6 @@
 Importar db_tareas_actualizada_29_10.sql
 importar prioridad_tareas.sql
+importar solicitud_11_11.sql
 
 Usuarios
 admin@mail.com 123456 rol:admin

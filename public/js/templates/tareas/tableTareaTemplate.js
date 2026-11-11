@@ -27,6 +27,14 @@ export const tableTareaTemplate = (tareas, user = null) => {
         return fechaSolo < hoy;
     };
 
+    // Función exclusiva para la vista (DD/MM/YYYY)
+    const formatearFecha = (fechaStr) => {
+        if (!fechaStr) return "";
+        // Separa la fecha de la hora y reordena a Día/Mes/Año
+        const [anio, mes, dia] = fechaStr.split(" ")[0].split("-");
+        if (!anio || !mes || !dia) return fechaStr;
+        return `${dia}/${mes}/${anio}`;
+    };
     return tareas
         .map((tarea, index) => {
             
@@ -97,23 +105,44 @@ export const tableTareaTemplate = (tareas, user = null) => {
                 `;
             }
 
-            // 3. Botón de cambio de estado (Miembro asignado)
-            let btnCambiarEstadoMiembro = "";
-            const idAsignado = String(tarea.fk_id_usuario_asignado ?? "");
+                // 3. Botón de cambio de estado o Extensión (Miembro asignado)
+                let btnCambiarEstadoMiembro = "";
+                const idAsignado = String(tarea.fk_id_usuario_asignado ?? "");
 
-            if (esMiembro && idAsignado !== "" && idAsignado === idUsuarioActual) {
-                btnCambiarEstadoMiembro = `
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-dark fw-semibold shadow-sm btn-cambiar-estado px-3"
-                        data-id="${idTareaReal}"
-                        data-estado="${tarea.fk_id_estado}"
-                        title="Cambiar Estado"
-                    >
-                        <i class="fas fa-tasks me-1" style="pointer-events: none;"></i> Cambiar Estado
-                    </button>
-                `;
-            }
+                if (esMiembro && idAsignado !== "" && idAsignado === idUsuarioActual) {
+                    if (Number(tarea.tiene_solicitud_pendiente) > 0) {
+                            btnCambiarEstadoMiembro = `
+                                <button type="button" class="btn btn-sm btn-secondary fw-semibold shadow-sm px-3" disabled>
+                                    <i class="fas fa-check me-1"></i> Solicitud enviada
+                                </button>
+                            `;
+                        } else if (esVencida(tarea.expired_at)) {
+                        // Tarea vencida: Botón de Solicitar Extensión
+                        btnCambiarEstadoMiembro = `
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-danger fw-semibold shadow-sm btn-solicitar-extension px-3"
+                                data-id="${idTareaReal}"
+                                title="Solicitar más tiempo para esta tarea"
+                            >
+                                <i class="fas fa-calendar-plus me-1" style="pointer-events: none;"></i> Solicitar Extensión
+                            </button>
+                        `;
+                    } else {
+                        // Tarea en fecha: Botón normal
+                        btnCambiarEstadoMiembro = `
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-dark fw-semibold shadow-sm btn-cambiar-estado px-3"
+                                data-id="${idTareaReal}"
+                                data-estado="${tarea.fk_id_estado}"
+                                title="Cambiar Estado"
+                            >
+                                <i class="fas fa-tasks me-1" style="pointer-events: none;"></i> Cambiar Estado
+                            </button>
+                        `;
+                    }
+                }
 
             return `
             <div class="col-sm-6 col-xl-3 mb-4">
@@ -178,16 +207,13 @@ export const tableTareaTemplate = (tareas, user = null) => {
                         <!-- Fechas (Alta y Vencimiento) -->
                             <div class="my-3 mt-auto bg-body-tertiary p-3 rounded border-start border-3 ${esVencida(tarea.expired_at) ? 'border-danger' : 'border-secondary-subtle'}" style="font-size: 0.85rem;">
                                 <div class="text-secondary fw-medium">
-                                    <i class="fas fa-calendar-alt me-1"></i> Alta: <strong>${tarea.created_at || "-"}</strong>
+                                    <i class="fas fa-calendar-alt me-1"></i>
+                                     Alta: <strong>${formatearFecha(tarea.created_at)}</strong>
                                 </div>
                                 <div class="${esVencida(tarea.expired_at) ? 'text-danger fw-bold' : 'text-secondary fw-medium'} mt-1">
-                                    <i class="fas fa-clock me-1"></i> Vencimiento: 
-                                    <strong>${tarea.expired_at || "Sin fecha"}</strong>
-                                    ${
-                                        esVencida(tarea.expired_at) 
-                                            ? `<span class="badge bg-danger ms-1" style="font-size: 0.7rem;">¡Vencida!</span>` 
-                                            : ''
-                                    }
+                                    <i class="fas fa-clock me-1"></i>
+                                     Vencimiento: <strong>${formatearFecha(tarea.expired_at)}</strong>
+                                    ${ esVencida(tarea.expired_at) ? `<span class="badge bg-danger ms-1" style="font-size: 0.7rem;">¡Vencida!</span>` : ''}
                                 </div>
                             </div>
 

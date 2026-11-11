@@ -14,6 +14,13 @@
    $router->get('/api/auth/check-session', ['AuthController', 'checkSession']);
    $router->post('/api/auth/logout', ['AuthController', 'logout']);
    
+   // ==========================================
+   // RUTAS DE SOLICITUDES (Arriba para evitar conflictos 404)
+   // ==========================================
+   $router->post('/api/solicitudes/crear', ['SolicitudController', 'crear']);
+   $router->get('/api/solicitudes/pendientes', ['SolicitudController', 'pendientes']);
+
+
    // =========================================================================
    // RUTAS API REST - TAREAS Y ESTADOS
    // =========================================================================
@@ -38,7 +45,7 @@
    $router->patch('/api/tareas/{id}', ['TareaController', 'update']);
    // Eliminar una tarea por ID
    $router->delete('/api/tareas/{id}', ['TareaController', 'destroy']);
-
+ 
  
    // =========================================================================
    // RUTAS API REST - USUARIOS
