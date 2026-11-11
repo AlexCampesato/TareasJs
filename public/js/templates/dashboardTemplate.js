@@ -2,8 +2,9 @@ export const dashboardTemplate = (user = null) => {
     // Evaluamos el rol del usuario
     const idRol = user ? Number(user.id_rol ?? user.fk_id_rol) : null;
     const esAdmin = idRol === 1;
+    const esLider = idRol === 2;
 
-    return `
+   return `
     <div class="container-fluid px-4 py-3">
 
         <!-- Encabezado de la Sección -->
@@ -13,15 +14,30 @@ export const dashboardTemplate = (user = null) => {
                 <p class="text-muted small mb-0">Gestión dinámica de actividades</p>
             </div>
 
-            <!-- Botón Nueva Tarea (Solo visible para Admin) -->
-            ${
-                esAdmin
-                    ? `
+            <!-- Botones de Acción Superiores -->
+            <div class="d-flex gap-2">
+                <!-- Botón Solicitudes Pendientes (Solo visible para Líder) -->
+                ${
+                    esLider
+                        ? `
+                        <button id="btnVerSolicitudes" type="button" class="btn btn-warning btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalSolicitudes">
+                            <i class="fas fa-bell me-1"></i> Solicitudes Pendientes
+                        </button>
+                    `
+                        : ""
+                }
+
+                <!-- Botón Nueva Tarea (Solo visible para Admin) -->
+                ${
+                    esAdmin
+                        ? `
                         <button id="btnNuevaTarea" type="button" class="btn btn-success btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalCrearTarea">
                             <i class="bi bi-plus-circle me-1"></i> Nueva Tarea
                         </button>
-                    `: ""
-            }
+                    `
+                        : ""
+                }
+            </div>
         </div>
 
         <!-- Filtros y Buscador de Tareas -->
@@ -149,9 +165,8 @@ export const dashboardTemplate = (user = null) => {
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Modal Cambiar Prioridad (Líder / Admin) -->
+            <!-- Modal Cambiar Prioridad (Líder / Admin) -->
             <div class="modal fade" id="modalCambiarPrioridad" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-sm">
                     <div class="modal-content border-0 shadow">
@@ -178,7 +193,26 @@ export const dashboardTemplate = (user = null) => {
                 </div>
             </div>
 
+            <!-- Modal Solicitudes Pendientes (Líder) -->
+            <div class="modal fade" id="modalSolicitudes" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content border-0 shadow">
+                        <div class="modal-header bg-warning text-dark py-2">
+                            <h6 class="modal-title fw-bold m-0"><i class="fas fa-inbox me-2"></i>Solicitudes Pendientes</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-0">
+                            <ul class="list-group list-group-flush" id="listaSolicitudes">
+                                <li class="list-group-item text-center py-4 text-muted">
+                                    <i class="fas fa-spinner fa-spin me-2"></i> Cargando solicitudes...
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+        </div>
     </div>
     `;
 };

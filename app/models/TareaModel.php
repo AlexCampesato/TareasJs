@@ -38,7 +38,7 @@ class TareaModel
     /**
      * 1. Admin: Obtiene todas las tareas del sistema.
      */
-    public function buscarTareas($id_estado = 0, $id_prioridad = 0)
+    public function buscarTareas($id_estado = 0, $id_prioridad = 0, $id_usuario = null)
     {
         $sql = "SELECT
                     tarea.id AS id_tarea,
@@ -56,7 +56,12 @@ class TareaModel
                     estado.tipoEstado,
                     estado.color,
                     prioridad.nombre AS nombre_prioridad,
-                    prioridad.color AS color_prioridad
+                    prioridad.color AS color_prioridad,
+                    (SELECT COUNT(*) FROM solicitud s 
+                     WHERE s.fk_id_tarea = tarea.id 
+                       AND s.fk_id_usuario = :id_usuario_solicitud 
+                       AND s.fk_id_estado_solicitud = 1 
+                       AND s.tipo = 'extension_fecha') AS tiene_solicitud_pendiente
                 FROM tarea
                 INNER JOIN estado
                     ON estado.id_estado = tarea.fk_id_estado
@@ -79,6 +84,7 @@ class TareaModel
         $sql .= " ORDER BY tarea.created_at DESC";
 
         $this->db->query($sql);
+        $this->db->bind('id_usuario_solicitud', $id_usuario);
 
         if ($id_estado > 0) {
             $this->db->bind('id_estado', $id_estado);
@@ -109,7 +115,12 @@ class TareaModel
                     estado.tipoEstado, 
                     estado.color,
                     prioridad.nombre AS nombre_prioridad,
-                    prioridad.color AS color_prioridad 
+                    prioridad.color AS color_prioridad,
+                    (SELECT COUNT(*) FROM solicitud s 
+                     WHERE s.fk_id_tarea = tarea.id 
+                       AND s.fk_id_usuario = :id_usuario_solicitud 
+                       AND s.fk_id_estado_solicitud = 1 
+                       AND s.tipo = 'extension_fecha') AS tiene_solicitud_pendiente 
                 FROM tarea
                 INNER JOIN usuario u_lider 
                     ON u_lider.id = :id_usuario
@@ -134,6 +145,7 @@ class TareaModel
 
         $this->db->query($sql);
         $this->db->bind('id_usuario', $id_usuario);
+        $this->db->bind('id_usuario_solicitud', $id_usuario);
 
         if ($id_estado > 0) {
             $this->db->bind('id_estado', $id_estado);
@@ -165,7 +177,12 @@ class TareaModel
                     estado.tipoEstado, 
                     estado.color,
                     prioridad.nombre AS nombre_prioridad,
-                    prioridad.color AS color_prioridad 
+                    prioridad.color AS color_prioridad,
+                    (SELECT COUNT(*) FROM solicitud s 
+                     WHERE s.fk_id_tarea = tarea.id 
+                       AND s.fk_id_usuario = :id_usuario_solicitud 
+                       AND s.fk_id_estado_solicitud = 1 
+                       AND s.tipo = 'extension_fecha') AS tiene_solicitud_pendiente 
                 FROM tarea
                 INNER JOIN estado 
                     ON tarea.fk_id_estado = estado.id_estado
@@ -186,6 +203,7 @@ class TareaModel
 
         $this->db->query($sql);
         $this->db->bind('id_usuario', $id_usuario);
+        $this->db->bind('id_usuario_solicitud', $id_usuario);
 
         if ($id_estado > 0) {
             $this->db->bind('id_estado', $id_estado);
@@ -280,6 +298,7 @@ class TareaModel
 
     public function updateTarea($data)
     {
+        // 1. Actualizar la tarea
         $this->db->query(
             "UPDATE tarea
              SET
@@ -297,7 +316,21 @@ class TareaModel
         $this->db->bind('id_estado', $data['id_estado']);
         $this->db->bind('id_tarea', $data['id_tarea']);
 
-        return $this->db->execute();
+        $resultado = $this->db->execute();
+
+        // 2. Si la tarea se actualizó bien, resolvemos automáticamente las solicitudes de extensión
+        if ($resultado) {
+            $this->db->query(
+                "UPDATE solicitud 
+                 SET fk_id_estado_solicitud = 2 
+                 WHERE fk_id_tarea = :id_tarea 
+                   AND tipo = 'extension_fecha'"
+            );
+            $this->db->bind('id_tarea', $data['id_tarea']);
+            $this->db->execute();
+        }
+
+        return $resultado;
     }
 
     public function expirarTareas()
