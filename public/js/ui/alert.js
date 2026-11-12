@@ -64,3 +64,27 @@ export const showConfirm = async (title, text) => {
   }
   return confirm(text);
 };
+
+/**
+ * Alerta rápida de éxito (estilo toast/modal corto)
+ */
+export const showSuccess = (text = "Operación exitosa") => {
+  if (typeof Swal !== "undefined") {
+    return Swal.fire({
+      icon: "success",
+      title: "¡Éxito!",
+      text,
+      timer: 2000,
+      showConfirmButton: false,
+    });
+  } else {
+    alert(text);
+  }
+};
+
+/**
+ * Alerta rápida de error
+ */
+export const showError = (text = "Ocurrió un error inesperado") => {
+  return showAlert("Oops...", text, "error");
+};
