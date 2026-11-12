@@ -1,4 +1,3 @@
-
 import { tareaService } from "../../services/tareaService.js";
 import { getTareas } from "./getTareas.js";
 import { createTareaTemplate } from "../../templates/tareas/createTareaTemplate.js";
@@ -85,4 +84,3 @@ export const initCreateTarea = () => {
         }
     });
 };
-

@@ -1,3 +1,24 @@
+export const actualizarContadorSolicitudes = async () => {
+    try {
+        const res = await fetch("/proyecto-tareas/api/solicitudes/pendientes");
+        const data = await res.json();
+
+        const badge = document.getElementById("badgeSolicitudesCount");
+        if (!badge) return;
+
+        const cantidad = Array.isArray(data.solicitudes) ? data.solicitudes.length : (data.count || 0);
+
+        if (cantidad > 0) {
+            badge.textContent = cantidad;
+            badge.style.display = "inline-block"; // Muestra el número rojo si hay pendientes
+        } else {
+            badge.style.display = "none"; // Lo oculta si está en 0
+        }
+    } catch (error) {
+        console.error("Error al actualizar el contador de solicitudes:", error);
+    }
+};
+
 export const dashboardTemplate = (user = null) => {
     // Evaluamos el rol del usuario
     const idRol = user ? Number(user.id_rol ?? user.fk_id_rol) : null;
@@ -10,7 +31,7 @@ export const dashboardTemplate = (user = null) => {
         <!-- Encabezado de la Sección -->
         <div class="d-flex align-items-center justify-content-between mb-4">
             <div>
-                <h1 class="h3 mb-0 fw-bold">Tus tareas</h1>
+                <h1 class="h3 mb-0 fw-bold" id="tituloTareas">Tus tareas</h1>
                 <p class="text-muted small mb-0">Gestión dinámica de actividades</p>
             </div>
 
@@ -20,8 +41,13 @@ export const dashboardTemplate = (user = null) => {
                 ${
                     esLider
                         ? `
-                        <button id="btnVerSolicitudes" type="button" class="btn btn-warning btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalSolicitudes">
+                        <button id="btnVerSolicitudes" type="button" class="btn btn-warning btn-sm shadow-sm fw-bold position-relative" data-bs-toggle="modal" data-bs-target="#modalSolicitudes">
                             <i class="fas fa-bell me-1"></i> Solicitudes Pendientes
+                            
+                            <!-- Badge posicionado exactamente sobre la campana -->
+                            <span id="badgeSolicitudesCount" class="position-absolute top-0 start-0 badge rounded-pill bg-danger" style="display: none; margin-top: -10px; margin-left: 5px;">
+                                0
+                            </span>
                         </button>
                     `
                         : ""
@@ -216,3 +242,10 @@ export const dashboardTemplate = (user = null) => {
     </div>
     `;
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+    actualizarContadorSolicitudes();
+    
+    // Opcional: Actualizar automáticamente cada 5 segundos
+    setInterval(actualizarContadorSolicitudes, 5000);
+});
