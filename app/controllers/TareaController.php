@@ -235,6 +235,22 @@ class TareaController extends BaseController
             ], 401);
         }
 
+        $expired_at = $datos['expired_at'] ?? null;
+
+        // Evitar fechas de vencimiento en el pasado al crear
+        if ($expired_at) {
+            $hoy = date('Y-m-d');
+            $fechaComparacion = substr($expired_at, 0, 10);
+            
+            if ($fechaComparacion < $hoy) {
+                $this->jsonResponse([
+                    'ok' => false,
+                    'mensaje' => 'La fecha de vencimiento no puede ser anterior al día de hoy.'
+                ], 400);
+                return;
+            }
+        }
+
         $data = [
             'titulo' => trim($datos['titulo'] ?? ''),
             'descripcion' => trim($datos['descripcion'] ?? ''),
@@ -309,6 +325,21 @@ class TareaController extends BaseController
         $expired_at = array_key_exists('expired_at', $datos) 
             ? $datos['expired_at'] 
             : ($tareaActual['expired_at'] ?? null);
+
+        // Evitar fechas de vencimiento en el pasado
+        if ($expired_at) {
+            $hoy = date('Y-m-d');
+            // Tomamos solo los primeros 10 caracteres (YYYY-MM-DD) 
+            $fechaComparacion = substr($expired_at, 0, 10);
+            
+            if ($fechaComparacion < $hoy) {
+                $this->jsonResponse([
+                    'ok' => false,
+                    'mensaje' => 'La fecha de vencimiento no puede ser anterior al día de hoy.'
+                ], 400);
+                return;
+            }
+        }
 
         $id_estado = isset($datos['id_estado']) 
             ? intval($datos['id_estado']) 

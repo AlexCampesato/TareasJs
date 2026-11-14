@@ -1,6 +1,7 @@
 import { tareaService } from "../../services/tareaService.js";
 import { getTareas } from "./getTareas.js";
 import { createTareaTemplate } from "../../templates/tareas/createTareaTemplate.js";
+import {showSuccess, showError} from "../../ui/alert.js";
 
 export const initCreateTarea = () => {
     const btnNueva = document.getElementById("btnNuevaTarea");
@@ -18,8 +19,14 @@ export const initCreateTarea = () => {
         const modalEl = document.getElementById("modalNuevaTarea");
         const formTarea = document.getElementById("formNuevaTarea");
         const selectEstado = document.getElementById("estadoTarea");
-
+        const inputExpired = document.getElementById("expired_at");
+        
         if (!modalEl || !formTarea || !selectEstado) return;
+
+        if (inputExpired) {
+            const hoy = new Date().toISOString().split('T')[0];
+            inputExpired.min = hoy;
+        }
 
         try {
             // Obtener estados desde el backend
@@ -60,8 +67,15 @@ export const initCreateTarea = () => {
                 try {
                     await tareaService.create(data);
 
+                    // Validar si el backend respondió con un error 
+                    if (response && (!response.ok && !response.success)) {
+                        throw new Error(response.mensaje || response.message || "No se pudo crear la tarea.");
+                    }
+
                     modalInstance.hide();
                     formTarea.reset();
+
+                    showSuccess("Tarea creada exitosamente.");
 
                     const selectFiltro =
                         document.getElementById("selectFiltroEstado");
@@ -74,6 +88,7 @@ export const initCreateTarea = () => {
                         "Error al crear tarea:",
                         error,
                     );
+                    showError("No se puede crear una tarea con fecha pasada.");
                 }
             });
         } catch (error) {

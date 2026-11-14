@@ -62,6 +62,9 @@ export const prepareEditTarea = async (id) => {
         if (inputDesc) inputDesc.value = tarea.descripcion || "";
         
         if (inputExpired) {
+            //Evitar fechas en el pasado configurando el atributo min con el día de hoy
+            const hoy = new Date().toISOString().split('T')[0];
+            inputExpired.min = hoy;
             inputExpired.value = tarea.expired_at ? tarea.expired_at.substring(0, 10) : "";
         }
 
