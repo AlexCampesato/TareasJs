@@ -24,12 +24,20 @@ export const httpClient = async (endpoint, options = {}) => {
     const rawText = await response.text();
     console.log("Respuesta RAW del Servidor:", rawText);
 
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    let data = null;
+    try {
+      data = JSON.parse(rawText);
+    } catch (e) {
+      // Si la respuesta no es un JSON válido (por ejemplo, un error fatal de PHP)
+      data = null;
     }
 
-    // Intentar convertir el texto a JSON
-    return JSON.parse(rawText);
+    if (!response.ok) {
+      const mensajeError = data?.mensaje || data?.message || `Error ${response.status}: ${response.statusText}`;
+      throw new Error(mensajeError);
+    }
+
+    return data;
   } catch (error) {
     console.error("HTTP Client Error:", error);
     throw error;

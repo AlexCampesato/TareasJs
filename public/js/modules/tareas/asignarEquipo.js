@@ -1,4 +1,5 @@
 import { getTareas } from "./getTareas.js";
+import {showSuccess, showError} from "../../ui/alert.js";
 
 // Carga los equipos y marca como seleccionado el idEquipoActual si existe
 const cargarEquipos = async (idEquipoActual = null) => {
@@ -48,7 +49,7 @@ export const initAsignarEquipo = () => {
             const idEquipo = document.getElementById("selectEquipoAsignar").value;
 
             if (!idEquipo) {
-                alert("Por favor selecciona un equipo.");
+                showError("Por favor selecciona un equipo.");
                 return;
             }
 

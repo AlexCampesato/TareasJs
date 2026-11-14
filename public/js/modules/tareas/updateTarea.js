@@ -1,6 +1,7 @@
 import { tareaService } from "../../services/tareaService.js";
 import { getTareas } from "./getTareas.js";
 import { editTareaTemplate } from "../../templates/tareas/editTareaTemplate.js";
+import { showError, showSuccess } from "../../ui/alert.js";
 
 export const prepareEditTarea = async (id) => {
     let components = document.getElementById("dashboardComponents");
@@ -29,6 +30,10 @@ export const prepareEditTarea = async (id) => {
             selectEstado.innerHTML = `
                 <option value="">Seleccione un estado</option>
                 ${estadosResponse.estados
+                    .filter(estado => {
+                        const tipo = (estado.tipoEstado || "").toLowerCase();
+                        return tipo !== 'expired' && tipo !== 'expirada';
+                    })
                     .map(
                         (estado) => `
                             <option
@@ -208,13 +213,18 @@ export const initSubmitCambiarEstado = () => {
                     const modalInstance = bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl);
                     if (modalInstance) modalInstance.hide();
 
+                    showSuccess("Estado actualizado correctamente");
+
                     const selectFiltro = document.getElementById("selectFiltroEstado");
                     await getTareas(selectFiltro ? Number(selectFiltro.value) : 0);
                 } else {
-                    console.error("Error al actualizar estado:", response.mensaje || response.message);
+                   const errorMsg = response.mensaje || response.message || "Error al actualizar estado";
+                    console.error("Error al actualizar estado:", errorMsg);
+                    showError(errorMsg);
                 }
             } catch (error) {
                 console.error("Error en la petición de cambiar estado:", error);
+                showError(error.message || "Error al actualizar el estado");
             }
         });
     }
@@ -243,13 +253,18 @@ export const initSubmitCambiarPrioridad = () => {
                     const modalInstance = bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl);
                     if (modalInstance) modalInstance.hide();
 
+                    showSuccess("Prioridad actualizada correctamente");
+
                     const selectFiltro = document.getElementById("selectFiltroEstado");
                     await getTareas(selectFiltro ? Number(selectFiltro.value) : 0);
                 } else {
-                    console.error("Error al actualizar prioridad:", response.mensaje || response.message);
+                    const errorMsg = response.mensaje || response.message || "Error al actualizar prioridad";
+                    console.error("Error al actualizar prioridad:", errorMsg);
+                    showError(errorMsg);
                 }
             } catch (error) {
                 console.error("Error en la petición de cambiar prioridad:", error);
+                showError(error.message || "Error al actualizar la prioridad");
             }
         });
     }
@@ -292,11 +307,14 @@ export const initSubmitUpdateTarea = () => {
 
                 formTarea.reset();
 
+                showSuccess("Tarea actualizada correctamente.");
+
                 const selectFiltro = document.getElementById("selectFiltroEstado");
                 await getTareas(selectFiltro ? Number(selectFiltro.value) : 0);
 
             } catch (error) {
                 console.error("Error al actualizar tarea:", error);
+                showError(error.message || "Error al actualizar la tarea");
             }
         });
     }

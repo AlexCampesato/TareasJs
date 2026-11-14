@@ -111,33 +111,8 @@ export const dashboardTemplate = (user = null) => {
 
         <!-- Contenedor de Modales Persistentes -->
         <div id="dashboardComponents">
-            <!-- Modal Asignar Equipo -->
-            <div class="modal fade" id="modalAsignarEquipo" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content border-0 shadow">
-                        <div class="modal-header bg-primary text-white">
-                            <h5 class="modal-title"><i class="fas fa-users me-2"></i>Asignar Equipo a la Tarea</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="formAsignarEquipo">
-                                <input type="hidden" id="idTareaAsignar">
-                                <div class="mb-3">
-                                    <label for="selectEquipoAsignar" class="form-label fw-bold">Seleccionar Equipo</label>
-                                    <select id="selectEquipoAsignar" class="form-select" required>
-                                        <option value="">Cargando equipos...</option>
-                                    </select>
-                                </div>
-                                <div class="d-flex justify-content-end gap-2">
-                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                                    <button type="submit" class="btn btn-primary btn-sm">Guardar Asignación</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+          <!-- Modal Asignar Equipo -->
+                    
             <!-- Modal Asignar Miembro (Para Líderes) -->
             <div class="modal fade" id="modalAsignarMiembro" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
