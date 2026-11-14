@@ -1,5 +1,6 @@
 import { renderAdminLayout, initAdminLayout } from "../templates/layout.js";
 import { dashboardTemplate } from "../templates/dashboardTemplate.js";
+import { asignarEquipoTemplate } from "../templates/tareas/asignarEquipoTemplates.js";
 import { initCreateTarea } from "./tareas/createTarea.js";
 import { getTareas } from "./tareas/getTareas.js";
 import { initFilterTarea } from "./tareas/filterTareas.js";
@@ -8,6 +9,7 @@ import { initDeleteTarea } from "./tareas/deleteTarea.js";
 import { initAsignarEquipo } from "./tareas/asignarEquipo.js";
 import { initAsignarMiembro } from "./tareas/asignarMiembro.js";
 import { authService } from "../services/authService.js";
+
 
 export const renderDashboard = async (container) => {
     try {
@@ -20,14 +22,16 @@ export const renderDashboard = async (container) => {
         }
 
         const user = response.user;
+        
+        console.log("rolooooo:" + user.fk_id_rol);
         // Renderizamos la estructura del Layout con el Dashboard adentro
-        container.innerHTML = renderAdminLayout(dashboardTemplate(user));
+        container.innerHTML = renderAdminLayout(dashboardTemplate(user)) + asignarEquipoTemplate();
 
         // Inicializamos los datos del layout (avatar, nombre en topbar, etc.) pasando el usuario que ya tenemos
         initAdminLayout(user);
        
         const idRol = Number(user.id_rol ?? user.fk_id_rol ?? 0);
-
+console.log("rolooooo:" + user.fk_id_rol);
         // Inicializamos el filtro de tareas
         initFilterTarea();
 

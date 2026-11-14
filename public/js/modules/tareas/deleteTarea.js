@@ -1,15 +1,22 @@
 import { tareaService } from "../../services/tareaService.js";
 import { getTareas } from "./getTareas.js";
+import { authService } from "../../services/authService.js";
+import {showSuccess, showError, showConfirm} from "../../ui/alert.js";
 
 export const deleteTarea = async (id) => {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    const idRol = Number(user.id_rol ?? user.fk_id_rol ?? 0);
 
+    const response = await authService.checkSession();
+    const user = response.user;
+    const idRol = Number( user.id_rol ?? 0 );
+    const tituloConfirmacion = idRol === 2 ? "¿Desasignar tarea?" : "¿Eliminar tarea?";
+    
     const mensajeConfirmacion = idRol === 2
         ? "¿Desea desasignar esta tarea de su equipo? Quedará disponible para el Administrador."
         : "¿Desea eliminar esta tarea del sistema?";
 
-    if (!confirm(mensajeConfirmacion)) {
+    const confirmado = await showConfirm(tituloConfirmacion, mensajeConfirmacion);
+
+    if (!confirmado) {
         return;
     }
 
@@ -24,11 +31,18 @@ export const deleteTarea = async (id) => {
             );
         }
 
+        const mensajeExito = idRol === 2
+            ? "Tarea desasignada correctamente."
+            : "Tarea eliminada exitosamente.";
+        
+        showSuccess(mensajeExito);
+
         const selectFiltro = document.getElementById("selectFiltroEstado");
         await getTareas(selectFiltro ? Number(selectFiltro.value) : 0);
 
     } catch (error) {
         console.error("Error al eliminar o desasignar tarea:", error);
+        showError("Error al eliminar o desasignar tarea");
     }
 };
 

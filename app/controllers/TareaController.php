@@ -233,38 +233,58 @@ class TareaController extends BaseController
                 'ok' => false,
                 'mensaje' => 'Usuario no autenticado.'
             ], 401);
+            return;
         }
 
+        $titulo = trim($datos['titulo'] ?? '');
+        $descripcion = trim($datos['descripcion'] ?? '');
         $expired_at = $datos['expired_at'] ?? null;
+        $id_estado = $datos['id_estado'] ?? 1;
 
-        // Evitar fechas de vencimiento en el pasado al crear
-        if ($expired_at) {
-            $hoy = date('Y-m-d');
-            $fechaComparacion = substr($expired_at, 0, 10);
-            
-            if ($fechaComparacion < $hoy) {
-                $this->jsonResponse([
-                    'ok' => false,
-                    'mensaje' => 'La fecha de vencimiento no puede ser anterior al día de hoy.'
-                ], 400);
-                return;
-            }
-        }
-
-        $data = [
-            'titulo' => trim($datos['titulo'] ?? ''),
-            'descripcion' => trim($datos['descripcion'] ?? ''),
-            'expired_at' => $datos['expired_at'] ?? null,
-            'id_estado' => $datos['id_estado'] ?? 1,
-            'id_usuario' => $id_usuario
-        ];
-
-        if (empty($data['titulo'])) {
+        if (mb_strlen($titulo) < 3) {
             $this->jsonResponse([
                 'ok' => false,
-                'mensaje' => 'El título es obligatorio.'
+                'mensaje' => 'El título es obligatorio y debe tener al menos 3 caracteres.'
             ], 400);
+            return;
         }
+
+        if (empty($descripcion)) {
+            $this->jsonResponse([
+                'ok' => false,
+                'mensaje' => 'La descripción de la tarea es obligatoria.'
+            ], 400);
+            return;
+        }
+
+        if (empty($expired_at)) {
+            $this->jsonResponse([
+                'ok' => false,
+                'mensaje' => 'La fecha de vencimiento es obligatoria.'
+            ], 400);
+            return;
+        }
+
+       // Evitar fechas de vencimiento en el pasado al crear
+        $hoy = date('Y-m-d');
+        $fechaComparacion = substr($expired_at, 0, 10);
+        
+        if ($fechaComparacion < $hoy) {
+            $this->jsonResponse([
+                'ok' => false,
+                'mensaje' => 'La fecha de vencimiento no puede ser anterior al día de hoy.'
+            ], 400);
+            return;
+        }
+
+              
+        $data = [
+            'titulo' => $titulo,
+            'descripcion' => $descripcion,
+            'expired_at' => $expired_at,
+            'id_estado' => $id_estado,
+            'id_usuario' => $id_usuario
+        ];
 
         $creado = $this->tareaModel->altaTarea($data);
 
@@ -313,23 +333,44 @@ class TareaController extends BaseController
 
         $tareaActual = (array) $tareaBD;
 
-        // conservamos los datos existentes
-        $titulo = isset($datos['titulo']) && trim($datos['titulo']) !== '' 
-            ? trim($datos['titulo']) 
-            : ($tareaActual['titulo'] ?? '');
 
-        $descripcion = isset($datos['descripcion']) 
-            ? trim($datos['descripcion']) 
-            : ($tareaActual['descripcion'] ?? '');
+       
+        if (array_key_exists('titulo', $datos)) {
+            $tituloTrim = trim($datos['titulo']);
+            if (mb_strlen($tituloTrim) < 3) {
+                $this->jsonResponse([
+                    'ok' => false,
+                    'mensaje' => 'El título debe tener al menos 3 caracteres.'
+                ], 400);
+                return;
+            }
+            $titulo = $tituloTrim;
+        } else {
+            $titulo = $tareaActual['titulo'] ?? '';
+        }
 
+        // Validación y asignación de la DESCRIPCIÓN (si viene en la petición)
+        if (array_key_exists('descripcion', $datos)) {
+            $descripcionTrim = trim($datos['descripcion']);
+            if ($descripcionTrim === '') {
+                $this->jsonResponse([
+                    'ok' => false,
+                    'mensaje' => 'La descripción es obligatoria y no puede estar vacía.'
+                ], 400);
+                return;
+            }
+            $descripcion = $descripcionTrim;
+        } else {
+            $descripcion = $tareaActual['descripcion'] ?? '';
+        }
+
+        // Validación de la fecha de vencimiento (expired_at)
         $expired_at = array_key_exists('expired_at', $datos) 
             ? $datos['expired_at'] 
             : ($tareaActual['expired_at'] ?? null);
 
-        // Evitar fechas de vencimiento en el pasado
         if ($expired_at) {
             $hoy = date('Y-m-d');
-            // Tomamos solo los primeros 10 caracteres (YYYY-MM-DD) 
             $fechaComparacion = substr($expired_at, 0, 10);
             
             if ($fechaComparacion < $hoy) {

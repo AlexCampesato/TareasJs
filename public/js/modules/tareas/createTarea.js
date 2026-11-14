@@ -34,43 +34,64 @@ export const initCreateTarea = () => {
 
       if (response.ok && response.estados) {
         selectEstado.innerHTML = `
-        <option value="">
-            Seleccione un estado
-        </option>
+        <option value="">Seleccione un estado</option>
 
         ${response.estados
-          .map(
-            (estado) => `
+            .filter(estado => {
+                        const tipo = (estado.tipoEstado || "").toLowerCase();
+                        return tipo !== 'expired' && tipo !== 'expirada'; // 🟢 Excluimos el estado automático
+                    })
+            .map(
+               (estado) => `
                     <option
                         value="${estado.id_estado}"
                         style="color: ${estado.color};"
                     >
                         ${estado.tipoEstado}
                     </option>
-                `,
+                `
           )
           .join("")}
     `;
       }
 
-            const modalInstance =
-                bootstrap.Modal.getOrCreateInstance(modalEl);
+    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modalInstance.show();
 
-            modalInstance.show();
-
-            formTarea.addEventListener("submit", async (e) => {
+    if (!formTarea.dataset.listenerSubmit) {
+                formTarea.dataset.listenerSubmit = "true";
+    formTarea.addEventListener("submit", async (e) => {
                 e.preventDefault();
 
-                const formData = new FormData(formTarea);
-                const data = Object.fromEntries(formData.entries());
+        const formData = new FormData(formTarea);
+        const data = Object.fromEntries(formData.entries());
 
-                try {
-                    await tareaService.create(data);
+        const titulo = (data.titulo || "").trim();
+        const descripcion = (data.descripcion || "").trim();
+        const expiredAt = data.expired_at || "";
+
+        if (titulo.length < 3) {
+                        showError("El título es obligatorio y debe tener al menos 3 caracteres.");
+                        return;
+                    }
+
+                    if (descripcion === "") {
+                        showError("La descripción de la tarea es obligatoria.");
+                        return;
+                    }
+
+                    if (!expiredAt) {
+                        showError("Debe seleccionar una fecha de vencimiento.");
+                        return;
+                    }
+
+            try {
+                    const apiResponse = await tareaService.create(data);
 
                     // Validar si el backend respondió con un error 
-                    if (response && (!response.ok && !response.success)) {
-                        throw new Error(response.mensaje || response.message || "No se pudo crear la tarea.");
-                    }
+                    if (apiResponse && (!apiResponse.ok && !apiResponse.success)) {
+                            throw new Error(apiResponse.mensaje || apiResponse.message || "No se pudo crear la tarea.");
+                        }
 
                     modalInstance.hide();
                     formTarea.reset();
@@ -88,14 +109,12 @@ export const initCreateTarea = () => {
                         "Error al crear tarea:",
                         error,
                     );
-                    showError("No se puede crear una tarea con fecha pasada.");
+                    showError(error.message || "Error al crear la tarea.");
                 }
             });
+        }
         } catch (error) {
-            console.error(
-                "Error al cargar los estados:",
-                error,
-            );
+            console.error("Error al cargar los estados:", error,);
         }
     });
 };
