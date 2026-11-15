@@ -15,6 +15,7 @@ import { initUpdateTarea } from "./tareas/updateTarea.js";
 import { initDeleteTarea } from "./tareas/deleteTarea.js";
 import { initAsignarEquipo } from "./tareas/asignarEquipo.js";
 import { initAsignarMiembro } from "./tareas/asignarMiembro.js";
+import { initModalSolicitudes, actualizarContadorSolicitudes } from "../services/solicitudService.js";
 
 import { authService } from "../services/authService.js";
 
@@ -31,7 +32,7 @@ export const renderDashboard = async (container) => {
         }
 
         const user = response.user;
-
+       
         // Renderizamos la estructura del Layout con el Dashboard adentro
         container.innerHTML = renderAdminLayout(dashboardTemplate(user)) 
                              + asignarEquipoTemplate()
@@ -61,6 +62,9 @@ export const renderDashboard = async (container) => {
             initUpdateTarea();
             initDeleteTarea();
             initAsignarMiembro();
+            initModalSolicitudes();
+            actualizarContadorSolicitudes();
+            const intervaloSolicitudes = setInterval(actualizarContadorSolicitudes, 5000);
         } else {
             // Miembro (Rol 3)
             initUpdateTarea();

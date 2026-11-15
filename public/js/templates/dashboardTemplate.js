@@ -1,31 +1,10 @@
-export const actualizarContadorSolicitudes = async () => {
-    try {
-        const res = await fetch("/proyecto-tareas/api/solicitudes/pendientes");
-        const data = await res.json();
-
-        const badge = document.getElementById("badgeSolicitudesCount");
-        if (!badge) return;
-
-        const cantidad = Array.isArray(data.solicitudes) ? data.solicitudes.length : (data.count || 0);
-
-        if (cantidad > 0) {
-            badge.textContent = cantidad;
-            badge.style.display = "inline-block"; // Muestra el número rojo si hay pendientes
-        } else {
-            badge.style.display = "none"; // Lo oculta si está en 0
-        }
-    } catch (error) {
-        console.error("Error al actualizar el contador de solicitudes:", error);
-    }
-};
-
 export const dashboardTemplate = (user = null) => {
-    // Evaluamos el rol del usuario
-    const idRol = user ? Number(user.id_rol ?? user.fk_id_rol) : null;
-    const esAdmin = idRol === 1;
-    const esLider = idRol === 2;
+  // Evaluamos el rol del usuario
+  const idRol = user ? Number(user.id_rol ?? user.fk_id_rol) : null;
+  const esAdmin = idRol === 1;
+  const esLider = idRol === 2;
 
-   return `
+  return `
     <div class="container-fluid px-4 py-3">
 
         <!-- Encabezado de la Sección -->
@@ -39,8 +18,8 @@ export const dashboardTemplate = (user = null) => {
             <div class="d-flex gap-2">
                 <!-- Botón Solicitudes Pendientes (Solo visible para Líder) -->
                 ${
-                    esLider
-                        ? `
+                  esLider
+                    ? `
                         <button id="btnVerSolicitudes" type="button" class="btn btn-warning btn-sm shadow-sm fw-bold position-relative" data-bs-toggle="modal" data-bs-target="#modalSolicitudes">
                             <i class="fas fa-bell me-1"></i> Solicitudes Pendientes
                             
@@ -48,20 +27,19 @@ export const dashboardTemplate = (user = null) => {
                             <span id="badgeSolicitudesCount" class="position-absolute top-0 start-0 badge rounded-pill bg-danger" style="display: none; margin-top: -10px; margin-left: 5px;">
                                 0
                             </span>
-                        </button>
-                    `
-                        : ""
+                        </button>  `
+                    : ""
                 }
 
                 <!-- Botón Nueva Tarea (Solo visible para Admin) -->
                 ${
-                    esAdmin
-                        ? `
+                  esAdmin
+                    ? `
                         <button id="btnNuevaTarea" type="button" class="btn btn-success btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalCrearTarea">
                             <i class="bi bi-plus-circle me-1"></i> Nueva Tarea
                         </button>
                     `
-                        : ""
+                    : ""
                 }
             </div>
         </div>
@@ -112,13 +90,6 @@ export const dashboardTemplate = (user = null) => {
         <!-- Contenedor de Modales Persistentes -->
         <div id="dashboardComponents">
         </div>
-         </div>
+    </div>
     `;
 };
-
-document.addEventListener("DOMContentLoaded", () => {
-    actualizarContadorSolicitudes();
-    
-    // Opcional: Actualizar automáticamente cada 5 segundos
-    setInterval(actualizarContadorSolicitudes, 5000);
-});
