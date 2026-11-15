@@ -67,7 +67,6 @@ export const prepareEditTarea = async (id) => {
         if (inputDesc) inputDesc.value = tarea.descripcion || "";
         
         if (inputExpired) {
-            //Evitar fechas en el pasado configurando el atributo min con el día de hoy
             const hoy = new Date().toISOString().split('T')[0];
             inputExpired.min = hoy;
             inputExpired.value = tarea.expired_at ? tarea.expired_at.substring(0, 10) : "";
@@ -90,11 +89,61 @@ export const prepareEditTarea = async (id) => {
 export const initUpdateTarea = () => {
     if (!document.dataset) document.dataset = {};
 
+    if (!document.dataset.listenerCambiarEstadoGlobal) {
+        document.dataset.listenerCambiarEstadoGlobal = "true";
+
+        document.addEventListener("click", async (e) => {
+            const btnCambiarEstado = e.target.closest(".btn-cambiar-estado");
+            if (!btnCambiarEstado) return;
+
+            const idTarea = btnCambiarEstado.dataset.id;
+            const estadoActual = Number(btnCambiarEstado.dataset.estado);
+
+            const modalEl = document.getElementById("modalCambiarEstado");
+            const selectEstado = document.getElementById("selectNuevoEstado");
+            const inputId = document.getElementById("idTareaCambiarEstado");
+
+            if (!modalEl || !selectEstado || !inputId) return;
+
+            inputId.value = idTarea;
+
+            try {
+                const response = await tareaService.getEstados();
+                if (response.ok && response.estados) {
+                    selectEstado.innerHTML = response.estados
+                      .filter((est) => {
+                        const tipo = (est.tipoEstado || est.nombre || "").toLowerCase();
+                        return tipo !== "expired" && tipo !== "expirada" && tipo !== "vencida"; 
+                      })
+                      .map(
+                        (est) => `
+                            <option 
+                                value="${est.id_estado || est.id}" 
+                                ${Number(est.id_estado || est.id) === estadoActual ? "selected" : ""}
+                            >
+                                ${est.tipoEstado || est.nombre}
+                            </option>
+                        `,
+                      )
+                      .join("");
+                }
+            } catch (err) {
+                console.error("Error al cargar estados:", err);
+            }
+
+            const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modalInstance.show();
+        });
+
+        initSubmitCambiarEstado();
+    }
+
+    //  Listener de Edición y Prioridad (Admin / Líder)
     if (!document.dataset.listenerEditGlobal) {
         document.dataset.listenerEditGlobal = "true";
 
         document.addEventListener("click", async (e) => {
-            //  Editar Tarea (Admin / Líder)
+            // Editar Tarea
             const btnEditar = e.target.closest(".btn-editar-tarea");
             if (btnEditar) {
                 const id = btnEditar.dataset.id;
@@ -102,49 +151,7 @@ export const initUpdateTarea = () => {
                 return;
             }
 
-            //  Cambiar Estado (Miembro) -> Abre el modal
-            const btnCambiarEstado = e.target.closest(".btn-cambiar-estado");
-            if (btnCambiarEstado) {
-                const idTarea = btnCambiarEstado.dataset.id;
-                const estadoActual = Number(btnCambiarEstado.dataset.estado);
-
-                const modalEl = document.getElementById("modalCambiarEstado");
-                const selectEstado = document.getElementById("selectNuevoEstado");
-                const inputId = document.getElementById("idTareaCambiarEstado");
-
-                if (!modalEl || !selectEstado || !inputId) return;
-
-                inputId.value = idTarea;
-
-                try {
-                    const response = await tareaService.getEstados();
-                    if (response.ok && response.estados) {
-                        selectEstado.innerHTML = response.estados
-                          .filter((est) => {
-                            const tipo = (est.tipoEstado || "").toLowerCase();
-                            return tipo !== "expired" && tipo !== "expirada"; 
-                          })
-                          .map(
-                            (est) => `
-                                <option 
-                                    value="${est.id_estado}" 
-                                    ${Number(est.id_estado) === estadoActual ? "selected" : ""}
-                                >
-                                    ${est.tipoEstado}
-                                </option>
-                            `,
-                          )
-                          .join("");
-                    }
-                } catch (err) {
-                    console.error("Error al cargar estados:", err);
-                }
-
-                const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
-                modalInstance.show();
-            }
-
-            // Cambiar Prioridad (Líder / Admin) -> Abre el modal de Prioridad
+            // Cambiar Prioridad
             const btnCambiarPrioridad = e.target.closest(".btn-cambiar-prioridad");
             if (btnCambiarPrioridad) {
                 const idTarea = btnCambiarPrioridad.dataset.id;
@@ -184,8 +191,6 @@ export const initUpdateTarea = () => {
             }
         });
 
-        // Inicializamos los submitters de los modales
-        initSubmitCambiarEstado();
         initSubmitCambiarPrioridad();
         initSubmitUpdateTarea();
     }

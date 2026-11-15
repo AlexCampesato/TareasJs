@@ -4,16 +4,19 @@ class AuthController extends BaseController {
 
     private $authModel;
     private $usuarioModel; // Agregado para usar el registro
+    private $permisosModel;
 
     public function __construct() {
         $this->authModel =$this->model('AuthModel');
         $this->usuarioModel =$this->model('UsuarioModel'); // Instanciamos el modelo de usuarios
+        $this->permisosModel =$this->model('PermisosModel');
     }
 
     public function checkSession() {
         if (isset($_SESSION['user_id'])) {
-            // Consultamos directamente a la base de datos para obtener los datos frescos y el rol
+            // Consultamos directamente a la base de datos para obtener los datos y el rol
             $usuario = $this->usuarioModel->obtener_usuario_por_id($_SESSION['user_id']);
+            $permisos = $this->permisosModel->obtenerPermisosPorUsuario($_SESSION['user_id']);
 
             if ($usuario) {
                 $this->jsonResponse([
@@ -24,7 +27,8 @@ class AuthController extends BaseController {
                         'email'      => $usuario->email,
                         'avatar'     => $usuario->avatar,
                         'id_rol'     => $usuario->fk_id_rol,
-                        'rol_nombre' => $usuario->rol_nombre ?? 'Sin rol' // Trae el rol desde la BD
+                        'rol_nombre' => $usuario->rol_nombre ?? 'Sin rol',
+                        'permisos'   => $permisos
                     ]
                 ]);
                 return;

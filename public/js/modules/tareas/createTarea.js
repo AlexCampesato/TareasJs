@@ -39,7 +39,7 @@ export const initCreateTarea = () => {
         ${response.estados
             .filter(estado => {
                         const tipo = (estado.tipoEstado || "").toLowerCase();
-                        return tipo !== 'expired' && tipo !== 'expirada'; // 🟢 Excluimos el estado automático
+                        return tipo !== 'expired' && tipo !== 'expirada'; 
                     })
             .map(
                (estado) => `

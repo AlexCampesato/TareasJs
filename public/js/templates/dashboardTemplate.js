@@ -1,8 +1,11 @@
 export const dashboardTemplate = (user = null) => {
-  // Evaluamos el rol del usuario
-  const idRol = user ? Number(user.id_rol ?? user.fk_id_rol) : null;
-  const esAdmin = idRol === 1;
-  const esLider = idRol === 2;
+
+    // Extraemos los permisos del usuario de forma segura
+    const permisos = user?.permisos || [];
+    
+    // Definimos banderas basadas en permisos
+    const puedeVerSolicitudes = permisos.includes('solicitudes.ver');
+    const puedeCrearTarea = permisos.includes('tareas.crear');
 
   return `
     <div class="container-fluid px-4 py-3">
@@ -18,7 +21,7 @@ export const dashboardTemplate = (user = null) => {
             <div class="d-flex gap-2">
                 <!-- Botón Solicitudes Pendientes (Solo visible para Líder) -->
                 ${
-                  esLider
+                  puedeVerSolicitudes
                     ? `
                         <button id="btnVerSolicitudes" type="button" class="btn btn-warning btn-sm shadow-sm fw-bold position-relative" data-bs-toggle="modal" data-bs-target="#modalSolicitudes">
                             <i class="fas fa-bell me-1"></i> Solicitudes Pendientes
@@ -33,7 +36,7 @@ export const dashboardTemplate = (user = null) => {
 
                 <!-- Botón Nueva Tarea (Solo visible para Admin) -->
                 ${
-                  esAdmin
+                  puedeCrearTarea
                     ? `
                         <button id="btnNuevaTarea" type="button" class="btn btn-success btn-sm shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalCrearTarea">
                             <i class="bi bi-plus-circle me-1"></i> Nueva Tarea

@@ -2,14 +2,22 @@ import { httpClient } from "../utils/httpClient.js";
 
 export const authService = {
   checkSession: async () => {
-    return await httpClient("/api/auth/check-session");
+   const response = await httpClient("/api/auth/check-session");
+    if (response.success && response.user) {
+      localStorage.setItem("user", JSON.stringify(response.user)); 
+    }
+    return response;
   },
 
   login: async (credentials) => {
-    return await httpClient("/api/auth/login", {
+    const response = await httpClient("/api/auth/login", {
       method: "POST",
       body: JSON.stringify(credentials),
     });
+    if (response.success && response.user) {
+      localStorage.setItem("user", JSON.stringify(response.user)); 
+    }
+    return response;
   },
 
   register: async (data) => {
@@ -34,8 +42,17 @@ export const authService = {
   },
 
   logout: async () => {
-    return await httpClient("/api/auth/logout", {
+    const response = await httpClient("/api/auth/logout", {
       method: "POST",
     });
+    if (response.success) {
+      localStorage.removeItem("user"); //Borramos la sesión al salir
+    }
+    return response;
   },
+  // Método para consultar el usuario actual desde cualquier parte
+  getUser: () => {
+    const userStr = localStorage.getItem("user");
+    return userStr ? JSON.parse(userStr) : null;
+  }
 };
