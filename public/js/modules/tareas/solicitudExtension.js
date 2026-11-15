@@ -1,3 +1,5 @@
+import { showSuccess, showError, showConfirm } from "../../ui/alert.js";
+
 export const initSolicitudExtension = () => {
 
     //Evitar que el evento se registre más de una vez
@@ -10,7 +12,12 @@ export const initSolicitudExtension = () => {
 
         const idTarea = btn.dataset.id;
 
-        if (!confirm("¿Deseas solicitar al líder una extensión de fecha para esta tarea?")) {
+        const confirmado = await showConfirm(
+            "¿Solicitar extensión?", 
+            "¿Deseas solicitar al líder una extensión de fecha para esta tarea?"
+        );
+
+        if (!confirmado) {
             return;
         }
 
@@ -34,15 +41,17 @@ export const initSolicitudExtension = () => {
                 
                 btn.classList.replace("btn-danger", "btn-secondary");
                 btn.innerHTML = `<i class="fas fa-check"></i> Solicitud enviada`;
+
+                showSuccess(data.message || "Solicitud enviada correctamente.");
             } else {
-                alert(data.message || "Error al enviar la solicitud.");
+                showError(data.message || "Error al enviar la solicitud.");
               
                 btn.innerHTML = contenidoOriginal;
                 btn.style.pointerEvents = "auto";
             }
         } catch (error) {
             console.error("Error solicitando extensión:", error);
-            alert("Error de conexión con el servidor.");
+            showError("Error de conexión con el servidor.");
             btn.innerHTML = contenidoOriginal;
             btn.style.pointerEvents = "auto";
         }
