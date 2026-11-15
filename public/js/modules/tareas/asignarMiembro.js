@@ -1,4 +1,5 @@
 import { getTareas } from "./getTareas.js";
+import { showSuccess, showError } from "../../ui/alert.js";
 
 // Carga los usuarios pertenecientes al equipo de la tarea
 const cargarMiembrosEquipo = async (idEquipo, idUsuarioActual = null) => {
@@ -50,7 +51,7 @@ export const initAsignarMiembro = () => {
             const idUsuario = document.getElementById("selectUsuarioAsignar").value;
 
             if (!idUsuario) {
-                alert("Por favor selecciona un integrante.");
+                showError("Por favor selecciona un integrante.");
                 return;
             }
 
@@ -74,14 +75,16 @@ export const initAsignarMiembro = () => {
                     if (bsModal) {
                         bsModal.hide();
                     }
+                    showSuccess(data.message || data.mensaje || "Miembro asignado correctamente.");
 
                     await getTareas();
                 } else {
-                    alert(data.message || data.mensaje || "Error al asignar el integrante.");
+
+                   showError(data.message || data.mensaje || "Error al asignar el integrante.");
                 }
             } catch (error) {
                 console.error("Error en la petición de asignación:", error);
-                alert("Ocurrió un error al intentar asignar la tarea.");
+               showError("Ocurrió un error al intentar asignar la tarea.");
             }
         });
     }
