@@ -1,5 +1,4 @@
 import { renderAdminLayout, initAdminLayout } from "../templates/layout.js";
-
 import { dashboardTemplate } from "../templates/dashboardTemplate.js";
 import { asignarEquipoTemplate } from "../templates/tareas/asignarEquipoTemplate.js";
 import { prioridadTemplate } from "../templates/tareas/prioridadTemplate.js";
@@ -8,7 +7,6 @@ import { asignarMiembroTemplate} from "../templates/tareas/asignarMiembroTemplat
 import { solicitudesTemplate} from "../templates/tareas/solicitudesTemplate.js";
 
 import { getTareas } from "./tareas/getTareas.js";
-
 import { initCreateTarea } from "./tareas/createTarea.js";
 import { initFilterTarea } from "./tareas/filterTareas.js";
 import { initUpdateTarea } from "./tareas/updateTarea.js";
@@ -18,8 +16,7 @@ import { initAsignarMiembro } from "./tareas/asignarMiembro.js";
 import { initModalSolicitudes, actualizarContadorSolicitudes } from "../services/solicitudService.js";
 
 import { authService } from "../services/authService.js";
-
-
+import { tienePermiso } from "../utils/permissions.js";
 
 export const renderDashboard = async (container) => {
     try {
@@ -41,33 +38,36 @@ export const renderDashboard = async (container) => {
                              + asignarMiembroTemplate()
                              + solicitudesTemplate();
 
-        // Inicializamos los datos del layout (avatar, nombre en topbar, etc.) pasando el usuario que ya tenemos
+        // Inicializamos los datos del layout 
         initAdminLayout(user);
        
         const idRol = Number(user.id_rol ?? user.fk_id_rol ?? 0);
 
-        // Inicializamos el filtro de tareas
+        // Inicializamos el filtro de tareas y cambiar estado
         initFilterTarea();
+        initUpdateTarea();
 
-        // Inicializamos los listeners de acciones según el Rol
-        if (idRol === 1) {
-            // Administrador (Rol 1)
+        //Inicializamos los listeners de acciones de forma modular basándonos en PERMISOS
+        if (tienePermiso("tareas.crear")) {
             initCreateTarea();
-            initUpdateTarea();
+        }
+
+        if (tienePermiso("tareas.eliminar")) {
             initDeleteTarea();
+        }
+
+        if (tienePermiso("tareas.asignar_equipo")) {
             initAsignarEquipo();
+        }
+
+        if (tienePermiso("tareas.asignar_miembro")) {
             initAsignarMiembro();
-        } else if (idRol === 2) {
-            // Líder (Rol 2)
-            initUpdateTarea();
-            initDeleteTarea();
-            initAsignarMiembro();
+        }
+
+        if (tienePermiso("solicitudes.ver")) {
             initModalSolicitudes();
             actualizarContadorSolicitudes();
             const intervaloSolicitudes = setInterval(actualizarContadorSolicitudes, 5000);
-        } else {
-            // Miembro (Rol 3)
-            initUpdateTarea();
         }
 
         // Cargamos las tareas 
