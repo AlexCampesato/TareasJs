@@ -120,17 +120,21 @@ export const initUpdateTarea = () => {
                     const response = await tareaService.getEstados();
                     if (response.ok && response.estados) {
                         selectEstado.innerHTML = response.estados
-                            .map(
-                                (est) => `
+                          .filter((est) => {
+                            const tipo = (est.tipoEstado || "").toLowerCase();
+                            return tipo !== "expired" && tipo !== "expirada"; 
+                          })
+                          .map(
+                            (est) => `
                                 <option 
                                     value="${est.id_estado}" 
                                     ${Number(est.id_estado) === estadoActual ? "selected" : ""}
                                 >
                                     ${est.tipoEstado}
                                 </option>
-                            `
-                            )
-                            .join("");
+                            `,
+                          )
+                          .join("");
                     }
                 } catch (err) {
                     console.error("Error al cargar estados:", err);
