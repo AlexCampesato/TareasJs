@@ -1,16 +1,23 @@
 import { renderAdminLayout, initAdminLayout } from "../templates/layout.js";
+
 import { dashboardTemplate } from "../templates/dashboardTemplate.js";
-import { asignarEquipoTemplate } from "../templates/tareas/asignarEquipoTemplates.js";
+import { asignarEquipoTemplate } from "../templates/tareas/asignarEquipoTemplate.js";
 import { prioridadTemplate } from "../templates/tareas/prioridadTemplate.js";
 import { cambiarEstadoTemplate } from "../templates/tareas/cambiarEstadoTemplate.js";
-import { initCreateTarea } from "./tareas/createTarea.js";
+import { asignarMiembroTemplate} from "../templates/tareas/asignarMiembroTemplate.js";
+import { solicitudesTemplate} from "../templates/tareas/solicitudesTemplate.js";
+
 import { getTareas } from "./tareas/getTareas.js";
+
+import { initCreateTarea } from "./tareas/createTarea.js";
 import { initFilterTarea } from "./tareas/filterTareas.js";
 import { initUpdateTarea } from "./tareas/updateTarea.js";
 import { initDeleteTarea } from "./tareas/deleteTarea.js";
 import { initAsignarEquipo } from "./tareas/asignarEquipo.js";
 import { initAsignarMiembro } from "./tareas/asignarMiembro.js";
+
 import { authService } from "../services/authService.js";
+
 
 
 export const renderDashboard = async (container) => {
@@ -24,10 +31,14 @@ export const renderDashboard = async (container) => {
         }
 
         const user = response.user;
-        
-      
+
         // Renderizamos la estructura del Layout con el Dashboard adentro
-        container.innerHTML = renderAdminLayout(dashboardTemplate(user)) + asignarEquipoTemplate()+ prioridadTemplate()+ cambiarEstadoTemplate();
+        container.innerHTML = renderAdminLayout(dashboardTemplate(user)) 
+                             + asignarEquipoTemplate()
+                             + prioridadTemplate()
+                             + cambiarEstadoTemplate()
+                             + asignarMiembroTemplate()
+                             + solicitudesTemplate();
 
         // Inicializamos los datos del layout (avatar, nombre en topbar, etc.) pasando el usuario que ya tenemos
         initAdminLayout(user);

@@ -111,62 +111,8 @@ export const dashboardTemplate = (user = null) => {
 
         <!-- Contenedor de Modales Persistentes -->
         <div id="dashboardComponents">
-          <!-- Modal Asignar Equipo -->
-                    
-            <!-- Modal Asignar Miembro (Para Líderes) -->
-            <div class="modal fade" id="modalAsignarMiembro" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content border-0 shadow">
-                        <div class="modal-header bg-info text-white">
-                            <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Asignar Miembro de Equipo</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="formAsignarMiembro">
-                                <input type="hidden" id="idTareaAsignarMiembro">
-                                <div class="mb-3">
-                                    <label for="selectUsuarioAsignar" class="form-label fw-bold">Seleccionar Integrante</label>
-                                    <select id="selectUsuarioAsignar" class="form-select" required>
-                                        <option value="">Cargando miembros...</option>
-                                    </select>
-                                </div>
-                                <div class="d-flex justify-content-end gap-2">
-                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                                    <button type="submit" class="btn btn-info text-white btn-sm">Asignar Tarea</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modal Cambiar Estado para Miembro -->
-           
-
-            <!-- Modal Cambiar Prioridad (Líder / Admin) -->
-           
-
-            <!-- Modal Solicitudes Pendientes (Líder) -->
-            <div class="modal fade" id="modalSolicitudes" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
-                    <div class="modal-content border-0 shadow">
-                        <div class="modal-header bg-warning text-dark py-2">
-                            <h6 class="modal-title fw-bold m-0"><i class="fas fa-inbox me-2"></i>Solicitudes Pendientes</h6>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body p-0">
-                            <ul class="list-group list-group-flush" id="listaSolicitudes">
-                                <li class="list-group-item text-center py-4 text-muted">
-                                    <i class="fas fa-spinner fa-spin me-2"></i> Cargando solicitudes...
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         </div>
-    </div>
+         </div>
     `;
 };
 
