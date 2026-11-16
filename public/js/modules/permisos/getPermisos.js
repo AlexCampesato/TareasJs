@@ -23,7 +23,7 @@ export const getPermisos = async () => {
         // Le pasamos toda la responsabilidad a la clase Pagination
         paginadorPermisos = new Pagination(
             permisosData,          // El array con todos los datos que llegaron de PHP
-            6,                     // Cantidad de filas por cada página
+            8,                     // Cantidad de filas por cada página
             tablaBody,             // El elemento HTML <tbody> donde van las filas
             paginationContainer,   // El elemento HTML <div> donde van los botones
             tablePermisoTemplate   // La función template que arma los <tr>

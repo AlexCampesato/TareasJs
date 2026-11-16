@@ -91,4 +91,20 @@ class PermisosModel {
         return $permisosArray;
     }
 
+    /**
+     * Verifica si el permiso está asignado a algún rol
+     */
+    public function contarRolesConPermiso($id_permiso)
+    {
+        $this->db->query(
+            "SELECT COUNT(*) AS total 
+             FROM rol_permiso 
+             WHERE id_permiso = :id"
+        );
+        $this->db->bind('id', $id_permiso);
+        $row = $this->db->register();
+
+        return $row ? (int)$row->total : 0;
+    }
+
 }

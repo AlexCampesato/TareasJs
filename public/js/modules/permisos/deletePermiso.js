@@ -1,25 +1,35 @@
 import { permisoService } from "../../services/permisoService.js";
+import { showError, showSuccess, showConfirm } from "../../ui/alert.js";
 import { getPermisos } from "./getPermisos.js";
 
-export const deletePermiso = async (id) => {
-    //  Pedimos confirmación al usuario
-    if (!confirm(`¿Estás seguro de que deseas eliminar el permiso con ID ${id}? Esta acción no se puede deshacer.`)) {
-        return; // Si cancela, no hacemos nada
-    }
+export const deletePermiso = async (id, nombre = "") => {
+  // Pedimos confirmación
+  const identificador = nombre ? `"${nombre}"` : `con ID ${id}`;
+  const result = await showConfirm(
+    "¿Eliminar permiso?",
+    `¿Estás seguro de que deseas eliminar el permiso ${identificador}? Esta acción no se puede deshacer.`,
+  );
 
-    try {
-        //  Llamamos al servicio
-        const response = await permisoService.delete(id);
+  const isConfirmed =
+    typeof result === "boolean" ? result : result?.isConfirmed;
 
-        // Evaluamos la respuesta
-        if (response.success || response.ok) {
-            alert("Permiso eliminado con éxito.");
-            getPermisos(); // Recargamos la tabla dinámicamente
-        } else {
-            alert(response.message || "Error al eliminar el permiso.");
-        }
-    } catch (error) {
-        console.error("Error al eliminar permiso:", error);
-        alert("Ocurrió un error de conexión al intentar eliminar.");
+  if (!isConfirmed) {
+    return; // Si cancela, no hacemos nada
+  }
+
+  try {
+    //  Llamamos al servicio
+    const response = await permisoService.delete(id);
+
+    // Evaluamos la respuesta
+    if (response.success || response.ok) {
+      showSuccess("Permiso eliminado con éxito.");
+      getPermisos(); // Recargamos la tabla dinámicamente
+    } else {
+      showError(response.message || "Error al eliminar el permiso.");
     }
+  } catch (error) {
+    console.error("Error al eliminar permiso:", error);
+    showError(error.message || "Ocurrió un error de conexión al intentar eliminar.");
+  }
 };
