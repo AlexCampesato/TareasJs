@@ -15,7 +15,7 @@ class UsuariosController extends BaseController {
     
     public function index() {
    
-    // AuthHelper::tienePermiso('usuarios.ver'); 
+    AuthHelper::tienePermiso('usuarios.ver'); 
 
     $usuarios = $this->usuarioModel->obtener_usuarios();
     
@@ -204,6 +204,7 @@ class UsuariosController extends BaseController {
 
     public function mostrarUsuario($id)
     {
+        AuthHelper::tienePermiso('usuarios.ver');
         $usuario = $this->usuarioModel->obtener_usuario_por_id($id);
 
         if ($usuario) {
