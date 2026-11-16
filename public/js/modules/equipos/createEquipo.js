@@ -34,6 +34,7 @@ export const initCreateEquipo = () => {
                 const response = await equipoService.create({ nombre, descripcion });
                 if (response.success || response.ok) {
                     cerrarYRecargar(formEquipo, modalInstance);
+                    showSuccess("Equipo creado con éxito");
                 } else {
                     showError(response.message || "Error al crear el equipo");
                 }

@@ -85,23 +85,53 @@ class EquipoController extends BaseController {
             }
         }
      }
-     
-    public function eliminar($id) {
-        AuthHelper::tienePermiso('equipos.eliminar'); 
-         if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'DELETE') {
-            if ($this->equipoModel->eliminarEquipo($id)) {
+
+    public function eliminar($id)
+    {
+        AuthHelper::tienePermiso('equipos.eliminar');
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'DELETE') {
+
+            $integrantes = $this->equipoModel->obtenerIntegrantesPorEquipo($id);
+
+            if (!empty($integrantes) && count($integrantes) > 0) {
                 $this->jsonResponse([
-                    'success' => true, 
-                    'message' => 'Equipo eliminado correctamente'
-                ]);
-            } else {
+                    'success' => false,
+                    'message' => 'No se puede eliminar el equipo porque tiene miembros asignados.'
+                ], 400);
+                return;
+            }
+
+            // Verificamos si tiene usuarios históricos (soft-deleted) que bloqueen la FK
+            if ($this->equipoModel->contarUsuariosPorEquipo($id) > 0) {
+                $this->jsonResponse([
+                    'success' => false,
+                    'message' => 'No se puede eliminar el equipo porque tiene historial de usuarios asociados.'
+                ], 400);
+                return;
+            }
+
+            //Intentamos eliminar capturando cualquier restricción de BD
+            try {
+                if ($this->equipoModel->eliminarEquipo($id)) {
+                    $this->jsonResponse([
+                        'success' => true, 
+                        'message' => 'Equipo eliminado correctamente'
+                    ]);
+                } else {
+                    $this->jsonResponse([
+                        'success' => false, 
+                        'message' => 'Algo salió mal al eliminar el equipo'
+                    ], 500);
+                }
+            } catch (PDOException $e) {
                 $this->jsonResponse([
                     'success' => false, 
-                    'message' => 'Algo salió mal al eliminar el equipo'
-                ], 500);
+                    'message' => 'No se puede eliminar el equipo porque está siendo utilizado en otros registros.'
+                ], 400);
             }
         }
-     }
+    }
 
     
     public function mostrarEquipo($id)
@@ -127,9 +157,6 @@ class EquipoController extends BaseController {
     public function asignarMiembro() {
         AuthHelper::tienePermiso('equipos.asignar');
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            
-            // validar que quien ejecuta esto tenga rol de "Líder"
-            // AuthHelper::requirePermiso('equipos.asignar');
 
             $data = json_decode(file_get_contents("php://input"), true);
             $id_usuario = $data['id_usuario'];

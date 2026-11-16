@@ -29,6 +29,6 @@ export const deleteEquipo = async (id, nombre = "") => {
         }
     } catch (error) {
         console.error("Error al eliminar equipo:", error);
-        showError("Ocurrió un error de conexión al intentar eliminar.");
+        showError(error.message ||"Ocurrió un error de conexión al intentar eliminar.");
     }
 };
