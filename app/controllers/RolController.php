@@ -5,13 +5,13 @@ class RolController extends BaseController {
     private $permisoModel;
 
     public function __construct() {
-        // AuthHelper::requireRole('admin'); 
         $this->rolModel = $this->model('RolModel');
         $this->permisoModel = $this->model('PermisosModel');
     }
 
     // Muestra la lista de todos los roles (Devuelve JSON)
     public function index() {
+        AuthHelper::tienePermiso('roles.gestionar');
         $roles = $this->rolModel->obtenerRoles();
         
         if ($roles !== false) {
@@ -148,6 +148,8 @@ class RolController extends BaseController {
 
     public function mostrarRol($id)
     {
+        // Protegemos también la consulta individual por ID
+        AuthHelper::tienePermiso('roles.gestionar');
         $rol = $this->rolModel->obtenerRolPorId($id);
         $permisos = $this->rolModel->obtenerPermisosPorRol((int)$id);
 

@@ -10,6 +10,7 @@ class EquipoController extends BaseController {
 
     
     public function index() {
+        AuthHelper::tienePermiso('equipos.ver');
         $equipos = $this->equipoModel->obtenerEquipos();
         
         // TIENE que ser JSON para que getEquipos.js pueda leerlo
@@ -105,7 +106,7 @@ class EquipoController extends BaseController {
     
     public function mostrarEquipo($id)
     {
-       
+       AuthHelper::tienePermiso('equipos.ver');
         $equipo = $this->equipoModel->obtenerEquipoPorId($id);
         $integrantes = $this->equipoModel->obtenerIntegrantesPorEquipo($id);
 
@@ -124,6 +125,7 @@ class EquipoController extends BaseController {
     } 
     // Recibe el ID del usuario y el ID del equipo al que se va a asignar
     public function asignarMiembro() {
+        AuthHelper::tienePermiso('equipos.asignar');
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             // validar que quien ejecuta esto tenga rol de "Líder"
@@ -150,6 +152,7 @@ class EquipoController extends BaseController {
 
     public function obtener_miembros($id_equipo)
     {
+        AuthHelper::tienePermiso('equipos.ver');
         $equipoModel = new EquipoModel();
         $miembros = $equipoModel->obtenerIntegrantesPorEquipo($id_equipo);
 

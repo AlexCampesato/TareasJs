@@ -5,7 +5,7 @@ import { viewEquipo } from "./viewEquipo.js";
 import { prepareEditEquipo } from "./updateEquipo.js";
 import { deleteEquipo } from "./deleteEquipo.js";
 
-export const renderEquipos = (container) => {
+export const renderEquipos = async(container) => {
     // Inyectamos el diseño completo de la tabla y el Modal en el contenedor principal
     const vistaEquiposHTML = `
         <div class="container-fluid px-4 py-4 animation-fade-in">
@@ -106,10 +106,9 @@ export const renderEquipos = (container) => {
      //  Inyectamos la vista de usuarios envuelta en el Layout Principal
     container.innerHTML = renderAdminLayout(vistaEquiposHTML);
 
-    //  Ejecutamos la validación global.
-    const isAuth = initAdminLayout();
+    const isAuth = await initAdminLayout(null, 'equipos.ver');
     if (!isAuth) return;
-
+   
     const tablaBody = document.getElementById("tablaEquiposBody");
     if (!tablaBody) return;
 

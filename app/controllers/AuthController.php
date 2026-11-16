@@ -70,6 +70,8 @@ class AuthController extends BaseController {
                 $_SESSION['user_rol_id'] = $user->fk_id_rol ?? null; // Guardamos el rol en la sesión
                 $_SESSION['user_rol_nombre'] = $user->rol_nombre ?? 'Sin rol';
 
+                $permisos = $this->permisosModel->obtenerPermisosPorUsuario($user->id);
+
                 $this->jsonResponse([
                     'success' => true, 
                     'message' => 'Sesión iniciada correctamente',
@@ -79,7 +81,8 @@ class AuthController extends BaseController {
                         'email'      => $_SESSION['user_email'],
                         'avatar'     => $_SESSION['user_avatar'],
                         'id_rol'     => $_SESSION['user_rol_id'],
-                        'rol_nombre' => $_SESSION['user_rol_nombre']
+                        'rol_nombre' => $_SESSION['user_rol_nombre'],
+                        'permisos'   => $permisos
                     ]
                 ]);
             }
