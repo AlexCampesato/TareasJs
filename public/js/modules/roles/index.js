@@ -142,6 +142,6 @@ export const renderRoles = async (container) => {
 
         if (btnView)viewRol(btnView.dataset.id);
         if (btnEdit)prepareEditRol(btnEdit.dataset.id);
-        if (btnDelete)deleteRol(btnDelete.dataset.id);
+        if (btnDelete)deleteRol(btnDelete.dataset.id, btnDelete.dataset.nombre);
     });
 };

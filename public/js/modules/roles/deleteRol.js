@@ -1,11 +1,23 @@
 import { rolService } from "../../services/rolService.js";
 import { getRoles } from "./getRoles.js";
+import { showError, showSuccess, showConfirm} from "../../ui/alert.js";
 
-export const deleteRol = async (id) => {
-    //  Pedimos confirmación al usuario
-    if (!confirm(`¿Estás seguro de que deseas eliminar el rol con ID ${id}? Esta acción no se puede deshacer.`)) {
-        return; // Si cancela, no hacemos nada
+export const deleteRol = async (id, nombre = "") => {
+
+
+    const identificador = nombre ? `"${nombre}"` : `con ID ${id}`;
+    const result = await showConfirm(
+      "¿Eliminar rol?",
+      `¿Estás seguro de que deseas eliminar el rol ${identificador}? Esta acción no se puede deshacer.`,
+    );
+
+    const isConfirmed =
+      typeof result === "boolean" ? result : result?.isConfirmed;
+
+    if (!isConfirmed) {
+      return; // Si cancela, no hacemos nada
     }
+
 
     try {
         //  Llamamos al servicio
@@ -13,13 +25,13 @@ export const deleteRol = async (id) => {
 
         // Evaluamos la respuesta
         if (response.success || response.ok) {
-            alert("Rol eliminado con éxito.");
+            showSuccess("Rol eliminado con éxito.");
             getRoles(); // Recargamos la tabla dinámicamente
         } else {
-            alert(response.message || "Error al eliminar el rol.");
+            showError(response.message || "Error al eliminar el rol.");
         }
     } catch (error) {
         console.error("Error al eliminar rol:", error);
-        alert("Ocurrió un error de conexión al intentar eliminar.");
+        showError(error.message || "Ocurrió un error de conexión al intentar eliminar.");
     }
 };
