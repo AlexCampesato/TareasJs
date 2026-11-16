@@ -171,6 +171,16 @@ class UsuariosController extends BaseController {
 
     public function cambiarEstado($id) {
         AuthHelper::tienePermiso('usuarios.editar');
+
+        // Evitar que el usuario logueado se desactive a sí mismo (admin)
+        if (isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] === (int)$id) {
+            $this->jsonResponse([
+                'success' => false,
+                'message' => 'No podés desactivar tu propio usuario.'
+            ], 400);
+            return;
+        }
+
         if ($this->usuarioModel->cambiar_estado_usuario($id)) {
             $usuarioActualizado = $this->usuarioModel->obtener_usuario_por_id($id);
             $estadoTexto = ($usuarioActualizado && (int)$usuarioActualizado->activo === 1) ? 'activado' : 'desactivado';
@@ -189,6 +199,43 @@ class UsuariosController extends BaseController {
 
     public function eliminar($id) {
         AuthHelper::tienePermiso('usuarios.eliminar');  
+
+        // 1. No permitir auto-eliminación
+        if (isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] === (int)$id) {
+            $this->jsonResponse([
+                'success' => false,
+                'message' => 'No podés eliminar tu propio usuario.'
+            ], 400);
+            return;
+        }
+
+        $usuario = $this->usuarioModel->obtener_usuario_por_id($id);
+        if (!$usuario) {
+            $this->jsonResponse([
+                'success' => false,
+                'message' => 'El usuario no existe.'
+            ], 404);
+            return;
+        }
+        // No eliminar si pertenece a un equipo
+        if (!empty($usuario->fk_id_equipo)) {
+            $nombreEquipo = $usuario->equipo_nombre ? " ({$usuario->equipo_nombre})" : "";
+            $this->jsonResponse([
+                'success' => false,
+                'message' => "No se puede eliminar el usuario porque pertenece a un equipo{$nombreEquipo}. Primero quitalo del equipo."
+            ], 400);
+            return;
+        }
+
+        // No eliminar si tiene tareas activas asignadas
+        if ($this->usuarioModel->contar_tareas_activas_usuario($id) > 0) {
+            $this->jsonResponse([
+                'success' => false,
+                'message' => 'No se puede eliminar el usuario porque tiene tareas pendientes o en curso. Podés desactivarlo en su lugar.'
+            ], 400);
+            return;
+        }
+
         if ($this->usuarioModel->eliminar_usuario($id)) {
             $this->jsonResponse([
                 'success' => true,
@@ -204,7 +251,10 @@ class UsuariosController extends BaseController {
 
     public function mostrarUsuario($id)
     {
-        AuthHelper::tienePermiso('usuarios.ver');
+        $esPropioUsuario = isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] === (int)$id;
+        if (!$esPropioUsuario) {
+            AuthHelper::tienePermiso('usuarios.ver');
+        }
         $usuario = $this->usuarioModel->obtener_usuario_por_id($id);
 
         if ($usuario) {

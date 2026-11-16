@@ -1,5 +1,5 @@
 import { renderAdminLayout , initAdminLayout} from "../../templates/layout.js";
-import { getUsuarios, filtrarUsuariosLocal } from "./getUsuarios.js";
+import { getUsuarios } from "./getUsuarios.js";
 import { initCreateUsuario } from "./createUsuario.js";
 import { viewUsuario } from "./viewUsuario.js";
 import { prepareEditUsuario } from "./updateUsuario.js";
@@ -14,52 +14,48 @@ export const renderUsuarios = async(container) => {
                     <h1 class="h3 mb-0 text-gray-800 fw-bold">Gestión de Usuarios</h1>
                     <p class="text-muted small mb-0">Administración de usuarios, roles y estados</p>
                 </div>
-
             </div>
 
             <!-- Tarjetas de Resumen (KPIs calculados dinámicamente) -->
             <div class="row g-3 mb-4" id="resumenUsuarios"></div>
 
-
             <div class="row mb-3 align-items-center">
-                    <!-- Buscador  -->
-                    <div class="col-md-5 mb-2 mb-md-0">
-                        <div class="input-group input-group-sm shadow-sm">
-                            <span class="input-group-text bg-white border-end-0">
-                                <i class="fas fa-search text-muted"></i>
-                            </span>
-                            <input type="text" id="inputBuscarUsuario" class="form-control border-start-0" placeholder="Buscar usuario por nombre, email...">
-                        </div>
-                    </div>
-
-                    <!-- Filtros Checkboxes acumulativos -->
-                    <div class="col-md-7 d-flex flex-wrap gap-3">
-                        <div class="form-check">
-                            <input class="form-check-input filtro-checkbox" type="checkbox" value="inactivos" id="checkInactivos">
-                            <label class="form-check-label small fw-bold text-muted" for="checkInactivos">
-                                Inactivos
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input filtro-checkbox" type="checkbox" value="sin_equipo" id="checkSinEquipo">
-                            <label class="form-check-label small fw-bold text-muted" for="checkSinEquipo">
-                                Sin equipo
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input filtro-checkbox" type="checkbox" value="sin_rol" id="checkSinRol">
-                            <label class="form-check-label small fw-bold text-muted" for="checkSinRol">
-                                Sin rol
-                            </label>
-                        </div>
+                <!-- Buscador -->
+                <div class="col-md-5 mb-2 mb-md-0">
+                    <div class="input-group input-group-sm shadow-sm">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" id="inputBuscarUsuario" class="form-control border-start-0" placeholder="Buscar usuario por nombre, email...">
                     </div>
                 </div>
 
+                <!-- Filtros Checkboxes acumulativos -->
+                <div class="col-md-7 d-flex flex-wrap gap-3">
+                    <div class="form-check">
+                        <input class="form-check-input filtro-checkbox" type="checkbox" value="inactivos" id="checkInactivos">
+                        <label class="form-check-label small fw-bold text-muted" for="checkInactivos">
+                            Inactivos
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input filtro-checkbox" type="checkbox" value="sin_equipo" id="checkSinEquipo">
+                        <label class="form-check-label small fw-bold text-muted" for="checkSinEquipo">
+                            Sin equipo
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input filtro-checkbox" type="checkbox" value="sin_rol" id="checkSinRol">
+                        <label class="form-check-label small fw-bold text-muted" for="checkSinRol">
+                            Sin rol
+                        </label>
+                    </div>
+                </div>
+            </div>
 
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <!-- ANTES ERA UNA TABLA, AHORA ES UNA FILA (ROW) DE BOOTSTRAP -->
                         <div class="row" id="tablaUsuariosBody">
                             <div class="col-12 text-center py-4 text-muted">
                                 <i class="fas fa-spinner fa-spin me-2"></i> Cargando...
@@ -67,13 +63,13 @@ export const renderUsuarios = async(container) => {
                         </div>
                     </div>
                 </div>
+
+                <!--Paginación -->
+                <div class="card-footer bg-white py-3 border-0">
+                    <div id="paginacionUsuarios"></div>
+                </div>
             </div>
         </div>
-
-        <!--  Paginación -->
-            <div class="card-footer bg-white py-3 border-0">
-                <div id="paginacionUsuarios"></div>
-            </div>
 
         <!-- Modal Admin: Editar Rol y Equipo del Usuario -->
         <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
@@ -172,14 +168,6 @@ export const renderUsuarios = async(container) => {
     //  Ejecutamos la carga de datos a la API y el listener del modal
     getUsuarios();
     initCreateUsuario();
-
-    // Buscador de usuarios en tiempo real
-    const inputBuscar = document.getElementById("inputBuscarUsuario");
-    if (inputBuscar) {
-        inputBuscar.addEventListener("input", (e) => {
-            filtrarUsuariosLocal(e.target.value);
-        });
-    }
 
     //Escuchamos de forma delegada los botones de acción de la tabla
     tablaBody.addEventListener("click", (e) => {
