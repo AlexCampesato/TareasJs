@@ -112,6 +112,14 @@ export const getUsuarios = async () => {
 
     try {
         const response = await usuarioService.getAll();
+
+        if (
+            response.status === 403 || 
+            (response.success === false && response.message?.toLowerCase().includes('no tienes permiso'))
+        ) {
+            window.location.href = "/proyecto-tareas/dashboard";
+            return;
+        }
         
         if (response.ok === false || response.success === false) {
             throw new Error("No se pudieron obtener los usuarios.");
@@ -143,6 +151,12 @@ export const getUsuarios = async () => {
         
     } catch (error) {
         console.error("Error al obtener usuarios:", error);
+
+        // Si el error contiene 403 o código de acceso denegado, redirigimos también
+        if (error.status === 403 || (error.message && error.message.includes('403'))) {
+            window.location.href = "/proyecto-tareas/dashboard";
+            return;
+        }
 
         tablaBody.innerHTML = `
             <div class="col-12">

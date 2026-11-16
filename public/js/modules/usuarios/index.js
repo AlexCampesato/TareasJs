@@ -6,6 +6,15 @@ import { prepareEditUsuario } from "./updateUsuario.js";
 import { deleteUsuario, toggleEstadoUsuario } from "./deleteUsuario.js";
 
 export const renderUsuarios = (container) => {
+
+    const userSession = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+    const permisos = userSession.permisos || [];
+
+    // Si no tiene el permiso para ver usuarios, redirigir antes de dibujar el HTML
+    if (!permisos.includes('usuarios.ver')) {
+        window.location.href = "/proyecto-tareas/dashboard";
+        return;
+    }
     
     const vistaUsuariosHTML = `
         <div class="container-fluid px-4 py-4 animation-fade-in">
