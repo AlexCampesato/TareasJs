@@ -1,6 +1,6 @@
 import { authService } from "../services/authService.js";
 import { usuarioService } from "../services/usuarioService.js";
-import { showToast } from "../ui/alert.js";
+import { showSuccess, showError } from "../ui/alert.js";
 import { RUTA_AVATAR } from "../config.js";
 
 export const renderAdminLayout = (contenidoInterno = "") => {
@@ -192,10 +192,13 @@ export const initAdminLayout = async (userParam = null, permisoRequerido = null)
             btnMiPerfil.dataset.listener = "true";
             btnMiPerfil.addEventListener("click", async (e) => {
                 e.preventDefault();
+                let datos = user;
                 try {
                     const res = await usuarioService.getById(user.id);
-                    const datos = res.data || res.usuario || user;
-
+                    datos = res.data || res.usuario || user;
+                    } catch (error) {
+                        console.warn("Usando datos de sesión local para el perfil:", error);
+                                    }
                     document.getElementById("perfilNombre").value = datos.nombre || "";
                     document.getElementById("perfilApellido").value = datos.apellido || "";
                     document.getElementById("perfilEmail").value = datos.email || "";
@@ -203,9 +206,7 @@ export const initAdminLayout = async (userParam = null, permisoRequerido = null)
 
                     const modalInstance = bootstrap.Modal.getOrCreateInstance(modalPerfilEl);
                     modalInstance.show();
-                } catch (err) {
-                    console.error("Error al cargar datos del perfil:", err);
-                }
+                
             });
         }
 
@@ -220,7 +221,7 @@ export const initAdminLayout = async (userParam = null, permisoRequerido = null)
                 const pass = document.getElementById("perfilPass").value.trim();
 
                 if (!nombre || !apellido || !email) {
-                    showToast("Por favor, completá Nombre, Apellido y Email.", "warning");
+                    showError("Por favor, completá Nombre, Apellido y Email.");
                     return;
                 }
 
@@ -242,13 +243,13 @@ export const initAdminLayout = async (userParam = null, permisoRequerido = null)
                         const modalInstance = bootstrap.Modal.getInstance(modalPerfilEl);
                         if (modalInstance) modalInstance.hide();
 
-                        showToast("Tus datos personales se actualizaron correctamente.", "success");
+                        showSuccess("Tus datos personales se actualizaron correctamente.");
                     } else {
-                        showToast(updateRes.message || "No se pudieron actualizar tus datos.", "error");
+                        showError(updateRes?.message || "No se pudieron actualizar tus datos.");
                     }
                 } catch (err) {
                     console.error("Error al actualizar perfil:", err);
-                    showToast("Ocurrió un error al guardar los cambios.", "error");
+                    showError(err.message || "Ocurrió un error al guardar los cambios.");
                 }
             });
         }

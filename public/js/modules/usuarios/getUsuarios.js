@@ -7,6 +7,7 @@ let usuariosCache = [];
 let paginadorUsuarios = null;
 let filtrosActivos = [];
 let textoBusquedaActual = "";
+let eventosConfigurados = false;
 
 // Renderiza las 4 tarjetas superiores de resumen a partir de los datos reales
 const renderizarResumenUsuarios = (usuarios = []) => {
@@ -79,6 +80,9 @@ const aplicarFiltrosYBusqueda = () => {
 };
 
 const configurarFiltrosYBusqueda = () => {
+    if (eventosConfigurados) return; // Si ya se configuraron, sale
+    eventosConfigurados = true;
+
     const inputBuscar = document.getElementById("inputBuscarUsuario");
     const checkboxes = document.querySelectorAll(".filtro-checkbox");
 
@@ -142,6 +146,10 @@ export const getUsuarios = async () => {
 
         configurarFiltrosYBusqueda();
 
+        // Si había búsqueda o algún checkbox activo antes de recargar, los volvemos a aplicar
+        if (textoBusquedaActual.trim() !== "" || filtrosActivos.length > 0) {
+            aplicarFiltrosYBusqueda();
+        }
        
         const inputBuscar = document.getElementById("inputBuscarUsuario");
         if (inputBuscar && inputBuscar.value.trim() !== "") {

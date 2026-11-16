@@ -121,7 +121,8 @@ class RolModel {
         $this->db->query(
             "SELECT COUNT(*) AS total 
              FROM usuario 
-             WHERE fk_id_rol = :id"
+             WHERE fk_id_rol = :id
+             AND deleted_at IS NULL"
         );
         $this->db->bind('id', $id_rol);
         $row = $this->db->register();

@@ -129,5 +129,20 @@ class UsuarioModel {
         $this->db->bind(':id', $id);
         return $this->db->execute();
     }
+
+    // Verificar si el usuario tiene tareas pendientes o en progreso asignadas
+    public function contar_tareas_activas_usuario($id)
+    {
+        $this->db->query("SELECT COUNT(*) AS total 
+                          FROM tarea t
+                          INNER JOIN estado e ON t.fk_id_estado = e.id_estado
+                          WHERE t.fk_id_usuario_asignado = :id 
+                            AND t.deleted_at IS NULL 
+                            AND LOWER(e.tipoEstado) NOT IN ('completada', 'finalizada')");
+        $this->db->bind(':id', $id);
+        $row = $this->db->register();
+
+        return $row ? (int)$row->total : 0;
+    }
 }
 ?>

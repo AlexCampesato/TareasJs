@@ -1,6 +1,6 @@
 import { usuarioService } from "../../services/usuarioService.js";
 import { getUsuarios } from "./getUsuarios.js";
-import { showSuccess,showConfirm, showError } from "../../ui/alert.js";
+import { showSuccess, showError } from "../../ui/alert.js";
 
 export const initCreateUsuario = () => {
     const form = document.getElementById("formUsuario");
