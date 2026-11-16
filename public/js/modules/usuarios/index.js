@@ -5,17 +5,8 @@ import { viewUsuario } from "./viewUsuario.js";
 import { prepareEditUsuario } from "./updateUsuario.js";
 import { deleteUsuario, toggleEstadoUsuario } from "./deleteUsuario.js";
 
-export const renderUsuarios = (container) => {
-
-    const userSession = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
-    const permisos = userSession.permisos || [];
-
-    // Si no tiene el permiso para ver usuarios, redirigir antes de dibujar el HTML
-    if (!permisos.includes('usuarios.ver')) {
-        window.location.href = "/proyecto-tareas/dashboard";
-        return;
-    }
-    
+export const renderUsuarios = async(container) => {
+   
     const vistaUsuariosHTML = `
         <div class="container-fluid px-4 py-4 animation-fade-in">
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -170,8 +161,8 @@ export const renderUsuarios = (container) => {
     // Inyectamos la vista de usuarios envuelta en el Layout Principal
     container.innerHTML = renderAdminLayout(vistaUsuariosHTML);
 
-    // Ejecutamos la validación global.
-    const isAuth = initAdminLayout();
+    // Validación global 
+    const isAuth = await initAdminLayout(null, 'usuarios.ver');
     if (!isAuth) return;
 
     //  Seleccionamos el cuerpo de la tabla 
@@ -199,7 +190,7 @@ export const renderUsuarios = (container) => {
 
         if (btnView) viewUsuario(btnView.dataset.id);
         if (btnEdit) prepareEditUsuario(btnEdit.dataset.id);
-        if (btnEstado) toggleEstadoUsuario(btnEstado.dataset.id, btnEstado.dataset.activo);
-        if (btnDelete) deleteUsuario(btnDelete.dataset.id);
+        if (btnEstado) toggleEstadoUsuario(btnEstado.dataset.id, btnEstado.dataset.activo, btnEstado.dataset.nombre);
+        if (btnDelete) deleteUsuario(btnDelete.dataset.id, btnDelete.dataset.nombre);
     });
 };

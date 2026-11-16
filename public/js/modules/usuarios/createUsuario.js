@@ -1,6 +1,6 @@
 import { usuarioService } from "../../services/usuarioService.js";
 import { getUsuarios } from "./getUsuarios.js";
-import { showToast } from "../../ui/alert.js";
+import { showSuccess,showConfirm, showError } from "../../ui/alert.js";
 
 export const initCreateUsuario = () => {
     const form = document.getElementById("formUsuario");
@@ -19,7 +19,7 @@ export const initCreateUsuario = () => {
         if (!id) return;
 
         if (!fk_id_rol) {
-            showToast("Por favor, seleccioná un rol para el usuario.", "warning");
+            showError("Se debe seleccionar un rol para el usuario");
             return;
         }
 
@@ -32,7 +32,7 @@ export const initCreateUsuario = () => {
             const response = await usuarioService.update(id, data);
 
             if (response.success || response.ok) {
-                showToast("Rol y equipo actualizados con éxito.", "success");
+                showSuccess("Rol y equipo actualizados con éxito.");
 
                 const modalInstance =
                     bootstrap.Modal.getInstance(modalEl) ||
@@ -44,11 +44,11 @@ export const initCreateUsuario = () => {
 
                 getUsuarios();
             } else {
-                showToast(response.message || "Ocurrió un error al procesar la solicitud.", "error");
+                showError(response.message || "Ocurrió un error al procesar la solicitud.");
             }
         } catch (error) {
             console.error("Error al guardar el usuario:", error);
-            showToast(error.message || "Ocurrió un error al intentar guardar.", "error");
+            showError(error.message || "Ocurrió un error al intentar guardar.");
         }
     };
 };
