@@ -140,7 +140,7 @@ class RolController extends BaseController {
             } else {
                 $this->jsonResponse([
                     'success' => false, 
-                    'message' => 'Algo salió mal al eliminar el rol'
+                    'message' => 'No se puede eliminar el rol porque se encuentra asignado a al menos un usuario'
                 ], 500);
             }
         }

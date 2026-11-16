@@ -58,6 +58,13 @@ class RolModel {
     
     public function eliminarRol(int $id)
     {
+        //Verificamos que ningún usuario tenga este rol asignado
+        if ($this->contarUsuariosConRol($id) > 0) {
+            return false;
+        }
+        // Limpiamos los permisos asociados en la tabla intermedia rol_permiso
+        $this->limpiarPermisosDeRol($id);
+
         $this->db->query("DELETE FROM roles WHERE id = :id");
         $this->db->bind(':id', $id);
 
@@ -104,5 +111,21 @@ class RolModel {
         $this->db->bind(':id_rol', $id_rol);
         
         return $this->db->registers();
+    }
+
+    /**
+     * Verifica si el rol está asignado a algún usuario
+     */
+    public function contarUsuariosConRol($id_rol)
+    {
+        $this->db->query(
+            "SELECT COUNT(*) AS total 
+             FROM usuario 
+             WHERE fk_id_rol = :id"
+        );
+        $this->db->bind('id', $id_rol);
+        $row = $this->db->register();
+
+        return $row ? (int)$row->total : 0;
     }
 }

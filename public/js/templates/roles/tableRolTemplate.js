@@ -78,6 +78,7 @@ export const tableRolTemplate = (roles) => {
                   type="button"
                   class="btn btn-sm btn-danger btn-eliminar-rol"
                   data-id="${rol.id}"
+                  data-nombre="${rol.nombre}"
                   title="Eliminar Rol"
                 >
                   <i class="fas fa-trash"></i>
