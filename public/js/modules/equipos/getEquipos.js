@@ -8,6 +8,14 @@ export const getEquipos = async () => {
 
     try {
         const response = await equipoService.getAll();
+
+        if (
+            response.status === 403 || 
+            (response.success === false && response.message?.toLowerCase().includes('no tienes permiso'))
+        ) {
+            window.location.href = "/proyecto-tareas/dashboard";
+            return;
+        }
         
         console.log("RESPUESTA EQUIPOS:", response);
 
@@ -21,6 +29,11 @@ export const getEquipos = async () => {
         
     } catch (error) {
         console.error("Error al obtener equipos:", error);
+
+        if (error.status === 403 || (error.message && error.message.includes('403'))) {
+            window.location.href = "/proyecto-tareas/dashboard";
+            return;
+        }
 
         tablaBody.innerHTML = `
             <tr>

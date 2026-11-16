@@ -127,7 +127,7 @@ export const renderAdminLayout = (contenidoInterno = "") => {
 };
 
 // LÓGICA GLOBAL DEL LAYOUT
-export const initAdminLayout = async (userParam = null) => {
+export const initAdminLayout = async (userParam = null, permisoRequerido = null) => {
     try {
         let user = userParam;
 
@@ -139,6 +139,15 @@ export const initAdminLayout = async (userParam = null) => {
                 return false;
             }
             user = response.user;
+        }
+
+        // Si la vista exige un permiso específico lo validamos 
+        if (permisoRequerido) {
+            const permisosUsuario = user.permisos || [];
+            if (!permisosUsuario.includes(permisoRequerido)) {
+                window.location.href = "/proyecto-tareas/dashboard";
+                return false;
+            }
         }
 
         const idRol = Number(user.id_rol ?? user.fk_id_rol ?? 0);

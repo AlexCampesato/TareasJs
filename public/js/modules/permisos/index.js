@@ -7,7 +7,7 @@ import { deletePermiso } from "./deletePermiso.js";
 
 
 export const renderPermisos = (container) => {
-    // Validación de permisos antes de renderizar la vista
+    // Validación temprana de permisos antes de renderizar la vista
     const userSession = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
     const permisos = userSession.permisos || [];
 
@@ -15,7 +15,6 @@ export const renderPermisos = (container) => {
         window.location.href = "/proyecto-tareas/dashboard";
         return;
     }
-
     // Inyectamos el diseño completo de la tabla y el Modal en el contenedor principal
     const vistaPermisosHTML = `
         <div class="container-fluid px-4 py-4 animation-fade-in">

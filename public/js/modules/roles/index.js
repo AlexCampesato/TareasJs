@@ -6,8 +6,9 @@ import { prepareEditRol } from "./updateRol.js";
 import { deleteRol } from "./deleteRol.js";
 
 
-export const renderRoles = (container) => {
-    // Inyectamos el diseño completo de la tabla y el Modal en el contenedor principal
+export const renderRoles = async (container) => {
+
+     // Inyectamos el diseño completo de la tabla y el Modal en el contenedor principal
      const vistaRolesHTML = `
         <div class="container-fluid px-4 py-4 animation-fade-in">
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -123,7 +124,7 @@ export const renderRoles = (container) => {
     container.innerHTML = renderAdminLayout(vistaRolesHTML);
 
     //  Ejecutamos la validación global.
-    const isAuth = initAdminLayout();
+    const isAuth = await initAdminLayout(null, 'roles.gestionar');
     if (!isAuth) return;
 
     const tablaBody = document.getElementById("tablaRolesBody");
