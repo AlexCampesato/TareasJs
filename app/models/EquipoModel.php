@@ -140,4 +140,20 @@ class EquipoModel
         return $this->db->registers(); 
     }
 
+    /**
+     * Verifica si el equipo tiene usuarios asignados (activos o inactivos)
+     */
+    public function contarUsuariosPorEquipo($id_equipo)
+    {
+        $this->db->query(
+            "SELECT COUNT(*) AS total 
+             FROM usuario 
+             WHERE fk_id_equipo = :id"
+        );
+        $this->db->bind('id', $id_equipo);
+        $row = $this->db->register();
+
+        return $row ? (int)$row->total : 0;
+    }
+
 }
