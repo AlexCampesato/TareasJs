@@ -14,19 +14,45 @@ class TareaController extends BaseController
     }
 
     /**
+     * Helper privado para evaluar permisos en formato booleano (sin frenar la ejecución con exit)
+     */
+    private function tienePermisoBool(string $permiso): bool
+    {
+        if (!isset($_SESSION['user_id'])) {
+            return false;
+        }
+
+        try {
+            $db = new Database();
+            $db->query("SELECT p.nombre 
+                        FROM permisos p
+                        INNER JOIN rol_permiso rp ON p.id = rp.id_permiso
+                        INNER JOIN usuario u ON u.fk_id_rol = rp.id_rol
+                        WHERE u.id = :uid AND p.nombre = :permiso");
+            
+            $db->bind(':uid', $_SESSION['user_id']);
+            $db->bind(':permiso', $permiso);
+            
+            return (bool) $db->register();
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+    
+
+    /**
      * GET /api/tareas
      * GET /api/tareas/estado/{id_estado}
      *
      * Obtiene el listado de tareas filtrado por jerarquía de roles y estado opcional:
-     * - Admin (1): Ve todas las tareas.
-     * - Líder (2) y Miembro (3): Ven todas las tareas de su equipo.
+     * - Admin: Ve todas las tareas.
+     * - Líder y Miembro: Ven todas las tareas de su equipo.
      */
     public function index($id_estado_param = 0)
     {
         // Ejecutamos la expiración automática en la Base de Datos antes de consultar
         $this->tareaModel->expirarTareas();
-        
-        // Soporta tanto /api/tareas?id_estado=1 como /api/tareas/estado/1
+       
         $id_estado = isset($_GET['id_estado']) 
             ? intval($_GET['id_estado']) 
             : intval($id_estado_param);
@@ -49,35 +75,15 @@ class TareaController extends BaseController
             $idUsuario = intval($_SESSION['user_id']);
         }
 
-        // Obtener Rol del Usuario autenticado
-        $idRol = 0;
-        if ($sessionUser) {
-            foreach (['id_rol', 'fk_id_rol', 'rol_id'] as $clave) {
-                if (isset($sessionUser[$clave]) && intval($sessionUser[$clave]) > 0) {
-                    $idRol = intval($sessionUser[$clave]);
-                    break;
-                }
-            }
-        }
-        if ($idRol === 0) {
-            if (isset($_SESSION['id_rol'])) {
-                $idRol = intval($_SESSION['id_rol']);
-            } elseif (isset($_SESSION['user_rol_id'])) {
-                $idRol = intval($_SESSION['user_rol_id']);
-            }
-        }
-
-        // Filtrar tareas según la jerarquía y el id_estado
+        // Filtrar tareas según permisos dinámicos en lugar de IDs estáticos
         $tareas = [];
 
-        if ($idRol === 1) {
-            // Admin (1): Ve todas las tareas del sistema
+        // Evaluamos si el usuario posee privilegios de administración
+        if ($this->tienePermisoBool('roles.gestionar')) {
             $tareas = $this->tareaModel->buscarTareas($id_estado, $id_prioridad, $idUsuario);
-        } else if ($idRol === 2 || $idRol === 3) {
-            // Líder (2) y Miembro (3): Ven las tareas asociadas a su equipo
-            $tareas = $this->tareaModel->obtener_tareas_por_equipo($idUsuario, $id_estado, $id_prioridad);
         } else {
-            $tareas = [];
+            // Líder y Miembro: Ven las tareas asociadas a su equipo
+            $tareas = $this->tareaModel->obtener_tareas_por_equipo($idUsuario, $id_estado, $id_prioridad);
         }
 
         header('Content-Type: application/json');
@@ -97,6 +103,7 @@ class TareaController extends BaseController
      */
     public function actualizar_estado()
     {
+        AuthHelper::tienePermiso('tareas.cambiar_estado');
         $datos = $this->getJsonBody();
 
         $id_tarea = intval($datos['id_tarea'] ?? $datos['id'] ?? 0);
@@ -152,29 +159,11 @@ class TareaController extends BaseController
      * PATCH /api/tareas/prioridad
      *
      * Cambia únicamente la prioridad de una tarea.
-     * Solo disponible para Admin (Rol 1) y Líder (Rol 2).
+     * Solo disponible para Admin y Líder.
      */
     public function actualizar_prioridad()
     {
-        $sessionUser = $_SESSION['user'] ?? null;
-        $idRol = 0;
-
-        if ($sessionUser) {
-            $idRol = intval($sessionUser['id_rol'] ?? $sessionUser['fk_id_rol'] ?? 0);
-        } elseif (isset($_SESSION['id_rol'])) {
-            $idRol = intval($_SESSION['id_rol']);
-        } elseif (isset($_SESSION['user_rol_id'])) {
-            $idRol = intval($_SESSION['user_rol_id']);
-        }
-
-        // Permiso restrictivo: Solo Admin (1) o Líder (2)
-        if ($idRol !== 1 && $idRol !== 2) {
-            $this->jsonResponse([
-                'ok' => false,
-                'message' => 'No tienes permiso para cambiar la prioridad.'
-            ], 403);
-            return;
-        }
+        AuthHelper::tienePermiso('tareas.cambiar_prioridad');
 
         $datos = $this->getJsonBody();
 
@@ -224,6 +213,8 @@ class TareaController extends BaseController
      */
     public function store()
     {
+        AuthHelper::tienePermiso('tareas.crear');
+
         $datos = $this->getJsonBody();
 
         $id_usuario = $_SESSION['user_id'] ?? ($_SESSION['user']['id'] ?? null);
@@ -306,7 +297,7 @@ class TareaController extends BaseController
 
     /**
      * PATCH /api/tareas/{id_tarea}
-     * Actualiza una tarea o únicamente su estado si sólo se envía id_estado.
+     * Actualiza una tarea completa o únicamente su estado según los permisos del usuario.
      */
     public function update($id_tarea = null)
     {
@@ -319,6 +310,20 @@ class TareaController extends BaseController
         }
 
         $datos = $this->getJsonBody();
+
+        // Validación de permisos según la acción que se intenta realizar
+        $modificaCamposCriticos = array_key_exists('titulo', $datos) || array_key_exists('descripcion', $datos) || array_key_exists('expired_at', $datos);
+        $esSoloCambioEstado = array_key_exists('id_estado', $datos) || array_key_exists('fk_id_estado', $datos);
+
+        if ($modificaCamposCriticos) {
+            // Si intenta editar texto, fecha o detalles de la tarea, exige permiso de edición general
+            AuthHelper::tienePermiso('tareas.editar');
+        } else if ($esSoloCambioEstado) {
+            // Si solo está actualizando el estado desde el modal de miembro, exige el permiso específico
+            AuthHelper::tienePermiso('tareas.cambiar_estado');
+        } else {
+            AuthHelper::tienePermiso('tareas.editar');
+        }
 
         // Buscamos los datos actuales de la tarea en la base de datos
         $tareaBD = $this->tareaModel->tareaById($id_tarea);
@@ -333,8 +338,6 @@ class TareaController extends BaseController
 
         $tareaActual = (array) $tareaBD;
 
-
-       
         if (array_key_exists('titulo', $datos)) {
             $tituloTrim = trim($datos['titulo']);
             if (mb_strlen($tituloTrim) < 3) {
@@ -349,7 +352,6 @@ class TareaController extends BaseController
             $titulo = $tareaActual['titulo'] ?? '';
         }
 
-        // Validación y asignación de la DESCRIPCIÓN (si viene en la petición)
         if (array_key_exists('descripcion', $datos)) {
             $descripcionTrim = trim($datos['descripcion']);
             if ($descripcionTrim === '') {
@@ -364,7 +366,6 @@ class TareaController extends BaseController
             $descripcion = $tareaActual['descripcion'] ?? '';
         }
 
-        // Validación de la fecha de vencimiento (expired_at)
         $expired_at = array_key_exists('expired_at', $datos) 
             ? $datos['expired_at'] 
             : ($tareaActual['expired_at'] ?? null);
@@ -384,7 +385,7 @@ class TareaController extends BaseController
 
         $id_estado = isset($datos['id_estado']) 
             ? intval($datos['id_estado']) 
-            : intval($tareaActual['fk_id_estado'] ?? $tareaActual['id_estado'] ?? 1);
+            : (isset($datos['fk_id_estado']) ? intval($datos['fk_id_estado']) : intval($tareaActual['fk_id_estado'] ?? $tareaActual['id_estado'] ?? 1));
 
         $data = [
             'id_tarea'    => $id_tarea,
@@ -394,7 +395,7 @@ class TareaController extends BaseController
             'id_estado'   => $id_estado
         ];
 
-        //  Ejecutamos la actualización
+        // Ejecutamos la actualización
         $actualizado = $this->tareaModel->updateTarea($data);
 
         $this->jsonResponse([
@@ -409,8 +410,8 @@ class TareaController extends BaseController
     /**
      * DELETE /api/tareas/{id_tarea}
      *
-     * - Admin (Rol 1): Elimina lógicamente la tarea (Soft-Delete).
-     * - Líder (Rol 2): Desasigna la tarea de su equipo.
+     * - Admin Elimina lógicamente la tarea (Soft-Delete).
+     * - Líder Desasigna la tarea de su equipo.
      */
     public function destroy($id_tarea = null)
     {
@@ -422,20 +423,9 @@ class TareaController extends BaseController
             return;
         }
 
-        // Leemos el rol del usuario autenticado
-        $sessionUser = $_SESSION['user'] ?? null;
-        $idRol = 0;
-
-        if ($sessionUser) {
-            $idRol = intval($sessionUser['id_rol'] ?? $sessionUser['fk_id_rol'] ?? 0);
-        } elseif (isset($_SESSION['id_rol'])) {
-            $idRol = intval($_SESSION['id_rol']);
-        } elseif (isset($_SESSION['user_rol_id'])) {
-            $idRol = intval($_SESSION['user_rol_id']);
-        }
-
-        if ($idRol === 1) {
-            // Admin: Borrado lógico real de la tarea
+       // Evaluamos si es el Administrador (usando un permiso exclusivo de gestión global)
+        if ($this->tienePermisoBool('roles.gestionar') || $this->tienePermisoBool('usuarios.eliminar')) {
+            // Admin: Borrado lógico real de la tarea (la oculta con deleted_at)
             $eliminado = $this->tareaModel->eliminarTarea($id_tarea);
 
             $this->jsonResponse([
@@ -445,8 +435,10 @@ class TareaController extends BaseController
                     ? 'Tarea eliminada exitosamente.'
                     : 'Error al intentar eliminar la tarea.'
             ]);
-        } else if ($idRol === 2) {
-            // Líder: Desasigna la tarea del equipo (vuelve al Admin)
+        } 
+        // Evaluamos si es el Líder (tiene permisos de equipo pero no los de gestión global)
+        else if ($this->tienePermisoBool('tareas.asignar_equipo') || $this->tienePermisoBool('equipos.miembros')) {
+            // Líder: Desasigna la tarea del equipo (vuelve a quedar libre para el Admin)
             $desasignado = $this->tareaModel->desasignarEquipo($id_tarea);
 
             $this->jsonResponse([
@@ -456,7 +448,8 @@ class TareaController extends BaseController
                     ? 'Tarea desasignada del equipo correctamente.'
                     : 'Error al intentar desasignar la tarea.'
             ]);
-        } else {
+        } 
+        else {
             $this->jsonResponse([
                 'ok' => false,
                 'success' => false,
@@ -475,21 +468,7 @@ class TareaController extends BaseController
             return;
         }
 
-        $sessionUser = $_SESSION['user'] ?? null;
-        $id_rol = null;
-
-        if ($sessionUser) {
-            $id_rol = intval($sessionUser['id_rol'] ?? $sessionUser['fk_id_rol'] ?? 0);
-        } elseif (isset($_SESSION['id_rol'])) {
-            $id_rol = intval($_SESSION['id_rol']);
-        } elseif (isset($_SESSION['user_rol_id'])) {
-            $id_rol = intval($_SESSION['user_rol_id']);
-        }
-
-        if ($id_rol !== 1) {
-            $this->jsonResponse(['ok' => false, 'message' => 'No autorizado'], 403);
-            return;
-        }
+        AuthHelper::tienePermiso('tareas.asignar_equipo');
 
         $data = $this->getJsonBody();
 
@@ -517,21 +496,7 @@ class TareaController extends BaseController
             return;
         }
 
-        $sessionUser = $_SESSION['user'] ?? null;
-        $id_rol = null;
-
-        if ($sessionUser) {
-            $id_rol = intval($sessionUser['id_rol'] ?? $sessionUser['fk_id_rol'] ?? 0);
-        } elseif (isset($_SESSION['id_rol'])) {
-            $id_rol = intval($_SESSION['id_rol']);
-        } elseif (isset($_SESSION['user_rol_id'])) {
-            $id_rol = intval($_SESSION['user_rol_id']);
-        }
-
-        if ($id_rol !== 1 && $id_rol !== 2) {
-            $this->jsonResponse(['ok' => false, 'message' => 'No autorizado'], 403);
-            return;
-        }
+       AuthHelper::tienePermiso('tareas.asignar_miembro');
 
         $data = $this->getJsonBody();
 
