@@ -124,6 +124,6 @@ export const renderEquipos = async(container) => {
 
         if (btnView)viewEquipo(btnView.dataset.id);
         if (btnEdit)prepareEditEquipo(btnEdit.dataset.id);
-        if (btnDelete)deleteEquipo(btnDelete.dataset.id);
+        if (btnDelete)deleteEquipo(btnDelete.dataset.id, btnDelete.dataset.nombre);
     });
 };

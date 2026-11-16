@@ -1,4 +1,5 @@
 import { equipoService } from "../../services/equipoService.js";
+import { showError, showSuccess} from "../../ui/alert.js";
 
 export const prepareEditEquipo = async (id) => {
     const modalEquipoEl = document.getElementById("modalEquipo");
@@ -24,12 +25,12 @@ export const prepareEditEquipo = async (id) => {
             document.getElementById("equipoNombre").value = equipo.nombre;
             document.getElementById("equipoDescripcion").value = equipo.descripcion || "";
         } else {
-            alert("No se pudo cargar la información del equipo.");
+            showError("No se pudo cargar la información del equipo.");
             modalInstance.hide();
         }
     } catch (error) {
         console.error("Error al cargar para editar:", error);
-        alert("Error de conexión al cargar datos.");
+        showError("Error de conexión al cargar datos.");
         modalInstance.hide();
     }
 };

@@ -1,7 +1,4 @@
-import {
-  obtenerIniciales,
-  renderSinRegistros,
-} from "../../utils/CardHelpers.js";
+import { obtenerIniciales, renderSinRegistros } from "../../utils/CardHelpers.js";
 
 export const tableEquipoTemplate = (equipos) => {
   if (!equipos || equipos.length === 0) {
@@ -87,6 +84,7 @@ export const tableEquipoTemplate = (equipos) => {
                   type="button"
                   class="btn btn-sm btn-outline-danger btn-eliminar-equipo"
                   data-id="${equipo.id}"
+                  data-nombre="${equipo.nombre}"
                   title="Eliminar Equipo"
                 >
                   <i class="fas fa-trash"></i>
