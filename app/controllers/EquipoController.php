@@ -127,7 +127,7 @@ class EquipoController extends BaseController {
             } catch (PDOException $e) {
                 $this->jsonResponse([
                     'success' => false, 
-                    'message' => 'No se puede eliminar el equipo porque está siendo utilizado en otros registros.'
+                    'message' => 'No se puede eliminar el equipo porque tiene tareas asignadas.'
                 ], 400);
             }
         }

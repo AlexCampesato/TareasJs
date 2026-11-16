@@ -1,8 +1,10 @@
 import { equipoService } from "../../services/equipoService.js";
 import { tableEquipoTemplate } from "../../templates/equipos/tableEquipoTemplate.js";
+import { Pagination } from "../../utils/Pagination.js";
 
 export const getEquipos = async () => {
     const tablaBody = document.getElementById("tablaEquiposBody");
+    const paginationContainer = document.getElementById("paginacionEquipos");
 
     if (!tablaBody) return;
 
@@ -16,16 +18,26 @@ export const getEquipos = async () => {
             window.location.href = "/proyecto-tareas/dashboard";
             return;
         }
-        
-        console.log("RESPUESTA EQUIPOS:", response);
 
         if (response.ok === false || response.success === false) {
             throw new Error("No se pudieron obtener los equipos.");
         }
 
-        tablaBody.innerHTML = tableEquipoTemplate(
-            response.equipos ||  []
+        const equiposData = response.equipos || [];
+
+        // Le pasamos toda la responsabilidad a la clase Pagination
+        const paginadorEquipos = new Pagination(
+          equiposData, // El array con todos los datos que llegaron de PHP
+          8, // Cantidad de filas por cada página
+          tablaBody, // El elemento HTML <tbody> donde van las filas
+          paginationContainer, // El elemento HTML <div> donde van los botones
+          tableEquipoTemplate, // La función template que arma los <tr>
         );
+
+        // Le decimos a la clase que haga los cálculos y dibuje la primera página
+        paginadorEquipos.render();
+
+       
         
     } catch (error) {
         console.error("Error al obtener equipos:", error);

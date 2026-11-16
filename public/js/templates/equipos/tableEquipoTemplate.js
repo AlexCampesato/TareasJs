@@ -16,7 +16,7 @@ export const tableEquipoTemplate = (equipos) => {
         : '<em class="text-muted">Sin descripción</em>';
 
       return `
-        <div class="col-sm-6 col-xl-4 mb-4">
+        <div class="col-12 col-md-6 col-lg-3 mb-4">
           <div class="card card-item borde-lider h-100 shadow-sm">
             <div class="card-body d-flex flex-column justify-content-between p-3">
 
@@ -45,9 +45,7 @@ export const tableEquipoTemplate = (equipos) => {
                                </span>`
                     }
                   </div>
-                  <span class="badge rounded-pill bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1">
-                    <i class="fas fa-users me-1"></i>Equipo
-                  </span>
+                  
                 </div>
                 <!-- Bloque de Descripción -->
                 <div class="bloque-info-card p-2 mb-3">
