@@ -15,7 +15,7 @@ export const tablePermisoTemplate = (permisos) => {
         : '<em class="text-muted">Sin descripción</em>';
 
       return `
-        <div class="col-sm-6 col-xl-4 mb-4">
+        <div class="col-12 col-md-6 col-lg-3 mb-4">
           <div class="card card-item borde-admin h-100 shadow-sm">
             <div class="card-body d-flex flex-column justify-content-between p-3">
 
@@ -69,6 +69,7 @@ export const tablePermisoTemplate = (permisos) => {
                   type="button"
                   class="btn btn-sm btn-danger btn-eliminar-permiso"
                   data-id="${permiso.id}"
+                  data-nombre="${permiso.nombre}"
                   title="Eliminar Permiso"
                 >
                   <i class="fas fa-trash"></i>

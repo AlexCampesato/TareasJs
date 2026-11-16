@@ -11,7 +11,7 @@ export const renderPermisos = (container) => {
     const userSession = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
     const permisos = userSession.permisos || [];
 
-    if (!permisos.includes('roles.gestionar')) {
+    if (!permisos.includes('permisos.gestionar')) {
         window.location.href = "/proyecto-tareas/dashboard";
         return;
     }
@@ -132,6 +132,6 @@ export const renderPermisos = (container) => {
 
         if (btnView)viewPermiso(btnView.dataset.id);
         if (btnEdit)prepareEditPermiso(btnEdit.dataset.id);
-        if (btnDelete)deletePermiso(btnDelete.dataset.id);
+        if (btnDelete)deletePermiso(btnDelete.dataset.id, btnDelete.dataset.nombre);
     });
 };

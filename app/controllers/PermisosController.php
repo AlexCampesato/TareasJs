@@ -5,7 +5,7 @@ class PermisosController extends BaseController {
 
     public function __construct() {
         // Verificar permisos de admin
-       AuthHelper::tienePermiso('roles.gestionar');
+       AuthHelper::tienePermiso('permisos.gestionar');
         
         $this->permisoModel = $this->model('PermisosModel');
     }
@@ -99,25 +99,41 @@ class PermisosController extends BaseController {
 
     public function eliminar($id) {
         AuthHelper::tienePermiso('permisos.eliminar'); 
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            
-            if ($this->permisoModel->eliminarPermiso($id)) {
-                $this->jsonResponse([
-                    'success' => true,
-                    'message' => 'Permiso eliminado correctamente'
-                ]);
-            } else {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'DELETE') {
+
+        //Verificamos si el permiso está asignado a algún rol
+            if ($this->permisoModel->contarRolesConPermiso($id) > 0) {
                 $this->jsonResponse([
                     'success' => false,
-                    'message' => 'Error al eliminar en la base de datos'
-                ], 500);
+                    'message' => 'No se puede eliminar el permiso porque está asignado a uno o más roles.'
+                ], 400);
+                return;
+            }
+            
+           try {
+                if ($this->permisoModel->eliminarPermiso($id)) {
+                    $this->jsonResponse([
+                        'success' => true, 
+                        'message' => 'Permiso eliminado correctamente'
+                    ]);
+                } else {
+                    $this->jsonResponse([
+                        'success' => false, 
+                        'message' => 'Error al eliminar en la base de datos'
+                    ], 500);
+                }
+            } catch (PDOException $e) {
+                $this->jsonResponse([
+                    'success' => false,
+                    'message' => 'No se puede eliminar el permiso porque está siendo utilizado.'
+                ], 400);
             }
         }
     }
 
      public function mostrarPermiso($id)
     {
-       AuthHelper::tienePermiso('roles.gestionar');
+       AuthHelper::tienePermiso('permisos.gestionar');
         $permiso = $this->permisoModel->obtenerPermisoPorId($id);
        
 
