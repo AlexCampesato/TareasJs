@@ -118,6 +118,7 @@ export const tableUsuarioTemplate = (usuarios) => {
                   class="btn btn-sm ${btnEstadoClass} btn-estado-usuario"
                   data-id="${usuario.id}"
                   data-activo="${esActivo ? 1 : 0}"
+                  data-nombre="${usuario.nombre} ${usuario.apellido || ''}"
                   title="${btnEstadoTitle}"
                 >
                   <i class="fas ${btnEstadoIcon}"></i>
@@ -128,6 +129,7 @@ export const tableUsuarioTemplate = (usuarios) => {
                   type="button"
                   class="btn btn-sm btn-danger btn-eliminar-usuario"
                   data-id="${usuario.id}"
+                  data-nombre="${usuario.nombre} ${usuario.apellido || ''}"
                   title="Eliminar Usuario"
                 >
                   <i class="fas fa-trash"></i>
