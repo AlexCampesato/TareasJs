@@ -5,7 +5,7 @@ class PermisosController extends BaseController {
 
     public function __construct() {
         // Verificar permisos de admin
-        //AuthHelper::requireRole('admin')
+       AuthHelper::tienePermiso('roles.gestionar');
         
         $this->permisoModel = $this->model('PermisosModel');
     }
@@ -117,7 +117,7 @@ class PermisosController extends BaseController {
 
      public function mostrarPermiso($id)
     {
-       
+       AuthHelper::tienePermiso('roles.gestionar');
         $permiso = $this->permisoModel->obtenerPermisoPorId($id);
        
 

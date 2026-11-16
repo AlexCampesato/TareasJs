@@ -6,10 +6,9 @@ import { Pagination } from "../../utils/Pagination.js";
 export let paginadorPermisos; 
 
 export const getPermisos = async () => {
+    
     const tablaBody = document.getElementById("tablaPermisosBody");
-    // Buscamos el contenedor donde irán los botones (1, 2, 3, Siguiente...)
     const paginationContainer = document.getElementById("paginacionPermisos");
-    // Si no existen los contenedores en el HTML, detenemos la ejecución
     if (!tablaBody || !paginationContainer) return; 
 
     try {
@@ -35,6 +34,11 @@ export const getPermisos = async () => {
         
     } catch (error) {
         console.error("Error al obtener permisos:", error);
+        
+        if (error.status === 403 || (error.message && error.message.includes('403'))) {
+            window.location.href = "/proyecto-tareas/dashboard";
+            return;
+        }
 
         tablaBody.innerHTML = `
             <tr>
