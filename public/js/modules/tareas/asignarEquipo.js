@@ -15,7 +15,7 @@ const cargarEquipos = async (idEquipoActual = null) => {
 
         if (esValido && listaEquipos.length > 0) {
             selectEquipo.innerHTML = `
-                <option value="">-- Seleccionar un equipo --</option>
+                <option value="">-- Sin equipo (Desasignar) --</option>
                 ${listaEquipos
                     .map((equipo) => {
                         const esSeleccionado = String(equipo.id) === String(idEquipoActual) ? "selected" : "";
@@ -48,11 +48,6 @@ export const initAsignarEquipo = () => {
             const idTarea = document.getElementById("idTareaAsignar").value;
             const idEquipo = document.getElementById("selectEquipoAsignar").value;
 
-            if (!idEquipo) {
-                showError("Por favor selecciona un equipo.");
-                return;
-            }
-
             try {
                 const response = await fetch("/proyecto-tareas/api/tareas/asignar-equipo", {
                     method: "POST",
@@ -73,14 +68,14 @@ export const initAsignarEquipo = () => {
                     if (bsModal) {
                         bsModal.hide();
                     }
-
+                    showSuccess(data.message || data.mensaje || "Equipo actualizado correctamente.");
                     await getTareas();
                 } else {
-                    alert(data.message || data.mensaje || "Error al asignar el equipo.");
+                    showError(data.message || data.mensaje || "Error al actualizar el equipo.");
                 }
             } catch (error) {
                 console.error("Error en la petición de asignación:", error);
-                alert("Ocurrió un error al intentar asignar el equipo.");
+                showError("Ocurrió un error al intentar actualizar el equipo.");
             }
         });
     }
