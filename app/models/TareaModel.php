@@ -333,13 +333,14 @@ class TareaModel
         return $resultado;
     }
 
-    public function expirarTareas()
+   public function expirarTareas()
     {
         $this->db->query(
             "UPDATE tarea
              SET fk_id_estado = 4
              WHERE expired_at < CURDATE()
-             AND deleted_at IS NULL"
+               AND fk_id_estado IN (1, 2)
+               AND deleted_at IS NULL"
         );
 
         return $this->db->execute();
