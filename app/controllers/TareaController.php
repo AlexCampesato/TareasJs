@@ -366,26 +366,36 @@ class TareaController extends BaseController
             $descripcion = $tareaActual['descripcion'] ?? '';
         }
 
+        $idEstadoAnterior = intval($tareaActual['fk_id_estado'] ?? $tareaActual['id_estado'] ?? 1);
+        $id_estado = isset($datos['id_estado']) 
+            ? intval($datos['id_estado']) 
+            : (isset($datos['fk_id_estado']) ? intval($datos['fk_id_estado']) : $idEstadoAnterior);
+
         $expired_at = array_key_exists('expired_at', $datos) 
             ? $datos['expired_at'] 
             : ($tareaActual['expired_at'] ?? null);
 
-        if ($expired_at) {
+        $seReabreTarea = ($idEstadoAnterior === 3 && $id_estado !== 3);
+        $seModificaFecha = array_key_exists('expired_at', $datos) 
+            && substr((string)$datos['expired_at'], 0, 10) !== substr((string)($tareaActual['expired_at'] ?? ''), 0, 10);
+
+        // Validar fecha solo si se modificó la fecha o si se está reabriendo una tarea Finished
+        if ($expired_at && ($seModificaFecha || $seReabreTarea)) {
             $hoy = date('Y-m-d');
             $fechaComparacion = substr($expired_at, 0, 10);
             
             if ($fechaComparacion < $hoy) {
+                $mensajeError = $seReabreTarea
+                    ? 'Para reabrir una tarea cuya fecha ya venció, debés actualizar también la fecha de vencimiento a hoy o a una fecha futura.'
+                    : 'La fecha de vencimiento no puede ser anterior al día de hoy.';
+
                 $this->jsonResponse([
                     'ok' => false,
-                    'mensaje' => 'La fecha de vencimiento no puede ser anterior al día de hoy.'
+                    'mensaje' => $mensajeError
                 ], 400);
                 return;
             }
         }
-
-        $id_estado = isset($datos['id_estado']) 
-            ? intval($datos['id_estado']) 
-            : (isset($datos['fk_id_estado']) ? intval($datos['fk_id_estado']) : intval($tareaActual['fk_id_estado'] ?? $tareaActual['id_estado'] ?? 1));
 
         $data = [
             'id_tarea'    => $id_tarea,
