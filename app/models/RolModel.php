@@ -129,4 +129,22 @@ class RolModel {
 
         return $row ? (int)$row->total : 0;
     }
+
+    /**
+     * Verifica si ya existe un rol con el mismo nombre (excluyendo opcionalmente un ID al editar)
+     */
+    public function existeNombreRol(string $nombre, int $excluir_id = 0): bool
+    {
+        $this->db->query(
+            "SELECT COUNT(*) AS total 
+             FROM roles 
+             WHERE LOWER(TRIM(nombre)) = LOWER(TRIM(:nombre))
+               AND id != :excluir_id"
+        );
+        $this->db->bind(':nombre', $nombre);
+        $this->db->bind(':excluir_id', $excluir_id);
+        $row = $this->db->register();
+
+        return $row && (int)$row->total > 0;
+    }
 }

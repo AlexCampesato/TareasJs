@@ -33,12 +33,14 @@ class RolController extends BaseController {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Leer el JSON enviado por fetch
             $data = $this->getJsonBody();
-            
+            $nombre = trim($data['nombre'] ?? '');
+
             $datos = [
                 'nombre' => trim($data['nombre'] ?? ''),
                 'descripcion' => trim($data['descripcion'] ?? '')
             ];
-            
+
+                       
             if (empty($datos['nombre'])) {
                 $this->jsonResponse([
                     'success' => false,
@@ -47,6 +49,15 @@ class RolController extends BaseController {
                 return;
             }
 
+            if ($this->rolModel->existeNombreRol($nombre)) {
+                $this->jsonResponse([
+                    'success' => false, 
+                    'message' => "Ya existe un rol con el nombre '{$nombre}'."
+                ], 400);
+                return;
+            }
+
+           
             if ($this->rolModel->crearRol($datos)) {
                 $nuevoRolId = $this->rolModel->obtenerRoles();
                 // Obtener el último ID insertado o el rol recién creado
@@ -78,6 +89,23 @@ class RolController extends BaseController {
         if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'PUT') {
            
             $data = $this->getJsonBody();
+            $nombre = trim($data['nombre'] ?? '');
+
+            if (empty($nombre)) {
+                $this->jsonResponse([
+                    'success' => false, 
+                    'message' => 'El nombre del rol es obligatorio'
+                ], 400);
+                return;
+            }
+
+            if ($this->rolModel->existeNombreRol($nombre, (int)$id)) {
+                $this->jsonResponse([
+                    'success' => false, 
+                    'message' => "Ya existe otro rol con el nombre '{$nombre}'."
+                ], 400);
+                return;
+            }
             
             $datos = [
                 'id' => $id,
