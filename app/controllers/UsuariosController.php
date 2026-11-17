@@ -123,6 +123,28 @@ class UsuariosController extends BaseController {
                 ? (!empty($data['fk_id_equipo']) && $data['fk_id_equipo'] !== "" ? $data['fk_id_equipo'] : null)
                 : $usuarioActual->fk_id_equipo;
 
+            // Validacion un solo Líder por equipo
+            if (!empty($equipo_id) && $this->usuarioModel->esRolLider($rol_id)) {
+                $liderActual = $this->usuarioModel->obtenerLiderActualEquipo($equipo_id, $id);
+
+                if ($liderActual) {
+                    $forzarReemplazo = !empty($data['forzar_reemplazo']);
+
+                    if (!$forzarReemplazo) {
+                        $nombreLider = trim("{$liderActual->nombre} {$liderActual->apellido}");
+                        $this->jsonResponse([
+                            'success' => false,
+                            'requiere_confirmacion' => true,
+                            'message' => "Este equipo ya tiene un líder asignado ({$nombreLider}). ¿Deseás reemplazarlo y pasar a {$nombreLider} al rol de Miembro?"
+                        ], 409);
+                        return;
+                    }
+
+                    // Si el administrador confirmó el reemplazo, degradamos al líder anterior a Miembro
+                    $this->usuarioModel->degradarLiderAMiembro($liderActual->id);
+                }
+            }
+
             $datos_usuario = [
                 'id' => $id,
                 'nombre' => $nombre,

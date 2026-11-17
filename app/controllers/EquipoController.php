@@ -162,6 +162,27 @@ class EquipoController extends BaseController {
             $id_usuario = $data['id_usuario'];
             $id_equipo = $data['id_equipo']; 
 
+            $usuario = $this->usuarioModel->obtener_usuario_por_id($id_usuario);
+            if ($usuario && !empty($id_equipo) && $this->usuarioModel->esRolLider($usuario->fk_id_rol)) {
+                $liderActual = $this->usuarioModel->obtenerLiderActualEquipo($id_equipo, $id_usuario);
+
+                if ($liderActual) {
+                    $forzarReemplazo = !empty($data['forzar_reemplazo']);
+                    $nombreLider = trim("{$liderActual->nombre} {$liderActual->apellido}");
+
+                    if (!$forzarReemplazo) {
+                        $this->jsonResponse([
+                            'success' => false,
+                            'requiere_confirmacion' => true,
+                            'message' => "Este equipo ya tiene un líder asignado ({$nombreLider}). ¿Deseás reemplazarlo y pasar a {$nombreLider} al rol de Miembro?"
+                        ], 409);
+                        return;
+                    }
+
+                    $this->usuarioModel->degradarLiderAMiembro($liderActual->id);
+                }
+            }
+
             
             if ($this->equipoModel->asignarUsuarioAEquipo($id_usuario, $id_equipo)) {
                 $this->jsonResponse([
