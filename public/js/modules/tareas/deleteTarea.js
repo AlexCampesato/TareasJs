@@ -3,7 +3,7 @@ import { getTareas } from "./getTareas.js";
 import { authService } from "../../services/authService.js";
 import {showSuccess, showError, showConfirm} from "../../ui/alert.js";
 
-export const deleteTarea = async (id) => {
+export const deleteTarea = async (id, titulo ="") => {
 
     const response = await authService.checkSession();
     const user = response.user;
@@ -42,7 +42,7 @@ export const deleteTarea = async (id) => {
 
     } catch (error) {
         console.error("Error al eliminar o desasignar tarea:", error);
-        showError("Error al eliminar o desasignar tarea");
+        showError(error.message || "Error al eliminar o desasignar tarea");
     }
 };
 

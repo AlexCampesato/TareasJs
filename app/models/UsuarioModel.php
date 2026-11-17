@@ -138,7 +138,8 @@ class UsuarioModel {
                           INNER JOIN estado e ON t.fk_id_estado = e.id_estado
                           WHERE t.fk_id_usuario_asignado = :id 
                             AND t.deleted_at IS NULL 
-                            AND LOWER(e.tipoEstado) NOT IN ('completada', 'finalizada')");
+                            AND e.id_estado != 3 
+                            AND LOWER(e.tipoEstado) != 'finished'");
         $this->db->bind(':id', $id);
         $row = $this->db->register();
 

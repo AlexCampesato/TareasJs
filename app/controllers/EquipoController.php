@@ -10,7 +10,7 @@ class EquipoController extends BaseController {
 
     
     public function index() {
-        AuthHelper::tienePermiso('equipos.ver');
+        AuthHelper::tienePermiso('equipos.gestionar');
         $equipos = $this->equipoModel->obtenerEquipos();
         
         // TIENE que ser JSON para que getEquipos.js pueda leerlo

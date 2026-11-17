@@ -345,15 +345,20 @@ class TareaModel
         return $this->db->execute();
     }
 
-    public function asignarEquipo($id_tarea, $id_equipo)
+   public function asignarEquipo($id_tarea, $id_equipo)
     {
         $this->db->query(
             "UPDATE tarea
-             SET fk_id_equipo = :id_equipo,
+             SET fk_id_usuario_asignado = CASE 
+                     WHEN fk_id_equipo IS NOT NULL AND fk_id_equipo != :id_equipo_check THEN NULL 
+                     ELSE fk_id_usuario_asignado 
+                 END,
+                 fk_id_equipo = :id_equipo,
                  updated_at = CURRENT_TIMESTAMP
              WHERE id = :id_tarea"
         );
 
+        $this->db->bind('id_equipo_check', $id_equipo);
         $this->db->bind('id_equipo', $id_equipo);
         $this->db->bind('id_tarea', $id_tarea);
 
@@ -397,5 +402,22 @@ class TareaModel
         $this->db->query($sql);
         $this->db->bind('id_tarea', $id_tarea);
         return $this->db->execute();
+    }
+
+    /**
+     * Verifica si la tarea tiene solicitudes pendientes asociadas
+     */
+    public function contarSolicitudesPendientes($id_tarea)
+    {
+        $this->db->query(
+            "SELECT COUNT(*) AS total 
+             FROM solicitud 
+             WHERE fk_id_tarea = :id_tarea 
+               AND fk_id_estado_solicitud = 1"
+        );
+        $this->db->bind(':id_tarea', $id_tarea);
+        $row = $this->db->register();
+
+        return $row ? (int)$row->total : 0;
     }
 }

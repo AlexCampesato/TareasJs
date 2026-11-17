@@ -107,7 +107,7 @@ export const renderEquipos = async(container) => {
      //  Inyectamos la vista de usuarios envuelta en el Layout Principal
     container.innerHTML = renderAdminLayout(vistaEquiposHTML);
 
-    const isAuth = await initAdminLayout(null, 'equipos.ver');
+    const isAuth = await initAdminLayout(null, 'equipos.gestionar');
     if (!isAuth) return;
    
     const tablaBody = document.getElementById("tablaEquiposBody");

@@ -18,6 +18,8 @@ export const tableTareaTemplate = (tareas, user = null) => {
     const puedeCambiarPrioridad = permisos.includes('tareas.cambiar_prioridad');
     const puedeEditar = permisos.includes('tareas.editar');
     const puedeEliminar = permisos.includes('tareas.eliminar');
+    const esAdminGlobal = permisos.includes('roles.gestionar') || permisos.includes('usuarios.eliminar');
+    const tituloBtnEliminar = !esAdminGlobal && puedeAsignarEquipo ? "Desasignar Tarea del Equipo" : "Eliminar Tarea";
 
     // Lectura del ID de usuario autenticado
     const idUsuarioActual = user ? String(user.id ?? user.id_usuario ?? user.fk_id_usuario ?? "") : "";
@@ -41,59 +43,62 @@ export const tableTareaTemplate = (tareas, user = null) => {
 
     return tareas
         .map((tarea, index) => {
-            
             const idTareaReal = tarea.id || tarea.id_tarea;
+            const estaFinalizada = Number(tarea.fk_id_estado) === 3 || (tarea.tipoEstado || "").toLowerCase() === "finished";
 
-            // 1. Lógica de botones de delegación basada en permisos
+            // 1. Lógica de botones de delegación basada en permisos (solo si NO está Finished)
             let btnDelegacion = "";
+            if (!estaFinalizada) {
+                if (!tarea.fk_id_equipo && puedeAsignarEquipo) {
+                    btnDelegacion = `
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-success fw-semibold shadow-sm btn-asignar-equipo px-3"
+                            data-id="${idTareaReal}"
+                            title="Asignar Equipo"
+                        >
+                            <i class="fas fa-users me-1" style="pointer-events: none;"></i> Asignar Equipo
+                        </button>
+                    `;
+                } else if (tarea.fk_id_equipo && puedeAsignarEquipo) {
+                    btnDelegacion = `
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-warning text-dark fw-bold shadow-sm btn-asignar-equipo px-3"
+                            data-id="${idTareaReal}"
+                            data-equipo="${tarea.fk_id_equipo}"
+                            title="Reasignar Equipo"
+                        >
+                            <i class="fas fa-sync-alt me-1" style="pointer-events: none;"></i> Reasignar Equipo
+                        </button>
+                    `;
+                } else if (puedeAsignarMiembro && tarea.fk_id_equipo) {
+                    const textoBoton = tarea.fk_id_usuario_asignado
+                        ? "Reasignar Miembro"
+                        : "Asignar Miembro";
 
-            if (!tarea.fk_id_equipo && puedeAsignarEquipo) {
-                btnDelegacion = `
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-success fw-semibold shadow-sm btn-asignar-equipo px-3"
-                        data-id="${idTareaReal}"
-                        title="Asignar Equipo"
-                    >
-                        <i class="fas fa-users me-1" style="pointer-events: none;"></i> Asignar Equipo
-                    </button>
-                `;
-            } else if (tarea.fk_id_equipo && puedeAsignarEquipo) {
-                btnDelegacion = `
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-warning text-dark fw-bold shadow-sm btn-asignar-equipo px-3"
-                        data-id="${idTareaReal}"
-                        data-equipo="${tarea.fk_id_equipo}"
-                        title="Reasignar Equipo"
-                    >
-                        <i class="fas fa-sync-alt me-1" style="pointer-events: none;"></i> Reasignar Equipo
-                    </button>
-                `;
-            } else if (puedeAsignarMiembro && tarea.fk_id_equipo) {
-                const textoBoton = tarea.fk_id_usuario_asignado ? "Reasignar Miembro" : "Asignar Miembro";
-                
-                const claseBoton = tarea.fk_id_usuario_asignado 
-                    ? "btn-warning text-dark fw-bold" 
-                    : "btn-info text-white fw-bold";
+                    const claseBoton = tarea.fk_id_usuario_asignado
+                        ? "btn-warning text-dark fw-bold"
+                        : "btn-info text-white fw-bold";
 
-                btnDelegacion = `
-                    <button
-                        type="button"
-                        class="btn btn-sm ${claseBoton} shadow-sm btn-asignar-usuario px-3"
-                        data-id="${idTareaReal}"
-                        data-equipo="${tarea.fk_id_equipo}"
-                        data-usuario="${tarea.fk_id_usuario_asignado || ''}"
-                        title="${textoBoton}"
-                    >
-                        <i class="fas fa-user-plus me-1" style="pointer-events: none;"></i> ${textoBoton}
-                    </button>
-                `;
+                    btnDelegacion = `
+                        <button
+                            type="button"
+                            class="btn btn-sm ${claseBoton} shadow-sm btn-asignar-usuario px-3"
+                            data-id="${idTareaReal}"
+                            data-equipo="${tarea.fk_id_equipo}"
+                            data-usuario="${tarea.fk_id_usuario_asignado || ""}"
+                            title="${textoBoton}"
+                        >
+                            <i class="fas fa-user-plus me-1" style="pointer-events: none;"></i> ${textoBoton}
+                        </button>
+                    `;
+                }
             }
 
-            // Botón de cambio de Prioridad basado en permisos
+            // 2. Botón de cambio de Prioridad basado en permisos (solo si NO está Finished)
             let btnPrioridad = "";
-            if (puedeCambiarPrioridad) {
+            if (!estaFinalizada && puedeCambiarPrioridad) {
                 btnPrioridad = `
                     <button
                         type="button"
@@ -107,11 +112,11 @@ export const tableTareaTemplate = (tareas, user = null) => {
                 `;
             }
 
-            // Botón de cambio de estado o Extensión (Evaluando si el usuario actual es el asignado)
+            // 3. Botón de cambio de estado o Extensión (solo si NO está Finished)
             let btnCambiarEstadoMiembro = "";
             const idAsignado = String(tarea.fk_id_usuario_asignado ?? "");
 
-            if (idAsignado !== "" && idAsignado === idUsuarioActual) {
+            if (!estaFinalizada && idAsignado !== "" && idAsignado === idUsuarioActual) {
                 if (Number(tarea.tiene_solicitud_pendiente) > 0) {
                     btnCambiarEstadoMiembro = `
                         <button type="button" class="btn btn-sm btn-secondary fw-semibold shadow-sm px-3" disabled>
@@ -177,8 +182,7 @@ export const tableTareaTemplate = (tareas, user = null) => {
 
                         <!-- Descripción -->
                         <p class="card-text text-muted mb-3" style="font-size: 0.9rem;">
-                            ${
-                                tarea.descripcion ||
+                            ${tarea.descripcion ||
                                 '<em class="text-black-50">Sin descripción</em>'
                             }
                         </p>
@@ -207,25 +211,25 @@ export const tableTareaTemplate = (tareas, user = null) => {
                         </div>
 
                         <!-- Fechas (Alta y Vencimiento) -->
-                            <div class="my-3 mt-auto bg-body-tertiary p-3 rounded border-start border-3 ${esVencida(tarea.expired_at) ? 'border-danger' : 'border-secondary-subtle'}" style="font-size: 0.85rem;">
-                                <div class="text-secondary fw-medium">
-                                    <i class="fas fa-calendar-alt me-1"></i>
-                                     Alta: <strong>${formatearFecha(tarea.created_at)}</strong>
-                                </div>
-                                <div class="${esVencida(tarea.expired_at) ? 'text-danger fw-bold' : 'text-secondary fw-medium'} mt-1">
-                                    <i class="fas fa-clock me-1"></i>
-                                     Vencimiento: <strong>${formatearFecha(tarea.expired_at)}</strong>
-                                    ${ esVencida(tarea.expired_at) ? `<span class="badge bg-danger ms-1" style="font-size: 0.7rem;">¡Vencida!</span>` : ''}
-                                </div>
+                        <div class="my-3 mt-auto bg-body-tertiary p-3 rounded border-start border-3 ${esVencida(tarea.expired_at) ? 'border-danger' : 'border-secondary-subtle'}" style="font-size: 0.85rem;">
+                            <div class="text-secondary fw-medium">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                 Alta: <strong>${formatearFecha(tarea.created_at)}</strong>
                             </div>
+                            <div class="${esVencida(tarea.expired_at) ? 'text-danger fw-bold' : 'text-secondary fw-medium'} mt-1">
+                                <i class="fas fa-clock me-1"></i>
+                                 Vencimiento: <strong>${formatearFecha(tarea.expired_at)}</strong>
+                                 ${esVencida(tarea.expired_at) ? `<span class="badge bg-danger ms-1" style="font-size: 0.7rem;">¡Vencida!</span>` : ''}
+                            </div>
+                        </div>
 
-                        <!-- Botones de Acción  -->
+                        <!-- Botones de Acción -->
                         <div class="d-flex justify-content-center align-items-center gap-2 pt-3 border-top">
                             ${btnCambiarEstadoMiembro}
                             ${btnDelegacion}
                             ${btnPrioridad}
 
-                            ${(puedeEditar || puedeEliminar) ? `
+                            ${(puedeEditar || (!estaFinalizada && puedeEliminar)) ? `
                                 <!-- Botón Editar -->
                                 ${puedeEditar ? `
                                     <button
@@ -239,12 +243,13 @@ export const tableTareaTemplate = (tareas, user = null) => {
                                 ` : ''}
 
                                 <!-- Botón Eliminar / Desasignar -->
-                                ${puedeEliminar ? `
+                                ${(!estaFinalizada && puedeEliminar) ? `
                                     <button
                                         type="button"
                                         class="btn btn-sm btn-outline-danger btn-eliminar-tarea px-2.5"
                                         data-id="${idTareaReal}"
-                                        title="Eliminar Tarea"
+                                        data-titulo="${(tarea.titulo || '').replace(/"/g, '&quot;')}"
+                                        title="${tituloBtnEliminar}"
                                     >
                                         <i class="fas fa-trash" style="pointer-events: none;"></i>
                                     </button>

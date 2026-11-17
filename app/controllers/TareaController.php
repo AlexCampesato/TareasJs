@@ -423,21 +423,88 @@ class TareaController extends BaseController
             return;
         }
 
-       // Evaluamos si es el Administrador (usando un permiso exclusivo de gestión global)
+        // Buscamos la tarea para validar su estado y asignaciones
+        $tarea = $this->tareaModel->tareaById($id_tarea);
+        if (!$tarea) {
+            $this->jsonResponse([
+                'ok' => false,
+                'success' => false,
+                'mensaje' => 'La tarea no existe o ya fue eliminada.'
+            ], 404);
+            return;
+        }
+        $idEstado = (int)($tarea->fk_id_estado ?? 0);
+        $estadoActual = mb_strtolower(trim($tarea->tipoEstado ?? ''));
+        $tieneSolicitudesPendientes = $this->tareaModel->contarSolicitudesPendientes($id_tarea) > 0;
+
+        // Evaluamos si es el Administrador (usando un permiso exclusivo de gestión global)
         if ($this->tienePermisoBool('roles.gestionar') || $this->tienePermisoBool('usuarios.eliminar')) {
+
+            // No eliminar si está asignada a un equipo o usuario
+            if (!empty($tarea->fk_id_equipo) || !empty($tarea->fk_id_usuario_asignado)) {
+                $this->jsonResponse([
+                    'ok' => false,
+                    'success' => false,
+                    'mensaje' => 'No se puede eliminar la tarea porque está asignada a un equipo o usuario.'
+                ], 400);
+                return;
+            }
+            // No eliminar si ya está en curso o completada
+            if(in_array($idEstado, [2, 3]) || in_array($estadoActual, ['doing', 'finished'])) {
+                $this->jsonResponse([
+                    'ok' => false,
+                    'success' => false,
+                    'mensaje' => "No se puede eliminar una tarea en estado \"{$tarea->tipoEstado}\"."
+                ], 400);
+                return;
+            }
+
+            // No eliminar si tiene solicitudes pendientes
+            if ($tieneSolicitudesPendientes) {
+                $this->jsonResponse([
+                    'ok' => false,
+                    'success' => false,
+                    'mensaje' => 'No se puede eliminar la tarea porque tiene solicitudes pendientes de resolución.'
+                ], 400);
+                return;
+            }
+
             // Admin: Borrado lógico real de la tarea (la oculta con deleted_at)
-            $eliminado = $this->tareaModel->eliminarTarea($id_tarea);
+           $eliminado = $this->tareaModel->eliminarTarea($id_tarea);
 
             $this->jsonResponse([
                 'ok' => (bool) $eliminado,
                 'success' => (bool) $eliminado,
                 'mensaje' => $eliminado
                     ? 'Tarea eliminada exitosamente.'
+                    : 'Error al intentar eliminar la tarea.',
+                'message' => $eliminado
+                    ? 'Tarea eliminada exitosamente.'
                     : 'Error al intentar eliminar la tarea.'
             ]);
-        } 
+        }
+
+
         // Evaluamos si es el Líder (tiene permisos de equipo pero no los de gestión global)
         else if ($this->tienePermisoBool('tareas.asignar_equipo') || $this->tienePermisoBool('equipos.miembros')) {
+
+            if(in_array($idEstado, [2, 3]) || in_array($estadoActual, ['doing', 'finished'])) {
+                $this->jsonResponse([
+                    'ok' => false,
+                    'success' => false,
+                    'mensaje' => "No se puede eliminar una tarea en estado \"{$tarea->tipoEstado}\"."
+                ], 400);
+                return;
+            }
+
+            if ($tieneSolicitudesPendientes) {
+                $this->jsonResponse([
+                    'ok' => false,
+                    'success' => false,
+                    'mensaje' => 'No se puede desasignar la tarea mientras tenga solicitudes pendientes.'
+                ], 400);
+                return;
+            }
             // Líder: Desasigna la tarea del equipo (vuelve a quedar libre para el Admin)
             $desasignado = $this->tareaModel->desasignarEquipo($id_tarea);
 
@@ -446,15 +513,12 @@ class TareaController extends BaseController
                 'success' => (bool) $desasignado,
                 'mensaje' => $desasignado
                     ? 'Tarea desasignada del equipo correctamente.'
+                    : 'Error al intentar desasignar la tarea.',
+                'message' => $desasignado
+                    ? 'Tarea desasignada del equipo correctamente.'
                     : 'Error al intentar desasignar la tarea.'
             ]);
-        } 
-        else {
-            $this->jsonResponse([
-                'ok' => false,
-                'success' => false,
-                'message' => 'No tienes permiso para realizar esta acción.'
-            ], 403);
+   
         }
     }
 
@@ -472,17 +536,26 @@ class TareaController extends BaseController
 
         $data = $this->getJsonBody();
 
-        if (empty($data['id_tarea']) || empty($data['id_equipo'])) {
-            $this->jsonResponse(['ok' => false, 'message' => 'Datos incompletos'], 400);
+       if (empty($data['id_tarea'])) {
+            $this->jsonResponse(['ok' => false, 'message' => 'ID de tarea incompleto'], 400);
             return;
         }
 
-        $exito = $this->tareaModel->asignarEquipo($data['id_tarea'], $data['id_equipo']);
+        // Si viene vacío o null, desasignamos el equipo (y el usuario asignado)
+        $idEquipo = (!empty($data['id_equipo']) && $data['id_equipo'] !== "") ? $data['id_equipo'] : null;
+
+        if ($idEquipo === null) {
+            $exito = $this->tareaModel->desasignarEquipo($data['id_tarea']);
+            $mensaje = $exito ? 'Equipo desasignado correctamente' : 'Error al desasignar el equipo';
+        } else {
+            $exito = $this->tareaModel->asignarEquipo($data['id_tarea'], $idEquipo);
+            $mensaje = $exito ? 'Equipo asignado correctamente' : 'Error al asignar el equipo';
+        }
 
         if ($exito) {
-            $this->jsonResponse(['ok' => true, 'message' => 'Equipo asignado correctamente']);
+            $this->jsonResponse(['ok' => true, 'message' => $mensaje]);
         } else {
-            $this->jsonResponse(['ok' => false, 'message' => 'Error al asignar el equipo'], 500);
+            $this->jsonResponse(['ok' => false, 'message' => $mensaje], 500);
         }
     }
 
