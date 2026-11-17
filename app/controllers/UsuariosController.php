@@ -123,6 +123,16 @@ class UsuariosController extends BaseController {
                 ? (!empty($data['fk_id_equipo']) && $data['fk_id_equipo'] !== "" ? $data['fk_id_equipo'] : null)
                 : $usuarioActual->fk_id_equipo;
 
+            // Validacion para  no permitir cambiar ni quitar el equipo si tiene tareas activas
+            $equipoAnterior = $usuarioActual->fk_id_equipo ?? null;
+            if ((string)$equipo_id !== (string)$equipoAnterior && $this->usuarioModel->contar_tareas_activas_usuario($id) > 0) {
+                $this->jsonResponse([
+                    'success' => false,
+                    'message' => 'No se puede cambiar ni quitar el equipo del usuario porque tiene tareas pendientes o en curso asignadas.'
+                ], 400);
+                return;
+            }
+
             // Validacion un solo Líder por equipo
             if (!empty($equipo_id) && $this->usuarioModel->esRolLider($rol_id)) {
                 $liderActual = $this->usuarioModel->obtenerLiderActualEquipo($equipo_id, $id);
@@ -199,6 +209,24 @@ class UsuariosController extends BaseController {
             $this->jsonResponse([
                 'success' => false,
                 'message' => 'No podés desactivar tu propio usuario.'
+            ], 400);
+            return;
+        }
+
+        $usuario = $this->usuarioModel->obtener_usuario_por_id($id);
+        if (!$usuario) {
+            $this->jsonResponse([
+                'success' => false,
+                'message' => 'Usuario no encontrado.'
+            ], 404);
+            return;
+        }
+
+        // Si está activo y se quiere desactivar, validar que no tenga tareas pendientes o en curso
+        if ((int)$usuario->activo === 1 && $this->usuarioModel->contar_tareas_activas_usuario($id) > 0) {
+            $this->jsonResponse([
+                'success' => false,
+                'message' => 'No se puede desactivar el usuario porque tiene tareas pendientes o en curso asignadas. Reasignalás primero.'
             ], 400);
             return;
         }
