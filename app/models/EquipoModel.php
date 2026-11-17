@@ -156,4 +156,20 @@ class EquipoModel
         return $row ? (int)$row->total : 0;
     }
 
+    /**
+     * Verifica si ya existe un equipo activo con el mismo nombre
+     */
+    public function existeNombreEquipo($nombre, $excluir_id = 0)
+    {
+        $this->db->query("SELECT COUNT(*) AS total 
+                          FROM equipos 
+                          WHERE LOWER(TRIM(nombre)) = LOWER(TRIM(:nombre))
+                            AND id != :excluir_id");
+        $this->db->bind(':nombre', $nombre);
+        $this->db->bind(':excluir_id', (int)$excluir_id);
+        $row = $this->db->register();
+
+        return $row && (int)$row->total > 0;
+    }
+
 }

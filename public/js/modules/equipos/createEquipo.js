@@ -51,7 +51,7 @@ export const initCreateEquipo = () => {
             }
         } catch (error) {
             console.error("Error al guardar:", error);
-            showError("Ocurrió un error de conexión con el servidor.");
+            showError(error.message || "Ocurrió un error de conexión con el servidor.");
         }
     };
 

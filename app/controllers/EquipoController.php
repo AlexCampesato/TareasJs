@@ -25,6 +25,23 @@ class EquipoController extends BaseController {
          if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Leer el JSON enviado por fetch
             $data = json_decode(file_get_contents("php://input"), true);
+            $nombre = trim($data['nombre'] ?? '');
+
+            if ($nombre === '') {
+                $this->jsonResponse([
+                    'success' => false, 
+                    'message' => 'El nombre del equipo es obligatorio'
+                ], 400);
+                return;
+            }
+
+            if ($this->equipoModel->existeNombreEquipo($nombre)) {
+                $this->jsonResponse([
+                    'success' => false, 
+                    'message' => "Ya existe un equipo activo con el nombre '{$nombre}'."
+                ], 400);
+                return;
+            }
             
             $datos = [
                 'nombre' => trim($data['nombre'] ?? ''),
@@ -45,11 +62,29 @@ class EquipoController extends BaseController {
         }
 
      }
+
     public function editar($id) { 
         AuthHelper::tienePermiso('equipos.editar');
          if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'PUT') {
            
             $data = json_decode(file_get_contents("php://input"), true);
+            $nombre = trim($data['nombre'] ?? '');
+
+            if ($nombre === '') {
+                $this->jsonResponse([
+                    'success' => false, 
+                    'message' => 'El nombre del equipo es obligatorio'
+                ], 400);
+                return;
+            }
+
+            if ($this->equipoModel->existeNombreEquipo($nombre, $id)) {
+                $this->jsonResponse([
+                    'success' => false, 
+                    'message' => "Ya existe otro equipo activo con el nombre '{$nombre}'."
+                ], 400);
+                return;
+            }
             
             $datos = [
                 'id' => $id,
