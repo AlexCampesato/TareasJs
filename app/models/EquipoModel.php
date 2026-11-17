@@ -117,7 +117,7 @@ class EquipoModel
     }
 
     /**
-     * Obtiene los integrantes pertenecientes a un equipo
+     * Obtiene los integrantes activos pertenecientes a un equipo
      */
     public function obtenerIntegrantesPorEquipo($id_equipo) 
     {
@@ -132,9 +132,10 @@ class EquipoModel
              FROM usuario u
              LEFT JOIN roles r ON u.fk_id_rol = r.id
              WHERE u.fk_id_equipo = :id 
+               AND u.activo = 1
                AND u.deleted_at IS NULL"
         );
-        
+
         $this->db->bind('id', $id_equipo);
         
         return $this->db->registers(); 

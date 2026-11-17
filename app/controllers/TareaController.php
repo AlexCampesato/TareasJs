@@ -578,6 +578,44 @@ class TareaController extends BaseController
             return;
         }
 
+        // Validar que la tarea exista y no esté finalizada
+        $tarea = $this->tareaModel->tareaById($data['id_tarea']);
+        if (!$tarea) {
+            $this->jsonResponse(['ok' => false, 'message' => 'La tarea no existe.'], 404);
+            return;
+        }
+
+        $idEstado = (int)($tarea->fk_id_estado ?? 0);
+        $estadoActual = mb_strtolower(trim($tarea->tipoEstado ?? ''));
+        if ($idEstado === 3 || $estadoActual === 'finished') {
+            $this->jsonResponse([
+                'ok' => false,
+                'message' => 'No se puede asignar ni reasignar un miembro a una tarea ya finalizada.'
+            ], 400);
+            return;
+        }
+
+        // Validar que el usuario exista, esté activo y pertenezca al mismo equipo de la tarea
+        $usuarioModel = $this->model('UsuarioModel');
+        $usuario = $usuarioModel->obtener_usuario_por_id($data['id_usuario']);
+
+        if (!$usuario || (int)$usuario->activo !== 1) {
+            $this->jsonResponse([
+                'ok' => false,
+                'message' => 'El usuario seleccionado no existe o se encuentra inactivo.'
+            ], 400);
+            return;
+        }
+
+        if (empty($tarea->fk_id_equipo) || (int)$usuario->fk_id_equipo !== (int)$tarea->fk_id_equipo) {
+            $this->jsonResponse([
+                'ok' => false,
+                'message' => 'El usuario seleccionado no pertenece al equipo asignado a esta tarea.'
+            ], 400);
+            return;
+        }
+
+
         $exito = $this->tareaModel->asignarUsuario($data['id_tarea'], $data['id_usuario']);
 
         if ($exito) {
